@@ -1,5 +1,3 @@
-
-
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 #include <iostream>
@@ -7,7 +5,6 @@
 using namespace std;
 using namespace sf;
 
-int flag = 0;
 bool canjump = 1;
 bool canmoverigt = 1;
 bool canmoveleft = 1;
@@ -37,13 +34,16 @@ Sprite pipe[3];
 int main() {
 
 	//mario
+
 	mario.loadFromFile("mario.png");
 
 	player.setTexture(mario);
-	player.setTextureRect(IntRect(0, 0, 16, 32));
-	player.setPosition(400, 336);
 	player.setScale(3, 3);
-	//player.setOrigin(player.getGlobalBounds().left, 32);
+
+
+	player.setPosition(100, 0);
+	player.setTextureRect(IntRect(0, 0, 16, 32));
+	player.setOrigin(player.getLocalBounds().width /2, player.getLocalBounds().height/2);
 	//end of mario
 
 
@@ -109,7 +109,7 @@ int main() {
 		}
 		//Pipe collsion
 		if ((player.getGlobalBounds().intersects(pipe[detectpipe()].getGlobalBounds()) && pipe[detectpipe()].getPosition().x > player.getPosition().x)) {
-			if (pipe[detectpipe()].getGlobalBounds().top >= (player.getPosition().y + 95)) {
+			if (pipe[detectpipe()].getGlobalBounds().top >= (player.getPosition().y )) {
 				canmoverigt = 1;
 			}
 			else { canmoverigt = 0; }
@@ -119,7 +119,7 @@ int main() {
 
 
 		if (player.getGlobalBounds().intersects(pipe[detectpipe()].getGlobalBounds()) && pipe[detectpipe()].getPosition().x < player.getPosition().x) {
-			if (pipe[detectpipe()].getGlobalBounds().top >= (player.getPosition().y + 95)) {
+			if (pipe[detectpipe()].getGlobalBounds().top >= (player.getPosition().y )) {
 				canmoveleft = 1;
 			}
 			else { canmoveleft = 0; }
@@ -151,10 +151,10 @@ int main() {
 
 			}
 
-
+			
 
 			animationindicator = animationindicator % 3;
-
+			player.setTextureRect(IntRect(animationindicator * 16, 0, 16, 32));
 
 
 
@@ -174,28 +174,46 @@ int main() {
 		//gravity 
 		if (Keyboard::isKeyPressed(Keyboard::X) && canjump) {
 
-			velocityy = 80;
+			velocityy = 100;
 
 		}
 		else { velocityy = 0; }
-		if (!player.getGlobalBounds().intersects(ground[detectground()].getGlobalBounds()) && !player.getGlobalBounds().intersects(pipe[detectpipe()].getGlobalBounds())) {
-			velocityy -= 0.2;
-			canjump = 0;
-			player.setTextureRect(IntRect(48, 0, 16, 32));
-			space = 1;
-		}
+		if (!player.getGlobalBounds().intersects(ground[detectground()].getGlobalBounds())) {
 
-		else
-		{
-			canjump = 1;
+			if (player.getGlobalBounds().intersects(pipe[detectpipe()].getGlobalBounds())) {
+
+				if (player.getPosition().y >= pipe[detectpipe()].getGlobalBounds().top) {
+
+					velocityy -= 0.2;
+					canjump = 0;
+					player.setTextureRect(IntRect(48, 0, 16, 32));
+					space = 1;
+
+				}
+
+
+
+			}
+
+
+			else {
+
+				velocityy -= 0.2;
+				canjump = 0;
+				player.setTextureRect(IntRect(48, 0, 16, 32));
+				space = 1;
+			}
 
 		}
+		else { canjump = 1; }
+
 
 
 
 		//end of gravity
-		window.setView(camera);
 		window.clear();
+		window.setView(camera);
+		
 		window.draw(player);
 		for (size_t i = 0; i < 3; i++)
 		{
@@ -241,11 +259,13 @@ int main() {
 void moveright() {
 	player.move(5, 0);
 
-	player.setScale(3, 3);
-
-	player.setTextureRect(IntRect(animationindicator * 16, 0, 16, 32));
 	animationindicator++;
+	player.setScale(3, 3);
+	
 
+
+
+	
 
 
 
@@ -257,11 +277,13 @@ void moveright() {
 
 //moveleft function
 void moveleft() {
-	player.move(-5, 0);
-	player.setScale(-3, 3);
-
-	player.setTextureRect(IntRect(animationindicator * 16, 0, 16, 32));
+	
+	player.move(-5.f, 0.f);
 	animationindicator++;
+	player.setScale(-3, 3);
+	
+	
+	
 
 
 
@@ -318,3 +340,5 @@ int detectpipe() {
 
 	return m;
 }
+
+
