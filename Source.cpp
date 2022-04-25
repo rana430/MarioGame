@@ -5,6 +5,14 @@
 using namespace std;
 using namespace sf;
 
+int menuOptions = 0;/*
+					0->to display menu in the begining of the game
+					1-> to Start playing
+					2->to Display High Score
+					3->To do display options Menu
+					4-> to dispaly credits Menu
+					*/
+
 bool canjump = 1;
 bool canmoverigt = 1;
 bool canmoveleft = 1;
@@ -28,6 +36,12 @@ Sprite ground[4];
 Texture ground2;
 Texture pipetex;
 Sprite pipe[3];
+Sprite menu;
+Texture Menu;
+Sprite highScore;
+Texture HighScore;
+Sprite option;
+Texture Option;
 
 
 
@@ -35,7 +49,7 @@ int main() {
 
 	//mario
 
-	mario.loadFromFile("mario.png");
+	mario.loadFromFile("mario_spritesheet.png");
 
 	player.setTexture(mario);
 	player.setScale(3, 3);
@@ -43,8 +57,30 @@ int main() {
 
 	player.setPosition(100, 0);
 	player.setTextureRect(IntRect(0, 0, 16, 32));
-	player.setOrigin(player.getLocalBounds().width /2, player.getLocalBounds().height/2);
+	player.setOrigin(player.getLocalBounds().width / 2, player.getLocalBounds().height / 2);
 	//end of mario
+
+	//Menu Sprite declaring
+
+	Menu.loadFromFile("menu.png");
+	menu.setTexture(Menu);
+	menu.setPosition(0, 0);
+	menu.setScale(1.25, 1.5);
+
+	//End of Menu Sprite declaring
+
+	//highscore menu for testing
+	HighScore.loadFromFile("highscore.png");
+	highScore.setTexture(HighScore);
+	highScore.setPosition(0, 0);
+	//End of Testing
+
+	//options menu for testing
+	Option.loadFromFile("option-menu.jpg");
+	option.setTexture(Option);
+	option.setPosition(0, 0);
+	//End of Testing
+
 
 
 
@@ -86,17 +122,60 @@ int main() {
 	}
 
 	//end ofpipe
-	RenderWindow window(VideoMode(800, 485), "Test");
+	sf::RenderWindow window(sf::VideoMode(800, 485), "Super Mario!!");
 
 
 
 	View camera(FloatRect(0, 0, 800, 485));
 
-	camera.setCenter(player.getPosition().x, player.getPosition().y+250);
+	camera.setCenter(player.getPosition().x, player.getPosition().y + 250);
 	window.setView(camera);
 
 	while (window.isOpen())
 	{
+
+		//Closing the game from X button
+		Event eventt;
+
+		while (window.pollEvent(eventt))
+		{
+			if (eventt.type == sf::Event::Closed)
+				window.close();
+		}
+		//End of Closing the game from X button
+
+
+
+		//Menu displaying
+
+		if (Mouse::isButtonPressed(Mouse::Left)) {
+
+
+			Vector2i mousePressed = Mouse::getPosition(window);//variable for determine the position of the mouse in the window
+			//when press on high score
+			if (mousePressed.x > 23 && mousePressed.x < 300 && mousePressed.y>120 && mousePressed.y < 205) {
+
+				menuOptions = 2;
+
+			}
+			// On pressing on Play Button
+			else if (mousePressed.x > 23 && mousePressed.x < 300 && mousePressed.y > 10 && mousePressed.y < 86) {
+
+				menuOptions = 1;
+
+			}
+			//on pressing on options button
+			else if (mousePressed.x > 23 && mousePressed.x < 300 && mousePressed.y>240 && mousePressed.y < 330) {
+				cout << mousePressed.x << " " << mousePressed.y << endl;
+				menuOptions = 3;
+
+			}
+		}
+		//End od Menu Displaying
+
+
+
+
 		if (space && player.getGlobalBounds().intersects(ground[detectground()].getGlobalBounds())) {
 			player.setTextureRect(IntRect(0, 0, 16, 32));
 			space = 0;
@@ -109,7 +188,7 @@ int main() {
 		}
 		//Pipe collsion
 		if ((player.getGlobalBounds().intersects(pipe[detectpipe()].getGlobalBounds()) && pipe[detectpipe()].getPosition().x > player.getPosition().x)) {
-			if (pipe[detectpipe()].getGlobalBounds().top > (player.getPosition().y+44)){
+			if (pipe[detectpipe()].getGlobalBounds().top > (player.getPosition().y + 44)) {
 				canmoverigt = 1;
 			}
 			else { canmoverigt = 0; }
@@ -119,9 +198,9 @@ int main() {
 
 
 		if (player.getGlobalBounds().intersects(pipe[detectpipe()].getGlobalBounds()) && pipe[detectpipe()].getPosition().x < player.getPosition().x) {
-			if (pipe[detectpipe()].getGlobalBounds().top > (player.getPosition().y+44))
+			if (pipe[detectpipe()].getGlobalBounds().top > (player.getPosition().y + 44))
 			{
-		
+
 				canmoveleft = 1;
 			}
 			else { canmoveleft = 0; }
@@ -153,7 +232,7 @@ int main() {
 
 			}
 
-			
+
 
 			animationindicator = animationindicator % 3;
 			player.setTextureRect(IntRect(animationindicator * 16, 0, 16, 32));
@@ -185,20 +264,20 @@ int main() {
 			if (player.getGlobalBounds().intersects(pipe[detectpipe()].getGlobalBounds())) {
 				canjump = 1;
 				if ((!player.getPosition().y + 48) == pipe[detectpipe()].getGlobalBounds().top) {
-					
+
 					velocityy -= 0.2;
 
 					player.setTextureRect(IntRect(48, 0, 16, 32));
 					space = 1;
 
 				}
-				else if(player.getPosition().y+44>pipe[detectpipe()].getGlobalBounds().top) {
+				else if (player.getPosition().y + 44 > pipe[detectpipe()].getGlobalBounds().top) {
 					velocityy -= 0.2;
 				}
 
-				
+
 			}
-		
+
 
 			else {
 
@@ -216,18 +295,30 @@ int main() {
 
 		//end of gravity
 		window.clear();
-		window.setView(camera);
-		
-		window.draw(player);
-		for (size_t i = 0; i < 3; i++)
-		{
-			window.draw(ground[i]);
+		if (menuOptions == 0) {
+			window.draw(menu);
 		}
-		window.draw(ground[3]);
-		for (size_t i = 0; i < 3; i++)
-		{
-			window.draw(pipe[i]);
+		else if (menuOptions == 1) {
+			window.setView(camera);
+			window.draw(player);
+			for (size_t i = 0; i < 3; i++)
+			{
+				window.draw(ground[i]);
+			}
+			window.draw(ground[3]);
+			for (size_t i = 0; i < 3; i++)
+			{
+				window.draw(pipe[i]);
+			}
 		}
+		else if (menuOptions == 2) {
+			window.draw(highScore);
+		}
+
+		else if (menuOptions == 3) {
+			window.draw(option);
+		}
+
 
 		window.display();
 
@@ -265,11 +356,11 @@ void moveright() {
 
 	animationindicator++;
 	player.setScale(3, 3);
-	
 
 
 
-	
+
+
 
 
 
@@ -281,13 +372,13 @@ void moveright() {
 
 //moveleft function
 void moveleft() {
-	
+
 	player.move(-5.f, 0.f);
 	animationindicator++;
 	player.setScale(-3, 3);
-	
-	
-	
+
+
+
 
 
 
@@ -344,5 +435,3 @@ int detectpipe() {
 
 	return m;
 }
-
-
