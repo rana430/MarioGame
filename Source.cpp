@@ -134,15 +134,9 @@ int main() {
 	while (window.isOpen())
 	{
 
-		//Closing the game from X button
-		Event eventt;
-
-		while (window.pollEvent(eventt))
-		{
-			if (eventt.type == sf::Event::Closed)
-				window.close();
-		}
-		//End of Closing the game from X button
+		
+		
+		
 
 
 
@@ -215,9 +209,12 @@ int main() {
 
 		Event event;
 		while (window.pollEvent(event)) {
-
-
-
+			//Closing the game from X button
+			if (event.type == sf::Event::Closed)
+			{
+				window.close();
+			}
+			//End of Closing the game from X button
 			if (Keyboard::isKeyPressed(Keyboard::Right) && canmoverigt) {
 
 				moveright();
