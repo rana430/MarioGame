@@ -81,7 +81,7 @@ int main() {
 	{
 		pipe[i].setTexture(pipetex);
 		pipe[i].setScale(1.4, 1.8);
-		pipe[i].setPosition(i * 400 + 450, 350);
+		pipe[i].setPosition(i * 400 + 450, 320);
 
 	}
 
@@ -92,7 +92,7 @@ int main() {
 
 	View camera(FloatRect(0, 0, 800, 485));
 
-	camera.setCenter(400, 250);
+	camera.setCenter(player.getPosition().x, player.getPosition().y+250);
 	window.setView(camera);
 
 	while (window.isOpen())
@@ -109,7 +109,7 @@ int main() {
 		}
 		//Pipe collsion
 		if ((player.getGlobalBounds().intersects(pipe[detectpipe()].getGlobalBounds()) && pipe[detectpipe()].getPosition().x > player.getPosition().x)) {
-			if (pipe[detectpipe()].getGlobalBounds().top >= (player.getPosition().y )) {
+			if (pipe[detectpipe()].getGlobalBounds().top > (player.getPosition().y+44)){
 				canmoverigt = 1;
 			}
 			else { canmoverigt = 0; }
@@ -119,7 +119,9 @@ int main() {
 
 
 		if (player.getGlobalBounds().intersects(pipe[detectpipe()].getGlobalBounds()) && pipe[detectpipe()].getPosition().x < player.getPosition().x) {
-			if (pipe[detectpipe()].getGlobalBounds().top >= (player.getPosition().y )) {
+			if (pipe[detectpipe()].getGlobalBounds().top > (player.getPosition().y+44))
+			{
+		
 				canmoveleft = 1;
 			}
 			else { canmoveleft = 0; }
@@ -181,20 +183,22 @@ int main() {
 		if (!player.getGlobalBounds().intersects(ground[detectground()].getGlobalBounds())) {
 
 			if (player.getGlobalBounds().intersects(pipe[detectpipe()].getGlobalBounds())) {
-
-				if (player.getPosition().y >= pipe[detectpipe()].getGlobalBounds().top) {
-
+				canjump = 1;
+				if ((!player.getPosition().y + 48) == pipe[detectpipe()].getGlobalBounds().top) {
+					
 					velocityy -= 0.2;
-					canjump = 0;
+
 					player.setTextureRect(IntRect(48, 0, 16, 32));
 					space = 1;
 
 				}
+				else if(player.getPosition().y+44>pipe[detectpipe()].getGlobalBounds().top) {
+					velocityy -= 0.2;
+				}
 
-
-
+				
 			}
-
+		
 
 			else {
 
