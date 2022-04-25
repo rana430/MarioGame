@@ -55,7 +55,7 @@ int main() {
 	player.setScale(3, 3);
 
 
-	player.setPosition(100, 0);
+	player.setPosition(400, -10);
 	player.setTextureRect(IntRect(0, 0, 16, 32));
 	player.setOrigin(player.getLocalBounds().width / 2, player.getLocalBounds().height / 2);
 	//end of mario
