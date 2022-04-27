@@ -42,6 +42,10 @@ Sprite highScore;
 Texture HighScore;
 Sprite option;
 Texture Option;
+Sprite credit;
+Texture Credits;
+
+
 
 
 
@@ -80,7 +84,26 @@ int main() {
 	option.setTexture(Option);
 	option.setPosition(0, 0);
 	//End of Testing
+	
 
+	//Font 
+	Font font;
+	font.loadFromFile("orange juice 2.0.ttf");
+
+	//Text
+	Text text;
+	text.setFont(font);
+	text.setString("CREDITS !!\n\n\n Moaaz \nRana \nAliaa \nAhmed \nZeyad \nNour \nMohamed");
+	text.setFillColor(sf::Color(50, 255, 50, 230));
+
+	text.setPosition(350, 10);
+	text.setCharacterSize(32);
+
+	//Credits Wallpaper
+	/*Credits.loadFromFile("Credits wallpaper.png");
+	credit.setTexture(Credits);
+	credit.setPosition(0, 0);
+	credit.setScale(0.5, 0.5);*/
 
 
 
@@ -163,6 +186,11 @@ int main() {
 				cout << mousePressed.x << " " << mousePressed.y << endl;
 				menuOptions = 3;
 
+			}
+			//on pressing credits button
+			else if (mousePressed.x > 23 && mousePressed.x < 300 && mousePressed.y>370 && mousePressed.y < 455) {
+				cout << mousePressed.x << " " << mousePressed.y << endl;
+				menuOptions = 4;
 			}
 		}
 		//End od Menu Displaying
@@ -314,6 +342,10 @@ int main() {
 
 		else if (menuOptions == 3) {
 			window.draw(option);
+		}
+		else if (menuOptions == 4) {
+			//window.draw(credit);
+			window.draw(text);
 		}
 
 
