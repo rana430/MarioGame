@@ -88,22 +88,22 @@ int main() {
 
 	//Font 
 	Font font;
-	font.loadFromFile("orange juice 2.0.ttf");
+	font.loadFromFile("VECTRO-Bold.otf");
 
 	//Text
 	Text text;
 	text.setFont(font);
-	text.setString("CREDITS !!\n\n\n Moaaz \nRana \nAliaa \nAhmed \nZeyad \nNour \nMohamed");
-	text.setFillColor(sf::Color(50, 255, 50, 230));
+	text.setString("CREDITS !!\n\n\nMoaaz \nRana \nAliaa \nAhmed \nZeyad \nNour \nMohamed");
+	text.setFillColor(sf::Color(150, 150, 50, 230));
 
 	text.setPosition(350, 10);
 	text.setCharacterSize(32);
 
 	//Credits Wallpaper
-	/*Credits.loadFromFile("Credits wallpaper.png");
+	Credits.loadFromFile("Credits wallpaper.png");
 	credit.setTexture(Credits);
 	credit.setPosition(0, 0);
-	credit.setScale(0.5, 0.5);*/
+	credit.setScale(0.5, 0.5);
 
 
 
@@ -344,7 +344,7 @@ int main() {
 			window.draw(option);
 		}
 		else if (menuOptions == 4) {
-			//window.draw(credit);
+			window.draw(credit);
 			window.draw(text);
 		}
 
