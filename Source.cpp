@@ -110,7 +110,7 @@ int main() {
 	text.setCharacterSize(32);
 
 	//Credits Wallpaper
-	Credits.loadFromFile("sky2.png");
+	Credits.loadFromFile("gameOver.png");
 	credit.setTexture(Credits);
 	credit.setPosition(0, 0);
 	credit.setScale(0.5, 0.5);
