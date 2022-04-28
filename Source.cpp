@@ -20,16 +20,17 @@ bool space = 0;
 int pos;
 float velocityy = 0;
 int animationindicator = 0;
-float velocityY = 0;
-
+float velocityx = 0;
+Clock framespeed;
 //functions
-void moveright();
+int moveright();
 void moveleft();
 void jump();
 int detectground();
 int detectpipe();
-void menuOption(int);
 //end of functions
+Texture skytx;
+Sprite sky;
 Texture mario;
 Sprite player;
 Texture groundtex;
@@ -37,6 +38,8 @@ Sprite ground[4];
 Texture ground2;
 Texture pipetex;
 Sprite pipe[3];
+Texture cloudtx;
+Sprite	cloudi[10];
 Sprite menu;
 Texture Menu;
 Sprite highScore;
@@ -48,14 +51,20 @@ Texture Credits;
 Text text;
 Font font;
 
+View camera(FloatRect(0, 0, 800, 485));
 
 sf::RenderWindow window(sf::VideoMode(800, 485), "Super Mario!!");
 
-View camera(FloatRect(0, 0, 800, 485));
-
-
 int main() {
+	//cloud
+	cloudtx.loadFromFile("cloud.png");
 
+	for (int i = 0; i < 10; i++) {
+		cloudi[i].setTexture(cloudtx);
+		cloudi[i].setScale(0.25, 0.25);
+		cloudi[i].setPosition(200 * i + 100, 50);
+	}
+	//end of cloud
 	//mario
 
 	mario.loadFromFile("mario_spritesheet.png");
@@ -64,7 +73,7 @@ int main() {
 	player.setScale(3, 3);
 
 
-	player.setPosition(400, -10);
+	player.setPosition(400, -11);
 	player.setTextureRect(IntRect(0, 0, 16, 32));
 	player.setOrigin(player.getLocalBounds().width / 2, player.getLocalBounds().height / 2);
 	//end of mario
@@ -78,25 +87,13 @@ int main() {
 
 	//End of Menu Sprite declaring
 
-	//highscore menu for testing
-	HighScore.loadFromFile("highscore.png");
-	highScore.setTexture(HighScore);
-	highScore.setPosition(0, 0);
-	//End of Testing
-
-	//options menu for testing
-	Option.loadFromFile("option-menu.jpg");
-	option.setTexture(Option);
-	option.setPosition(0, 0);
-	//End of Testing
 	
-
 	//Font 
-	
+
 	font.loadFromFile("VECTRO-Bold.otf");
 
 	//Text
-	
+
 	text.setFont(font);
 	text.setString("CREDITS !!\n\n\nMoaaz \nRana \nAliaa \nAhmed \nZeyad \nNour \nMohamed");
 	text.setFillColor(sf::Color(150, 150, 50, 230));
@@ -114,6 +111,25 @@ int main() {
 
 
 
+	//highscore menu for testing
+	HighScore.loadFromFile("highscore.png");
+	highScore.setTexture(HighScore);
+	highScore.setPosition(0, 0);
+	//End of Testing
+
+	//options menu for testing
+	Option.loadFromFile("option-menu.jpg");
+	option.setTexture(Option);
+	option.setPosition(0, 0);
+	//End of Testing
+	
+	
+	//sky
+	skytx.loadFromFile("sky2.png");
+	sky.setTexture(skytx);
+	sky.setScale(10, 8);
+	//end of sky
+
 	//ground
 
 
@@ -128,14 +144,14 @@ int main() {
 		ground[i].setTexture(groundtex);
 
 		ground[i].setScale(0.4, 0.6);
-		ground[i].setPosition(i * ground[i].getGlobalBounds().width, 430);
+		ground[i].setPosition(i * ground[i].getGlobalBounds().width, 410);
 
 	}
 
 	ground[3].setTexture(ground2);
 	ground[3].setScale(0.3, 0.4);
 
-	ground[3].setPosition(2444, 250);
+	ground[3].setPosition(2512, 260);
 
 	//end of ground
 	//pipe
@@ -146,13 +162,13 @@ int main() {
 	{
 		pipe[i].setTexture(pipetex);
 		pipe[i].setScale(1.4, 1.8);
-		pipe[i].setPosition(i * 400 + 450, 320);
+		pipe[i].setPosition(i * 400 + 450, 270);
 
 	}
 
 	//end ofpipe
-	
-
+	sf::RenderWindow window(sf::VideoMode(800, 485), "Super Mario!!");
+	window.setFramerateLimit(120);
 
 
 	
@@ -163,9 +179,9 @@ int main() {
 	while (window.isOpen())
 	{
 
-		
-		
-		
+
+
+
 
 
 
@@ -193,40 +209,28 @@ int main() {
 				menuOptions = 3;
 
 			}
-			//on pressing credits button
-			else if (mousePressed.x > 23 && mousePressed.x < 300 && mousePressed.y>370 && mousePressed.y < 455) {
-				cout << mousePressed.x << " " << mousePressed.y << endl;
-				menuOptions = 4;
-			}
 		}
 		//End od Menu Displaying
 
 
 
 
-		if (space && player.getGlobalBounds().intersects(ground[detectground()].getGlobalBounds())) {
-			player.setTextureRect(IntRect(0, 0, 16, 32));
-			space = 0;
-		}
-		if (space && player.getGlobalBounds().intersects(pipe[detectpipe()].getGlobalBounds())) {
-
-
-			player.setTextureRect(IntRect(0, 0, 16, 32));
-			space = 0;
-		}
-		//Pipe collsion
+		
+		//Pipe and ground collsion
 		if ((player.getGlobalBounds().intersects(pipe[detectpipe()].getGlobalBounds()) && pipe[detectpipe()].getPosition().x > player.getPosition().x)) {
-			if (pipe[detectpipe()].getGlobalBounds().top > (player.getPosition().y + 44)) {
+			if (pipe[detectpipe()].getGlobalBounds().top > (player.getPosition().y + 42)) {
 				canmoverigt = 1;
 			}
 			else { canmoverigt = 0; }
 
 		}
+		
+		
 		else { canmoverigt = 1; }
-
+		
 
 		if (player.getGlobalBounds().intersects(pipe[detectpipe()].getGlobalBounds()) && pipe[detectpipe()].getPosition().x < player.getPosition().x) {
-			if (pipe[detectpipe()].getGlobalBounds().top > (player.getPosition().y + 44))
+			if (pipe[detectpipe()].getGlobalBounds().top > (player.getPosition().y + 42))
 			{
 
 				canmoveleft = 1;
@@ -239,6 +243,7 @@ int main() {
 
 
 		//end of pipe collision
+		
 
 
 		Event event;
@@ -249,24 +254,12 @@ int main() {
 				window.close();
 			}
 			//End of Closing the game from X button
-			if (Keyboard::isKeyPressed(Keyboard::Right) && canmoverigt) {
+		
+			
+		
+			
+			
 
-				moveright();
-				camera.move(5, 0);
-
-			}
-			if (Keyboard::isKeyPressed(Keyboard::Left) && canmoveleft) {
-
-
-				moveleft();
-				camera.move(-5, 0);
-
-			}
-
-
-
-			animationindicator = animationindicator % 3;
-			player.setTextureRect(IntRect(animationindicator * 16, 0, 16, 32));
 
 
 
@@ -283,55 +276,71 @@ int main() {
 		//end of pipe coll
 
 
-		//gravity 
-		if (Keyboard::isKeyPressed(Keyboard::X) && canjump) {
+		//gravity and movement
+		if (Keyboard::isKeyPressed(Keyboard::Right) && canmoverigt) {
 
-			velocityy = 100;
+			moveright();
 
 		}
-		else { velocityy = 0; }
-		if (!player.getGlobalBounds().intersects(ground[detectground()].getGlobalBounds())) {
+	
+		else if (Keyboard::isKeyPressed(Keyboard::Left) && canmoveleft) {
 
-			if (player.getGlobalBounds().intersects(pipe[detectpipe()].getGlobalBounds())) {
-				canjump = 1;
-				if ((!player.getPosition().y + 48) == pipe[detectpipe()].getGlobalBounds().top) {
+			moveleft();
 
-					velocityy -= 0.2;
+		}
+		else { velocityx = 0; }
+		if (player.getGlobalBounds().intersects(ground[detectground()].getGlobalBounds()) && ground[detectground()].getGlobalBounds().top >= (player.getPosition().y + 42)) {
+			velocityy = 0;
+		
+			canjump = 1;
+			if (Keyboard::isKeyPressed(Keyboard::X)&&canjump) {
 
-					player.setTextureRect(IntRect(48, 0, 16, 32));
-					space = 1;
-
-				}
-				else if (player.getPosition().y + 44 > pipe[detectpipe()].getGlobalBounds().top) {
-					velocityy -= 0.2;
-				}
-
-
-			}
-
-
-			else {
-
-				velocityy -= 0.2;
+				velocityy = 6;
 				canjump = 0;
-				player.setTextureRect(IntRect(48, 0, 16, 32));
-				space = 1;
 			}
 
 		}
-		else { canjump = 1; }
+		
+		
+		else if (player.getGlobalBounds().intersects(pipe[detectpipe()].getGlobalBounds())&& pipe[detectpipe()].getGlobalBounds().top >= (player.getPosition().y + 42)) {
+			velocityy = 0;
+			
+			
+			canjump = 1;
+			if (Keyboard::isKeyPressed(Keyboard::X)&&canjump) {
 
+				velocityy = 6;
+				canjump = 0;
+			}
+				
+			
+		}
+		
+		else { velocityy -= 0.1; 
+		
+		
+		}
+	
+		
 
-
-
-		//end of gravity
+		animationindicator = animationindicator % 3;
+		player.setTextureRect(IntRect(animationindicator * 16, 0, 16, 32));
+		
+		//end of gravity and movement
 		window.clear();
 		if (menuOptions == 0) {
 			window.draw(menu);
 		}
 		else if (menuOptions == 1) {
 			window.setView(camera);
+
+			window.draw(sky);
+			for (int i = 0; i < 10; i++) {
+				window.draw(cloudi[i]);
+			}
 			window.draw(player);
+			
+			
 			for (size_t i = 0; i < 3; i++)
 			{
 				window.draw(ground[i]);
@@ -349,16 +358,14 @@ int main() {
 		else if (menuOptions == 3) {
 			window.draw(option);
 		}
-		else if (menuOptions == 4) {
-			window.draw(credit);
-			window.draw(text);
-		}
 
 
 		window.display();
 
-		player.move(0, -velocityy);
-
+		player.move(velocityx, -velocityy);
+		camera.move(velocityx,0);
+		
+		sky.move(velocityx, 0);
 	}
 
 	return 0;
@@ -386,35 +393,43 @@ int main() {
 
 
 
-void moveright() {
-	player.move(5, 0);
+int moveright() {
 
-	animationindicator++;
+	velocityx = 2;
+
 	player.setScale(3, 3);
+	if(framespeed.getElapsedTime().asSeconds()>0.1) {
+		animationindicator++;
+		framespeed.restart();
+	}
 
-
-
-
-
-
-
-
-
-
+	return velocityx;
 }
+
+
+
+
+
+
+
+
+
+
 //end of move rightfunction
 
 
 //moveleft function
 void moveleft() {
-
-	player.move(-5.f, 0.f);
-	animationindicator++;
+	velocityx = -2;
+	
+	
 	player.setScale(-3, 3);
-
-
-
-
+	
+	
+	if(framespeed.getElapsedTime().asSeconds() > 0.1) {
+		animationindicator++;
+		framespeed.restart();
+	}
 
 
 
@@ -429,8 +444,7 @@ void moveleft() {
 void jump() {
 
 
-	int x = 0;
-	player.move(0, 0.4);
+	velocityy = 8;
 
 
 
