@@ -28,6 +28,7 @@ void moveleft();
 void jump();
 int detectground();
 int detectpipe();
+void menuOption(int);
 //end of functions
 Texture mario;
 Sprite player;
@@ -44,9 +45,13 @@ Sprite option;
 Texture Option;
 Sprite credit;
 Texture Credits;
+Text text;
+Font font;
 
 
+sf::RenderWindow window(sf::VideoMode(800, 485), "Super Mario!!");
 
+View camera(FloatRect(0, 0, 800, 485));
 
 
 int main() {
@@ -87,11 +92,11 @@ int main() {
 	
 
 	//Font 
-	Font font;
+	
 	font.loadFromFile("VECTRO-Bold.otf");
 
 	//Text
-	Text text;
+	
 	text.setFont(font);
 	text.setString("CREDITS !!\n\n\nMoaaz \nRana \nAliaa \nAhmed \nZeyad \nNour \nMohamed");
 	text.setFillColor(sf::Color(150, 150, 50, 230));
@@ -104,6 +109,7 @@ int main() {
 	credit.setTexture(Credits);
 	credit.setPosition(0, 0);
 	credit.setScale(0.5, 0.5);
+
 
 
 
@@ -145,11 +151,11 @@ int main() {
 	}
 
 	//end ofpipe
-	sf::RenderWindow window(sf::VideoMode(800, 485), "Super Mario!!");
+	
 
 
 
-	View camera(FloatRect(0, 0, 800, 485));
+	
 
 	camera.setCenter(player.getPosition().x, player.getPosition().y + 250);
 	window.setView(camera);
@@ -463,4 +469,35 @@ int detectpipe() {
 	}
 
 	return m;
+}
+void menuOption(int flag) {
+
+	if (flag == 0) {
+		window.draw(menu);
+	}
+	else if (flag == 1) {
+		window.setView(camera);
+		window.draw(player);
+		for (size_t i = 0; i < 3; i++)
+		{
+			window.draw(ground[i]);
+		}
+		window.draw(ground[3]);
+		for (size_t i = 0; i < 3; i++)
+		{
+			window.draw(pipe[i]);
+		}
+	}
+	else if (flag == 2) {
+		window.draw(highScore);
+	}
+
+	else if (flag == 3) {
+		window.draw(option);
+	}
+	else if (flag == 4) {
+		window.draw(credit);
+		window.draw(text);
+	}
+
 }
