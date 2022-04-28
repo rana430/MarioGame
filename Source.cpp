@@ -5,6 +5,14 @@
 using namespace std;
 using namespace sf;
 
+struct PlayerHighScore {
+
+	string playername;
+	int HighScore = 0;
+};
+
+PlayerHighScore hs[10];
+
 int menuOptions = 0;/*
 					0->to display menu in the begining of the game
 					1-> to Start playing
@@ -13,6 +21,9 @@ int menuOptions = 0;/*
 					4-> to dispaly credits Menu
 					*/
 
+bool SameName = 1;//if player doesnt change his name
+int playerNum = 0;
+int score = 0;
 bool canjump = 1;
 bool canmoverigt = 1;
 bool canmoveleft = 1;
@@ -29,6 +40,8 @@ void moveleft();
 void jump();
 int detectground();
 int detectpipe();
+int calHighScore(int);
+void DiplayHighScore(int);
 void menuOption(int);
 //end of functions
 Texture skytx;
@@ -51,6 +64,7 @@ Texture Option;
 Sprite credit;
 Texture Credits;
 Text text;
+Text Data;//text of high score
 Font font;
 
 
@@ -61,7 +75,9 @@ sf::RenderWindow window(sf::VideoMode(800, 485), "Super Mario!!");
 
 
 int main() {
-
+	//Calculating high score
+	cout << "Enter Player Name :\n";
+	cin >> hs[0].playername;
 
 	//cloud
 	cloudtx.loadFromFile("cloud.png");
@@ -72,7 +88,7 @@ int main() {
 		cloudi[i].setPosition(200 * i + 100, 50);
 	}
 	//end of cloud
-	
+
 	//mario
 
 	mario.loadFromFile("mario_spritesheet.png");
@@ -97,7 +113,7 @@ int main() {
 
 
 	//Font 
-	
+
 	font.loadFromFile("VECTRO-Bold.otf");
 
 	//Text
@@ -110,7 +126,7 @@ int main() {
 	text.setCharacterSize(32);
 
 	//Credits Wallpaper
-	Credits.loadFromFile("gameOver.png");
+	Credits.loadFromFile("sky2.png");
 	credit.setTexture(Credits);
 	credit.setPosition(0, 0);
 	credit.setScale(0.5, 0.5);
@@ -215,13 +231,13 @@ int main() {
 			}
 			//on pressing on options button
 			else if (mousePressed.x > 23 && mousePressed.x < 300 && mousePressed.y>240 && mousePressed.y < 330 && show) {
-				
+
 				menuOptions = 3;
 				show = 0;
 			}
 			//on pressing credits button
 			else if (mousePressed.x > 23 && mousePressed.x < 300 && mousePressed.y>370 && mousePressed.y < 455) {
-				
+
 				menuOptions = 4;
 				show = 0;
 			}
@@ -345,7 +361,39 @@ int main() {
 
 		//end of gravity and movement
 		window.clear();
-		menuOption(menuOptions);
+		if (menuOptions == 0) {
+			window.draw(menu);
+		}
+		else if (menuOptions == 1) {
+			window.setView(camera);
+
+			window.draw(sky);
+			for (int i = 0; i < 10; i++) {
+				window.draw(cloudi[i]);
+			}
+			window.draw(player);
+
+
+			for (size_t i = 0; i < 3; i++)
+			{
+				window.draw(ground[i]);
+			}
+			window.draw(ground[3]);
+			for (size_t i = 0; i < 3; i++)
+			{
+				window.draw(pipe[i]);
+			}
+		}
+		else if (menuOptions == 2) {
+			window.draw(highScore);
+		}
+		
+		else if (menuOptions == 3) {
+			window.draw(option);
+		}
+		else if (menuOptions == 4) {
+			window.draw(text);
+		}
 
 
 		window.display();
@@ -510,3 +558,29 @@ void menuOption(int flag) {
 	}
 
 }
+
+
+// high score calculation function
+//local val score
+int calHighScore(int score, int currentplayer) {
+	hs[currentplayer].HighScore = score;
+	while (SameName) {
+		if (score > hs[currentplayer].HighScore) {
+
+			hs[currentplayer].HighScore = score;
+		}
+	}
+}
+//Displaying high score
+void DiplayHighScore(int numPlayer) {
+	Data.setFont(font);
+	Data.setFillColor(sf::Color(150, 150, 50, 230));
+	Data.setPosition(350, 10);
+	Data.setCharacterSize(32);
+	for (int i = 0; i < numPlayer; i++) {
+		Data.setString(hs[i].playername + "\t" + to_string(hs[i].HighScore)+"\n");
+		window.draw(Data);
+	}
+}
+//Swap function
+
