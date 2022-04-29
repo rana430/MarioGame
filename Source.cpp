@@ -5,7 +5,7 @@
 using namespace std;
 using namespace sf;
 
-
+//creating data structure to define the order and high score for each player
 struct PlayerHighScore {
 	int playerOrder = 1;
 	int HighScore = 0;
@@ -22,7 +22,7 @@ int menuOptions = 0;/*
 					*/
 Vector2i mousePressed = Mouse::getPosition(window);//variable for determine the position of the mouse in the window when press on high score
 bool SameName = 1;//if player doesnt change his name
-int playerNum = 0;
+int playerNum = 0;//number of palyers played the game
 int score = 0;
 bool canjump = 1;
 bool canmoverigt = 1;
@@ -42,7 +42,7 @@ void jump();
 int detectground();
 int detectpipe();
 void calHighScore(int, int);
-void DiplayHighScore(int);
+void DiplayHighScore(int);//Displaying highscores function
 //end of functions
 Texture skytx;
 Sprite sky;
@@ -55,17 +55,15 @@ Texture pipetex;
 Sprite pipe[3];
 Texture cloudtx;
 Sprite	cloudi[10];
-Sprite menu;
+Sprite menu;//Menu wallpaper
 Texture Menu;
-Sprite highScore;
+Sprite highScore;//highscore wallpaper
 Texture HighScore;
-Sprite option;
+Sprite option; //option Wallpaper
 Texture Option;
-Sprite credit;
+Sprite credit;//Credits wallpaper
 Texture Credits;
-Sprite welcome;
-Texture Welcome;
-Sprite newGame;
+Sprite newGame;//New Game button 
 Texture NewGame;
 Text Data;//text of name of players
 Text Scores;//test of scores of players
@@ -86,6 +84,8 @@ int main() {
 		cloudi[i].setPosition(200 * i + 100, 50);
 	}
 	//end of cloud
+	
+
 	//mario
 
 	mario.loadFromFile("mario_spritesheet.png");
@@ -117,11 +117,13 @@ int main() {
 
 
 	text.setFont(font);
-	text.setString("CREDITS !!\n\n\n  Moaaz \n  Rana \n  Aliaa \n  Ahmed \n  Zeyad \n  Nour \n  Mohamed");
+	text.setString("CREDITS !!\n\n\n  Ahmed \n  Rana \n  Aliaa \n  Moaaz \n  Zeyad \n  Nour \n  Mohamed");
 	text.setFillColor(sf::Color(250, 0, 150, 200));
 
 	text.setPosition(350, 10);
 	text.setCharacterSize(32);
+
+	//End Of Text
 
 	//High score Data displaying
 	Data.setFont(font);
@@ -132,13 +134,15 @@ int main() {
 	Scores.setFillColor(sf::Color(250, 0, 150, 200));
 	Scores.setPosition(500, 10);
 	Scores.setCharacterSize(32);
+	//End of High score Data displaying
+
 
 	//Credits Wallpaper
 	Credits.loadFromFile("Sky.png");
 	credit.setTexture(Credits);
 	credit.setPosition(0, 0);
 	credit.setScale(1.25, 1.25);
-
+	//End of credits
 
 	//New Game button
 	NewGame.loadFromFile("button-png-game-3.png");
@@ -217,6 +221,18 @@ int main() {
 	}
 
 	//end ofpipe
+
+
+	//Set struct by zero
+
+	for (int i = 0; i < 10; i++) {
+		hs[i].playerOrder++;
+		hs[i].HighScore = 0;
+	}
+
+	//End of Seting Struct by zero
+
+
 	sf::RenderWindow window(sf::VideoMode(800, 485), "Super Mario!!");
 	window.setFramerateLimit(120);
 
@@ -278,7 +294,7 @@ int main() {
 		}
 
 
-
+		//End of ESC button
 		//Pipe and ground collsion
 		if ((player.getGlobalBounds().intersects(pipe[detectpipe()].getGlobalBounds()) && pipe[detectpipe()].getPosition().x > player.getPosition().x)) {
 			if (pipe[detectpipe()].getGlobalBounds().top > (player.getPosition().y + 42)) {
@@ -584,7 +600,7 @@ void DiplayHighScore(int numPlayer) {
 	Data.setPosition(350, 10);
 	Data.setCharacterSize(32);
 	for (int i = 0; i < numPlayer; i++) {
-		Data.setString("Player " + i + 1);
+		Data.setString("Player " + to_string(hs[i].playerOrder));
 		Scores.setString("\t\t" + to_string(hs[i].HighScore) + "\n");
 		window.draw(Data);
 		window.draw(Scores);
