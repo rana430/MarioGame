@@ -1,15 +1,17 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
-#include <locale>
 #include <iostream>
 
 using namespace std;
 using namespace sf;
 
+
 struct PlayerHighScore {
-	int playerOrder=1;
+	int playerOrder = 1;
 	int HighScore = 0;
 }hs[10];
+
+
 
 int menuOptions = 0;/*
 					0->to display menu in the begining of the game
@@ -18,7 +20,6 @@ int menuOptions = 0;/*
 					3->To do display options Menu
 					4-> to dispaly credits Menu
 					*/
-
 Vector2i mousePressed = Mouse::getPosition(window);//variable for determine the position of the mouse in the window when press on high score
 bool SameName = 1;//if player doesnt change his name
 int playerNum = 0;
@@ -27,11 +28,12 @@ bool canjump = 1;
 bool canmoverigt = 1;
 bool canmoveleft = 1;
 bool space = 0;
-int pos;
 bool show = 1;
-float velocityy = 0;
+int pos;
 int animationindicator = 0;
+float velocityy = 0;
 float velocityx = 0;
+float groundMotion = 0;
 Clock framespeed;
 //functions
 int moveright();
@@ -47,7 +49,7 @@ Sprite sky;
 Texture mario;
 Sprite player;
 Texture groundtex;
-Sprite ground[8];
+Sprite ground[15];
 Texture ground2;
 Texture pipetex;
 Sprite pipe[3];
@@ -65,21 +67,16 @@ Sprite welcome;
 Texture Welcome;
 Sprite newGame;
 Texture NewGame;
-Text text;
 Text Data;//text of name of players
-Text Scores;
+Text Scores;//test of scores of players
+Text text;
 Font font;
-
 
 View camera(FloatRect(0, 0, 800, 485));
 
 sf::RenderWindow window(sf::VideoMode(800, 485), "Super Mario!!");
 
 int main() {
-
-	//Entering first player name
-	
-
 	//cloud
 	cloudtx.loadFromFile("cloud.png");
 
@@ -92,21 +89,15 @@ int main() {
 	//mario
 
 	mario.loadFromFile("mario_spritesheet.png");
+
 	player.setTexture(mario);
 	player.setScale(3, 3);
+
+
 	player.setPosition(400, -11);
 	player.setTextureRect(IntRect(0, 0, 16, 32));
 	player.setOrigin(player.getLocalBounds().width / 2, player.getLocalBounds().height / 2);
 	//end of mario
-
-	//New Game button
-	NewGame.loadFromFile("button-png-game-3.png");
-	newGame.setTexture(NewGame);
-	newGame.setPosition(230, 140);
-	newGame.setScale(1.25, 1.25);
-
-	//End of New Game
-
 
 	//Menu Sprite declaring
 
@@ -124,13 +115,13 @@ int main() {
 
 	//Text
 
+
 	text.setFont(font);
 	text.setString("CREDITS !!\n\n\n  Moaaz \n  Rana \n  Aliaa \n  Ahmed \n  Zeyad \n  Nour \n  Mohamed");
 	text.setFillColor(sf::Color(250, 0, 150, 200));
 
 	text.setPosition(350, 10);
 	text.setCharacterSize(32);
-
 
 	//High score Data displaying
 	Data.setFont(font);
@@ -141,7 +132,6 @@ int main() {
 	Scores.setFillColor(sf::Color(250, 0, 150, 200));
 	Scores.setPosition(500, 10);
 	Scores.setCharacterSize(32);
-	
 
 	//Credits Wallpaper
 	Credits.loadFromFile("Sky.png");
@@ -149,11 +139,18 @@ int main() {
 	credit.setPosition(0, 0);
 	credit.setScale(1.25, 1.25);
 
-	
+
+	//New Game button
+	NewGame.loadFromFile("button-png-game-3.png");
+	newGame.setTexture(NewGame);
+	newGame.setPosition(230, 140);
+	newGame.setScale(1.25, 1.25);
+
+	//End of New Game
 
 
 	//highscore menu for testing
-	HighScore.loadFromFile("SKy.png");
+	HighScore.loadFromFile("Sky.png");
 	highScore.setTexture(HighScore);
 	highScore.setPosition(0, 0);
 	//End of Testing
@@ -188,11 +185,23 @@ int main() {
 		ground[i].setPosition(i * ground[i].getGlobalBounds().width, 410);
 
 	}
+	for (int i = 3; i < 5; i++) {
+		ground[i].setTexture(ground2);
+		ground[i].setScale(0.3, 0.4);
+		ground[i].setPosition(2512 + ((i - 3) * 370), 290 - ((i - 3) * 100));
+	}
+	ground[5].setTexture(ground2);
+	ground[5].setScale(0.3, 0.4);
+	ground[5].setPosition(3250, 340);
 
-	ground[3].setTexture(ground2);
-	ground[3].setScale(0.3, 0.4);
+	for (int i = 7; i < 13; i++) {
 
-	ground[3].setPosition(2512, 260);
+		ground[i].setTexture(groundtex);
+
+		ground[i].setScale(0.4, 0.6);
+		ground[i].setPosition(3600 + ((i - 7) * ground[i].getGlobalBounds().width), 410);
+
+	}
 
 	//end of ground
 	//pipe
@@ -228,10 +237,12 @@ int main() {
 
 		//Menu displaying
 
+		
+
 		if (Mouse::isButtonPressed(Mouse::Left)) {
 
 
-			
+
 			if ((mousePressed.x > 23 && mousePressed.x < 300 && mousePressed.y>120 && mousePressed.y < 205 && show)) {
 
 				menuOptions = 2;
@@ -259,12 +270,12 @@ int main() {
 			}
 		}
 		//End od Menu Displaying
+
 		//Esc button 
 		else if (Keyboard::isKeyPressed(Keyboard::Escape)) {
-			 menuOptions = 0;
-			 show = 1;
+			menuOptions = 0;
+			show = 1;
 		}
-
 
 
 
@@ -295,10 +306,7 @@ int main() {
 
 
 		//end of pipe collision
-		
 
-
-		
 
 
 		Event event;
@@ -315,11 +323,13 @@ int main() {
 
 
 
+
+
+
+
+
+
 		}
-
-
-
-
 		//end of while event
 
 		//pipecoll
@@ -327,8 +337,6 @@ int main() {
 
 
 		//end of pipe coll
-
-		
 
 
 		//gravity and movement
@@ -346,7 +354,6 @@ int main() {
 		else { velocityx = 0; }
 		if (player.getGlobalBounds().intersects(ground[detectground()].getGlobalBounds()) && ground[detectground()].getGlobalBounds().top >= (player.getPosition().y + 40)) {
 			velocityy = 0;
-
 			canjump = 1;
 			if (Keyboard::isKeyPressed(Keyboard::X) && canjump) {
 
@@ -357,7 +364,7 @@ int main() {
 		}
 
 
-		else if (player.getGlobalBounds().intersects(pipe[detectpipe()].getGlobalBounds()) && pipe[detectpipe()].getGlobalBounds().top >= (player.getPosition().y + 42)) {
+		else if (player.getGlobalBounds().intersects(pipe[detectpipe()].getGlobalBounds()) && pipe[detectpipe()].getGlobalBounds().top >= (player.getPosition().y + 40)) {
 			velocityy = 0;
 
 
@@ -375,7 +382,6 @@ int main() {
 			velocityy -= 0.1099;
 
 
-
 		}
 
 
@@ -384,66 +390,62 @@ int main() {
 		player.setTextureRect(IntRect(animationindicator * 16, 0, 16, 32));
 
 		//end of gravity and movement
-
 		window.clear();
+		if (menuOptions == 0) {
+			window.draw(menu);
 
-		
-			if (menuOptions == 0) {
-				window.draw(menu);
-			
+		}
+		else if (menuOptions == 1) {
+			window.setView(camera);
+
+			window.draw(sky);
+			for (int i = 0; i < 10; i++) {
+				window.draw(cloudi[i]);
 			}
-			else if (menuOptions == 1) {
-				window.setView(camera);
-
-				window.draw(sky);
-				for (int i = 0; i < 10; i++) {
-					window.draw(cloudi[i]);
-				}
-				window.draw(player);
+			window.draw(player);
 
 
-				for (size_t i = 0; i < 3; i++)
-				{
-					window.draw(ground[i]);
-				}
-				window.draw(ground[3]);
-				for (size_t i = 0; i < 3; i++)
-				{
-					window.draw(pipe[i]);
-				}
-				
+			for (size_t i = 0; i < 3; i++)
+			{
+				window.draw(ground[i]);
+			}
+			window.draw(ground[3]);
+			for (size_t i = 0; i < 3; i++)
+			{
+				window.draw(pipe[i]);
 			}
 
-			else if (menuOptions == 2) {
-				window.draw(highScore);
-				DiplayHighScore(playerNum);
-				
-				
-				
-			}
-			else if (menuOptions == 3) {
-				window.draw(option);
-				window.draw(newGame);
-				
-				
-				
+		}
 
-			
-			}
-			else if (menuOptions == 4) {
-				window.draw(credit);
-				window.draw(text);
-				
-			}
-		
+		else if (menuOptions == 2) {
+			window.draw(highScore);
+			DiplayHighScore(playerNum);
 
-			window.display();
 
-			player.move(velocityx, -velocityy);
-			camera.move(velocityx, 0);
 
-			sky.move(velocityx, 0);
-		
+		}
+		else if (menuOptions == 3) {
+			window.draw(option);
+			window.draw(newGame);
+
+
+
+
+
+		}
+		else if (menuOptions == 4) {
+			window.draw(credit);
+			window.draw(text);
+
+		}
+
+
+		window.display();
+
+		player.move(velocityx, -velocityy);
+		camera.move(velocityx, 0);
+
+		sky.move(velocityx, 0);
 	}
 
 	return 0;
@@ -573,7 +575,7 @@ void calHighScore(int score, int currentplayer) {
 			hs[currentplayer].HighScore = score;
 		}
 	}
-	
+
 }
 //Displaying high score
 void DiplayHighScore(int numPlayer) {
@@ -582,11 +584,11 @@ void DiplayHighScore(int numPlayer) {
 	Data.setPosition(350, 10);
 	Data.setCharacterSize(32);
 	for (int i = 0; i < numPlayer; i++) {
-		Data.setString("Player " + i+1);
+		Data.setString("Player " + i + 1);
 		Scores.setString("\t\t" + to_string(hs[i].HighScore) + "\n");
 		window.draw(Data);
 		window.draw(Scores);
-		
+
 	}
 }
 //Swap function
