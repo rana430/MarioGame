@@ -21,22 +21,23 @@ int menuOptions = 0;/*
 					4-> to dispaly credits Menu
 					*/
 
-sf::RenderWindow window(sf::VideoMode(800, 485), "Super Mario!!");
 
-Vector2i mousePressed = Mouse::getPosition(window);//variable for determine the position of the mouse in the window when press on high score
+
+
+
 bool SameName = 1;//if player doesnt change his name
-int playerNum = 0;//number of palyers played the game
-int score = 0;
 bool canjump = 1;
 bool canmoverigt = 1;
 bool canmoveleft = 1;
 bool space = 0;
 bool show = 1;
 int pos;
+int playerNum = 0;//number of palyers played the game
+int score = 0;
 int animationindicator = 0;
 float velocityy = 0;
 float velocityx = 0;
-float groundMotion = 0;
+float groundMotion = 1, ground2Motion = 1;
 Clock framespeed;
 //functions
 int moveright();
@@ -72,9 +73,11 @@ Text Data;//text of name of players
 Text Scores;//test of scores of players
 Text text;
 Font font;
+Vector2f groundPos(3250, 240);
 
+
+sf::RenderWindow window(sf::VideoMode(800, 485), "Super Mario!!");
 View camera(FloatRect(0, 0, 800, 485));
-
 
 
 int main() {
@@ -87,8 +90,6 @@ int main() {
 		cloudi[i].setPosition(200 * i + 100, 50);
 	}
 	//end of cloud
-	
-
 	//mario
 
 	mario.loadFromFile("mario_spritesheet.png");
@@ -192,21 +193,21 @@ int main() {
 		ground[i].setPosition(i * ground[i].getGlobalBounds().width, 410);
 
 	}
-	for (int i = 3; i < 5; i++) {
+	for (int i = 3; i < 6; i++) {
 		ground[i].setTexture(ground2);
 		ground[i].setScale(0.3, 0.4);
-		ground[i].setPosition(2512 + ((i - 3) * 370), 290 - ((i - 3) * 100));
+		ground[i].setPosition(2512 + ((i - 3) * 370), 120);
+		if (i == 4) {
+			ground[i].setPosition(2512 + ((i - 3) * 370), 370);
+		}
 	}
-	ground[5].setTexture(ground2);
-	ground[5].setScale(0.3, 0.4);
-	ground[5].setPosition(3250, 340);
 
 	for (int i = 7; i < 13; i++) {
 
 		ground[i].setTexture(groundtex);
 
 		ground[i].setScale(0.4, 0.6);
-		ground[i].setPosition(3600 + ((i - 7) * ground[i].getGlobalBounds().width), 410);
+		ground[i].setPosition(3580 + ((i - 7) * ground[i].getGlobalBounds().width), 410);
 
 	}
 
@@ -224,19 +225,7 @@ int main() {
 	}
 
 	//end ofpipe
-
-
-	//Set struct by zero
-
-	for (int i = 0; i < 10; i++) {
-		hs[i].playerOrder++;
-		hs[i].HighScore = 0;
-	}
-
-	//End of Seting Struct by zero
-
-
-	
+	sf::RenderWindow window(sf::VideoMode(800, 485), "Super Mario!!");
 	window.setFramerateLimit(120);
 
 
@@ -255,11 +244,10 @@ int main() {
 
 
 		//Menu displaying
+		Vector2i mousePressed = Mouse::getPosition(window);//variable for determine the position of the mouse in the window
 
-		
 
 		if (Mouse::isButtonPressed(Mouse::Left)) {
-
 
 
 			if ((mousePressed.x > 23 && mousePressed.x < 300 && mousePressed.y>120 && mousePressed.y < 205 && show)) {
@@ -287,9 +275,10 @@ int main() {
 				show = 0;
 			}
 			else if (menuOptions == 3 && mousePressed.x > 230 && mousePressed.x < 540 && mousePressed.y>140 && mousePressed.y < 280 && show) {
-				menuOptions = 0;
+				menuOptions = 1;
 				show = 0;
 				playerNum++;
+				cout << playerNum << " ";
 			}
 		}
 		//End od Menu Displaying
@@ -302,6 +291,9 @@ int main() {
 
 
 		//End of ESC button
+
+
+
 		//Pipe and ground collsion
 		if ((player.getGlobalBounds().intersects(pipe[detectpipe()].getGlobalBounds()) && pipe[detectpipe()].getPosition().x > player.getPosition().x)) {
 			if (pipe[detectpipe()].getGlobalBounds().top > (player.getPosition().y + 42)) {
@@ -354,6 +346,19 @@ int main() {
 
 		}
 		//end of while event
+
+
+		//ground movement
+		if (ground[3].getPosition().y == 100 || ground[3].getPosition().y == 400) {
+			groundMotion *= -1;
+		}
+		ground[3].move(0, groundMotion);
+		ground[5].move(0, groundMotion);
+
+		if (ground[4].getPosition().y == 100 || ground[4].getPosition().y == 400) {
+			ground2Motion *= -1;
+		}
+		ground[4].move(0, -ground2Motion);
 
 		//pipecoll
 
@@ -416,7 +421,6 @@ int main() {
 		window.clear();
 		if (menuOptions == 0) {
 			window.draw(menu);
-
 		}
 		else if (menuOptions == 1) {
 			window.setView(camera);
@@ -428,31 +432,23 @@ int main() {
 			window.draw(player);
 
 
-			for (size_t i = 0; i < 3; i++)
+			for (size_t i = 0; i < 15; i++)
 			{
 				window.draw(ground[i]);
 			}
-			window.draw(ground[3]);
 			for (size_t i = 0; i < 3; i++)
 			{
 				window.draw(pipe[i]);
 			}
-
 		}
-
 		else if (menuOptions == 2) {
 			window.draw(highScore);
 			DiplayHighScore(playerNum);
-
-
-
 		}
+
 		else if (menuOptions == 3) {
 			window.draw(option);
 			window.draw(newGame);
-
-
-
 
 
 		}
@@ -461,6 +457,8 @@ int main() {
 			window.draw(text);
 
 		}
+
+
 
 
 		window.display();
@@ -587,20 +585,6 @@ int detectpipe() {
 
 	return m;
 }
-
-// high score calculation function
-//local val score
-void calHighScore(int score, int currentplayer) {
-	hs[currentplayer].HighScore = score;
-	while (SameName) {
-		if (score > hs[currentplayer].HighScore) {
-
-			hs[currentplayer].HighScore = score;
-		}
-	}
-
-}
-//Displaying high score
 void DiplayHighScore(int numPlayer) {
 	Data.setFont(font);
 	Data.setFillColor(sf::Color(250, 0, 150, 200));
@@ -611,7 +595,7 @@ void DiplayHighScore(int numPlayer) {
 	Scores.setPosition(350, 10);
 	Scores.setCharacterSize(32);
 	for (int i = 0; i < numPlayer; i++) {
-		Data.setString("Player " + to_string(hs[i].playerOrder)+"\t\t");
+		Data.setString("Player " + to_string(hs[i].playerOrder) + "\t\t");
 		Scores.setString(to_string(hs[i].HighScore) + "\n");
 		window.draw(Data);
 		window.draw(Scores);
