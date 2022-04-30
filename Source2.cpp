@@ -21,7 +21,7 @@ int pos;
 int animationindicator = 0;
 float velocityy = 0;
 float velocityx = 0;
-float groundMotion = 0;
+float groundMotion = 1 , ground2Motion = 1;
 Clock framespeed;
 //functions
 int moveright();
@@ -51,6 +51,7 @@ Sprite credit;
 Texture Credits;
 Text text;
 Font font;
+Vector2f groundPos(3250, 240);
 
 View camera(FloatRect(0, 0, 800, 485));
 
@@ -148,21 +149,21 @@ int main() {
 		ground[i].setPosition(i * ground[i].getGlobalBounds().width, 410);
 
 	}
-	for (int i = 3; i < 5; i++) {
+	for (int i = 3; i < 6; i++) {
 		ground[i].setTexture(ground2);
 		ground[i].setScale(0.3, 0.4);
-		ground[i].setPosition(2512+((i-3)*370), 290 - ((i - 3) * 100));
+		ground[i].setPosition(2512+((i-3)*370) , 120);
+		if (i == 4) {
+			ground[i].setPosition(2512 + ((i - 3) * 370), 370);
+		}
 	}
-	ground[5].setTexture(ground2);
-	ground[5].setScale(0.3, 0.4);
-	ground[5].setPosition(3250, 340);
-
+	
 	for (int i = 7; i < 13; i++) {
 
 		ground[i].setTexture(groundtex);
 
 		ground[i].setScale(0.4, 0.6);
-		ground[i].setPosition(3600+((i-7) * ground[i].getGlobalBounds().width), 410);
+		ground[i].setPosition(3580+((i-7) * ground[i].getGlobalBounds().width), 410);
 
 	}
 
@@ -281,6 +282,19 @@ int main() {
 
 		}
 		//end of while event
+
+
+		//ground movement
+		if (ground[3].getPosition().y == 100 || ground[3].getPosition().y == 400) {
+			groundMotion *= -1;
+		}
+		ground[3].move(0, groundMotion);
+		ground[5].move(0, groundMotion);
+
+		if (ground[4].getPosition().y == 100 || ground[4].getPosition().y == 400) {
+			ground2Motion *= -1;
+		}
+		ground[4].move(0, -ground2Motion);
 
 		//pipecoll
 
