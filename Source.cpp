@@ -592,7 +592,7 @@ void DiplayHighScore(int numPlayer) {
 	Data.setCharacterSize(32);
 	Scores.setFont(font);
 	Scores.setFillColor(sf::Color(250, 0, 150, 200));
-	Scores.setPosition(350, 10);
+	Scores.setPosition(500, 10);
 	Scores.setCharacterSize(32);
 	for (int i = 0; i < numPlayer; i++) {
 		Data.setString("Player " + to_string(hs[i].playerOrder) + "\t\t");
