@@ -49,6 +49,7 @@ int detectpipe();
 void calHighScore(int, int);
 void DiplayHighScore(int);//Displaying highscores function
 void structOrder();//Setting struct order for each player
+void MenuOptions(int);
 //end of functions
 Texture skytx;
 Sprite sky;
@@ -230,7 +231,7 @@ int main() {
 	}
 
 	//end ofpipe
-	sf::RenderWindow window(sf::VideoMode(800, 485), "Super Mario!!");
+	
 	window.setFramerateLimit(120);
 
 
@@ -243,7 +244,7 @@ int main() {
 	{
 
 
-
+		
 
 		
 
@@ -265,6 +266,7 @@ int main() {
 
 				menuOptions = 1;
 				show = 0;
+				SameName = 1;
 
 			}
 			//on pressing on options button
@@ -282,8 +284,9 @@ int main() {
 			else if (menuOptions == 3 && mousePressed.x > 230 && mousePressed.x < 540 && mousePressed.y>140 && mousePressed.y < 280 && show) {
 				menuOptions = 1;
 				show = 0;
+				SameName = 0;
 				playerNum++;
-				cout << playerNum << " ";
+				cout << playerNum << " "<<SameName;
 				
 			}
 		}
@@ -340,7 +343,7 @@ int main() {
 			//End of Closing the game from X button
 
 
-
+			
 
 
 
@@ -353,7 +356,7 @@ int main() {
 		}
 		//end of while event
 
-
+		
 		//ground movement
 		if (ground[3].getPosition().y == 100 || ground[3].getPosition().y == 400) {
 			groundMotion *= -1;
@@ -383,6 +386,7 @@ int main() {
 		else if (Keyboard::isKeyPressed(Keyboard::Left) && canmoveleft) {
 
 			moveleft();
+			score++;
 
 		}
 		else { velocityx = 0; }
@@ -422,71 +426,13 @@ int main() {
 
 		animationindicator = animationindicator % 3;
 		player.setTextureRect(IntRect(animationindicator * 16, 0, 16, 32));
-
+		
 		//end of gravity and movement
-		window.clear();
-		if (menuOptions == 0) {
-			window.draw(menu);
-		}
-		else if (menuOptions == 1) {
-			window.setView(camera);
-
-			window.draw(sky);
-			for (int i = 0; i < 10; i++) {
-				window.draw(cloudi[i]);
-			}
-			window.draw(player);
+		
 
 
-			for (size_t i = 0; i < 15; i++)
-			{
-				window.draw(ground[i]);
-			}
-			for (size_t i = 0; i < 3; i++)
-			{
-				window.draw(pipe[i]);
-			}
-		}
-		else if (menuOptions == 2) {
-			window.draw(highScore);
-			for (int i = 0; i < playerNum; i++) {
-				Data.setFont(font);
-				Data.setFillColor(sf::Color(0, 0, 0, 180));
-				Data.setPosition(200, 18 + i * 40);
-				Data.setCharacterSize(32);
-				Scores.setFont(font);
-				Scores.setFillColor(sf::Color(0, 0, 0, 200));
-				Scores.setPosition(500, 18 + i * 40);
-				Scores.setCharacterSize(32);
-				Data.setString("Player " + to_string(hs[i].playerOrder));
-				Scores.setString("\t\t" + to_string(hs[i].HighScore) + "\n");
-				
-				window.draw(Data);
-				window.draw(Scores);
-				
-
-			}
-			
-			
-			
-		}
-		else if (menuOptions == 3) {
-			window.draw(option);
-			window.draw(newGame);
-
-
-		}
-		else if (menuOptions == 4) {
-			window.draw(credit);
-			window.draw(text);
-
-		}
-
-
-
-
-		window.display();
-
+		MenuOptions(menuOptions);
+		
 		player.move(velocityx, -velocityy);
 		camera.move(velocityx, 0);
 
@@ -618,6 +564,82 @@ void structOrder() {
 	}
 }
 
+//Menu function
+
+void MenuOptions(int n) {
+	window.clear();
+	if (menuOptions == 0) {
+		window.draw(menu);
+	}
+	else if (menuOptions == 1) {
+		window.setView(camera);
+
+		window.draw(sky);
+		for (int i = 0; i < 10; i++) {
+			window.draw(cloudi[i]);
+		}
+		window.draw(player);
+
+
+		for (size_t i = 0; i < 15; i++)
+		{
+			window.draw(ground[i]);
+		}
+		for (size_t i = 0; i < 3; i++)
+		{
+			window.draw(pipe[i]);
+		}
+	}
+	else if (menuOptions == 2) {
+		window.draw(highScore);
+		DiplayHighScore(playerNum);
+
+
+
+	}
+	else if (menuOptions == 3) {
+		window.draw(option);
+		window.draw(newGame);
+
+
+	}
+	else if (menuOptions == 4) {
+		window.draw(credit);
+		window.draw(text);
+
+	}
+
+
+
+
+	window.display();
+
+}
+
+
+//high score displaying function
+
+void DiplayHighScore(int numplayer) {
+
+	for (int i = 0; i < numplayer; i++) {
+		Data.setFont(font);
+		Data.setFillColor(sf::Color(0, 0, 0, 180));
+		Data.setPosition(200, 18 + i * 40);
+		Data.setCharacterSize(32);
+		Scores.setFont(font);
+		Scores.setFillColor(sf::Color(0, 0, 0, 200));
+		Scores.setPosition(500, 18 + i * 40);
+		Scores.setCharacterSize(32);
+		Data.setString("Player " + to_string(hs[i].playerOrder));
+		Scores.setString("\t\t" + to_string(hs[i].HighScore) + "\n");
+
+		window.draw(Data);
+		window.draw(Scores);
+
+
+	}
+}
+
 // high score calculation function
 //local val score
 void calHighScore(int score, int currentplayer) {
@@ -626,7 +648,9 @@ void calHighScore(int score, int currentplayer) {
 		if (score > hs[currentplayer].HighScore) {
 
 			hs[currentplayer].HighScore = score;
+			cout << score << " ";
 		}
+		
 	}
 
 }
