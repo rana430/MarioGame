@@ -255,10 +255,12 @@ int main() {
 
 		if (Mouse::isButtonPressed(Mouse::Left)) {
 
-
+			//on pressing high scores button
 			if ((mousePressed.x > 23 && mousePressed.x < 300 && mousePressed.y>120 && mousePressed.y < 205 && show)) {
 
 				menuOptions = 2;
+				calHighScore(score, playerNum);
+
 				show = 0;
 			}
 			// On pressing on Play Button
@@ -267,7 +269,10 @@ int main() {
 				menuOptions = 1;
 				show = 0;
 				SameName = 1;
-
+				for (int i = 0; i < 9; i++) {
+					score++;
+					cout << score << " ";
+				}
 			}
 			//on pressing on options button
 			else if (mousePressed.x > 23 && mousePressed.x < 300 && mousePressed.y>240 && mousePressed.y < 330 && show) {
@@ -281,6 +286,7 @@ int main() {
 				menuOptions = 4;
 				show = 0;
 			}
+			//on pressing New game button
 			else if (menuOptions == 3 && mousePressed.x > 230 && mousePressed.x < 540 && mousePressed.y>140 && mousePressed.y < 280 && show) {
 				menuOptions = 1;
 				show = 0;
@@ -330,7 +336,6 @@ int main() {
 
 
 		//end of pipe collision
-
 
 
 		Event event;
@@ -386,7 +391,7 @@ int main() {
 		else if (Keyboard::isKeyPressed(Keyboard::Left) && canmoveleft) {
 
 			moveleft();
-			score++;
+			
 
 		}
 		else { velocityx = 0; }
@@ -592,7 +597,9 @@ void MenuOptions(int n) {
 	}
 	else if (menuOptions == 2) {
 		window.draw(highScore);
+		
 		DiplayHighScore(playerNum);
+		
 
 
 
@@ -643,14 +650,10 @@ void DiplayHighScore(int numplayer) {
 // high score calculation function
 //local val score
 void calHighScore(int score, int currentplayer) {
-	hs[currentplayer].HighScore = score;
-	while (SameName) {
-		if (score > hs[currentplayer].HighScore) {
-
-			hs[currentplayer].HighScore = score;
-			cout << score << " ";
-		}
-		
+	hs[currentplayer - 1].HighScore = score;
+	if (score > hs[currentplayer - 1].HighScore) {
+		hs[currentplayer - 1].HighScore = score;
+		cout << score << " ";
 	}
 
 }
