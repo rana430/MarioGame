@@ -9,7 +9,8 @@ using namespace sf;
 struct PlayerHighScore {
 	int playerOrder = 1;
 	int HighScore = 0;
-}hs[10];
+}; 
+PlayerHighScore hs[10];
 
 
 
@@ -30,9 +31,9 @@ bool canjump = 1;
 bool canmoverigt = 1;
 bool canmoveleft = 1;
 bool space = 0;
-bool show = 1;
+bool show = 1;//bool to check if menu is displayed or not
 int pos;
-int playerNum = 0;//number of palyers played the game
+int playerNum = 1;//number of palyers played the game
 int score = 0;
 int animationindicator = 0;
 float velocityy = 0;
@@ -47,6 +48,7 @@ int detectground();
 int detectpipe();
 void calHighScore(int, int);
 void DiplayHighScore(int);//Displaying highscores function
+void structOrder();//Setting struct order for each player
 //end of functions
 Texture skytx;
 Sprite sky;
@@ -81,6 +83,9 @@ View camera(FloatRect(0, 0, 800, 485));
 
 
 int main() {
+	
+	structOrder();//Calling Struct order function
+	
 	//cloud
 	cloudtx.loadFromFile("cloud.png");
 
@@ -122,7 +127,7 @@ int main() {
 
 	text.setFont(font);
 	text.setString("CREDITS !!\n\n\n  Ahmed \n  Rana \n  Aliaa \n  Moaaz \n  Zeyad \n  Nour \n  Mohamed");
-	text.setFillColor(sf::Color(250, 0, 150, 200));
+	text.setFillColor(sf::Color(250, 0, 50, 200));
 
 	text.setPosition(350, 10);
 	text.setCharacterSize(32);
@@ -240,7 +245,7 @@ int main() {
 
 
 
-
+		
 
 
 		//Menu displaying
@@ -269,7 +274,7 @@ int main() {
 				show = 1;
 			}
 			//on pressing credits button
-			else if (mousePressed.x > 23 && mousePressed.x < 300 && mousePressed.y>370 && mousePressed.y < 455) {
+			else if (mousePressed.x > 23 && mousePressed.x < 300 && mousePressed.y>370 && mousePressed.y < 455 && show) {
 
 				menuOptions = 4;
 				show = 0;
@@ -279,6 +284,7 @@ int main() {
 				show = 0;
 				playerNum++;
 				cout << playerNum << " ";
+				
 			}
 		}
 		//End od Menu Displaying
@@ -444,8 +450,10 @@ int main() {
 		else if (menuOptions == 2) {
 			window.draw(highScore);
 			DiplayHighScore(playerNum);
+			window.draw(Data);
+			window.draw(Scores);
+			
 		}
-
 		else if (menuOptions == 3) {
 			window.draw(option);
 			window.draw(newGame);
@@ -585,21 +593,36 @@ int detectpipe() {
 
 	return m;
 }
+//Seting Struct Order
+void structOrder() {
+	for (int i = 0; i < 10; i++) {
+		hs[i].playerOrder = i + 1;
+		hs[i].HighScore = 1;
+		cout << hs[i].playerOrder << " ";
+	}
+}
+
+
 void DiplayHighScore(int numPlayer) {
 	Data.setFont(font);
-	Data.setFillColor(sf::Color(250, 0, 150, 200));
+	Data.setFillColor(sf::Color(250, 0, 50, 200));
 	Data.setPosition(350, 10);
 	Data.setCharacterSize(32);
 	Scores.setFont(font);
-	Scores.setFillColor(sf::Color(250, 0, 150, 200));
+	Scores.setFillColor(sf::Color(250, 0, 50, 200));
 	Scores.setPosition(500, 10);
 	Scores.setCharacterSize(32);
 	for (int i = 0; i < numPlayer; i++) {
-		Data.setString("Player " + to_string(hs[i].playerOrder) + "\t\t");
-		Scores.setString(to_string(hs[i].HighScore) + "\n");
+		Data.setString("Player " + to_string(hs[i].playerOrder));
+		Scores.setString("\t\t" + to_string(hs[i].HighScore) + "\n");
+
 		window.draw(Data);
 		window.draw(Scores);
 
 	}
 }
+	
+
+
+
 //Swap function
