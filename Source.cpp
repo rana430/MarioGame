@@ -20,6 +20,9 @@ int menuOptions = 0;/*
 					3->To do display options Menu
 					4-> to dispaly credits Menu
 					*/
+
+sf::RenderWindow window(sf::VideoMode(800, 485), "Super Mario!!");
+
 Vector2i mousePressed = Mouse::getPosition(window);//variable for determine the position of the mouse in the window when press on high score
 bool SameName = 1;//if player doesnt change his name
 int playerNum = 0;//number of palyers played the game
@@ -72,7 +75,7 @@ Font font;
 
 View camera(FloatRect(0, 0, 800, 485));
 
-sf::RenderWindow window(sf::VideoMode(800, 485), "Super Mario!!");
+
 
 int main() {
 	//cloud
@@ -233,7 +236,7 @@ int main() {
 	//End of Seting Struct by zero
 
 
-	sf::RenderWindow window(sf::VideoMode(800, 485), "Super Mario!!");
+	
 	window.setFramerateLimit(120);
 
 
