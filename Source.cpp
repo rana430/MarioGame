@@ -618,14 +618,22 @@ void structOrder() {
 	}
 }
 
+// high score calculation function
+//local val score
+void calHighScore(int score, int currentplayer) {
+	hs[currentplayer].HighScore = score;
+	while (SameName) {
+		if (score > hs[currentplayer].HighScore) {
 
-void DiplayHighScore(int numPlayer) {
-	
-	
-	
+			hs[currentplayer].HighScore = score;
+		}
+	}
+
 }
+
 	
 
 
 
 //Swap function
+
