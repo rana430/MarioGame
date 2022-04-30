@@ -5,7 +5,7 @@
 using namespace std;
 using namespace sf;
 
-//creating data structure to define the order and high score for each player
+//creating data structure to define the order a player 
 struct PlayerHighScore {
 	int playerOrder = 1;
 	int HighScore = 0;
@@ -265,10 +265,9 @@ int main() {
 				show = 0;
 			}
 			// On pressing on Play Button
-			else if ((mousePressed.x > 23 && mousePressed.x < 300 && mousePressed.y > 10 && mousePressed.y < 86 && show) || (mousePressed.x > 230 && mousePressed.x < 540 && mousePressed.y>140 && mousePressed.y < 280 && show)) {
+			else if ((mousePressed.x > 23 && mousePressed.x < 300 && mousePressed.y > 10 && mousePressed.y < 86 && show)) {
 
 				menuOptions = 1;
-				playerNum++;
 				show = 0;
 
 			}
@@ -283,6 +282,11 @@ int main() {
 
 				menuOptions = 4;
 				show = 0;
+			}
+			else if (menuOptions == 3 && mousePressed.x > 230 && mousePressed.x < 540 && mousePressed.y>140 && mousePressed.y < 280 && show) {
+				menuOptions = 0;
+				show = 0;
+				playerNum++;
 			}
 		}
 		//End od Menu Displaying
@@ -599,9 +603,13 @@ void DiplayHighScore(int numPlayer) {
 	Data.setFillColor(sf::Color(250, 0, 150, 200));
 	Data.setPosition(350, 10);
 	Data.setCharacterSize(32);
+	Scores.setFont(font);
+	Scores.setFillColor(sf::Color(250, 0, 150, 200));
+	Scores.setPosition(350, 10);
+	Scores.setCharacterSize(32);
 	for (int i = 0; i < numPlayer; i++) {
-		Data.setString("Player " + to_string(hs[i].playerOrder));
-		Scores.setString("\t\t" + to_string(hs[i].HighScore) + "\n");
+		Data.setString("Player " + to_string(hs[i].playerOrder)+"\t\t");
+		Scores.setString(to_string(hs[i].HighScore) + "\n");
 		window.draw(Data);
 		window.draw(Scores);
 
