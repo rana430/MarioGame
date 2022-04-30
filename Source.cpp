@@ -127,7 +127,7 @@ int main() {
 
 	text.setFont(font);
 	text.setString("CREDITS !!\n\n\n  Ahmed \n  Rana \n  Aliaa \n  Moaaz \n  Zeyad \n  Nour \n  Mohamed");
-	text.setFillColor(sf::Color(250, 0, 50, 200));
+	text.setFillColor(sf::Color(0, 0, 0, 180));
 
 	text.setPosition(350, 10);
 	text.setCharacterSize(32);
@@ -449,9 +449,25 @@ int main() {
 		}
 		else if (menuOptions == 2) {
 			window.draw(highScore);
-			DiplayHighScore(playerNum);
-			window.draw(Data);
-			window.draw(Scores);
+			for (int i = 0; i < playerNum; i++) {
+				Data.setFont(font);
+				Data.setFillColor(sf::Color(0, 0, 0, 180));
+				Data.setPosition(200, 18 + i * 40);
+				Data.setCharacterSize(32);
+				Scores.setFont(font);
+				Scores.setFillColor(sf::Color(0, 0, 0, 200));
+				Scores.setPosition(500, 18 + i * 40);
+				Scores.setCharacterSize(32);
+				Data.setString("Player " + to_string(hs[i].playerOrder));
+				Scores.setString("\t\t" + to_string(hs[i].HighScore) + "\n");
+				
+				window.draw(Data);
+				window.draw(Scores);
+				
+
+			}
+			
+			
 			
 		}
 		else if (menuOptions == 3) {
@@ -597,29 +613,16 @@ int detectpipe() {
 void structOrder() {
 	for (int i = 0; i < 10; i++) {
 		hs[i].playerOrder = i + 1;
-		hs[i].HighScore = 1;
+		hs[i].HighScore = 0;
 		cout << hs[i].playerOrder << " ";
 	}
 }
 
 
 void DiplayHighScore(int numPlayer) {
-	Data.setFont(font);
-	Data.setFillColor(sf::Color(250, 0, 50, 200));
-	Data.setPosition(350, 10);
-	Data.setCharacterSize(32);
-	Scores.setFont(font);
-	Scores.setFillColor(sf::Color(250, 0, 50, 200));
-	Scores.setPosition(500, 10);
-	Scores.setCharacterSize(32);
-	for (int i = 0; i < numPlayer; i++) {
-		Data.setString("Player " + to_string(hs[i].playerOrder));
-		Scores.setString("\t\t" + to_string(hs[i].HighScore) + "\n");
-
-		window.draw(Data);
-		window.draw(Scores);
-
-	}
+	
+	
+	
 }
 	
 
