@@ -319,6 +319,7 @@ int main() {
 				SameName = 0;
 				playerNum++;
 				Newgame = 1;
+
 				Reset(Newgame);
 				
 			}
@@ -613,7 +614,6 @@ void MenuOptions(int n) {
 		window.draw(menu);
 	}
 	else if (menuOptions == 1) {
-		camera.setCenter(player.getPosition().x, player.getPosition().y);
 		window.setView(camera);
 
 		window.draw(sky);
