@@ -30,7 +30,8 @@ bool SameName = 1;//if player doesnt change his name
 bool canjump = 1;
 bool canmoverigt = 1;
 bool canmoveleft = 1;
-bool space = 0;
+bool space = 0; 
+bool Newgame = 1;//bool to reset the game and player postion
 bool show = 1;//bool to check if menu is displayed or not
 int pos;
 int playerNum = 1;//number of palyers played the game
@@ -49,7 +50,7 @@ int detectpipe();
 void calHighScore(int, int);
 void DiplayHighScore(int);//Displaying highscores function
 void structOrder();//Setting struct order for each player
-void MenuOptions(int);
+void MenuOptions(int);//function to display menu 
 //end of functions
 Texture skytx;
 Sprite sky;
@@ -237,8 +238,10 @@ int main() {
 
 
 
+
 	camera.setCenter(player.getPosition().x, player.getPosition().y + 250);
 	window.setView(camera);
+	
 
 	while (window.isOpen())
 	{
@@ -259,6 +262,7 @@ int main() {
 			if ((mousePressed.x > 23 && mousePressed.x < 300 && mousePressed.y>120 && mousePressed.y < 205 && show)) {
 
 				menuOptions = 2;
+				//calling function of calculating high score
 				calHighScore(score, playerNum);
 
 				show = 0;
@@ -269,10 +273,7 @@ int main() {
 				menuOptions = 1;
 				show = 0;
 				SameName = 1;
-				for (int i = 0; i < 9; i++) {
-					score++;
-					cout << score << " ";
-				}
+				
 			}
 			//on pressing on options button
 			else if (mousePressed.x > 23 && mousePressed.x < 300 && mousePressed.y>240 && mousePressed.y < 330 && show) {
@@ -300,8 +301,13 @@ int main() {
 
 		//Esc button 
 		else if (Keyboard::isKeyPressed(Keyboard::Escape)) {
+			//setting postion of menu on pressing esc
+			menu.setPosition(player.getPosition().x-400, player.getPosition().y-360);
+			menu.setScale(1.25, 1.5);
 			menuOptions = 0;
 			show = 1;
+			Newgame = 0;
+			
 		}
 
 
@@ -560,6 +566,8 @@ int detectpipe() {
 
 	return m;
 }
+
+
 //Seting Struct Order
 void structOrder() {
 	for (int i = 0; i < 10; i++) {
@@ -567,6 +575,7 @@ void structOrder() {
 		hs[i].HighScore = 0;
 		cout << hs[i].playerOrder << " ";
 	}
+
 }
 
 //Menu function
@@ -622,7 +631,7 @@ void MenuOptions(int n) {
 	window.display();
 
 }
-
+//End of Menu displaying function
 
 //high score displaying function
 
@@ -653,7 +662,7 @@ void calHighScore(int score, int currentplayer) {
 	hs[currentplayer - 1].HighScore = score;
 	if (score > hs[currentplayer - 1].HighScore) {
 		hs[currentplayer - 1].HighScore = score;
-		cout << score << " ";
+		
 	}
 
 }
@@ -664,3 +673,12 @@ void calHighScore(int score, int currentplayer) {
 
 //Swap function
 
+/*for (int i = 0; i < n; i++) {
+        for (int j = 1 + i; j < n; j++) {
+            if (a[i] < a[j]) {
+                temp = a[i];
+                a[i] = a[j];
+                a[j] = temp;
+            }
+        }
+    }*/
