@@ -256,8 +256,7 @@ int main() {
 	
 	
 	
-	camera.setCenter(player.getPosition().x, player.getPosition().y + 250);
-	window.setView(camera);
+	
 
 	while (window.isOpen())
 	{
@@ -282,6 +281,7 @@ int main() {
 				calHighScore(score, playerNum);
 				Sort(playerNum);
 				show = 0;
+				Newgame = 0;
 			}
 			// On pressing on Play Button
 			else if ((mousePressed.x > 23 && mousePressed.x < 300 && mousePressed.y > 10 && mousePressed.y < 86 && show)) {
@@ -300,15 +300,17 @@ int main() {
 			}
 			//on pressing on options button
 			else if (mousePressed.x > 23 && mousePressed.x < 300 && mousePressed.y>240 && mousePressed.y < 330 && show) {
-
+				Newgame = 0;
 				menuOptions = 3;
 				show = 1;
+				Reset(Newgame);
 			}
 			//on pressing credits button
 			else if (mousePressed.x > 23 && mousePressed.x < 300 && mousePressed.y>370 && mousePressed.y < 455 && show) {
-
+				Newgame = 0;
 				menuOptions = 4;
 				show = 0;
+				Reset(Newgame);
 			}
 			//on pressing New game button
 			else if (menuOptions == 3 && mousePressed.x > 230 && mousePressed.x < 540 && mousePressed.y>140 && mousePressed.y < 280 && show) {
@@ -317,11 +319,6 @@ int main() {
 				SameName = 0;
 				playerNum++;
 				Newgame = 1;
-				if (playerNum == 2) {
-					for (int i = 1; i <= 10; i++) {
-						score++;
-					}
-				}
 				Reset(Newgame);
 				
 			}
@@ -330,11 +327,11 @@ int main() {
 
 		//Esc button 
 		else if (Keyboard::isKeyPressed(Keyboard::Escape)) {
-			//setting postion of menu on pressing esc
-			menu.setPosition(player.getPosition().x-400, player.getPosition().y - 365);
+			
 			menuOptions = 0;
 			show = 1;
-			Newgame = 1;
+			Newgame = 0;
+			Reset(Newgame);
 			
 		}
 
@@ -616,6 +613,7 @@ void MenuOptions(int n) {
 		window.draw(menu);
 	}
 	else if (menuOptions == 1) {
+		camera.setCenter(player.getPosition().x, player.getPosition().y);
 		window.setView(camera);
 
 		window.draw(sky);
@@ -739,5 +737,9 @@ void Reset(bool New) {
 		camera.setCenter(player.getPosition().x, player.getPosition().y + 250);
 		window.setView(camera);
 
+	}
+	else {
+		camera.setCenter(400, 240);
+		window.setView(camera);
 	}
 }
