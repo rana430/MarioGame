@@ -51,6 +51,8 @@ void calHighScore(int, int);
 void DiplayHighScore(int);//Displaying highscores function
 void structOrder();//Setting struct order for each player
 void MenuOptions(int);//function to display menu 
+void Swap(int& n1, int& n2, int& n3, int& n4);
+void Sort(int);
 //end of functions
 Texture skytx;
 Sprite sky;
@@ -238,9 +240,11 @@ int main() {
 
 
 
-
+	
 	camera.setCenter(player.getPosition().x, player.getPosition().y + 250);
 	window.setView(camera);
+	
+	
 	
 
 	while (window.isOpen())
@@ -264,7 +268,7 @@ int main() {
 				menuOptions = 2;
 				//calling function of calculating high score
 				calHighScore(score, playerNum);
-
+				Sort(playerNum);
 				show = 0;
 			}
 			// On pressing on Play Button
@@ -273,6 +277,12 @@ int main() {
 				menuOptions = 1;
 				show = 0;
 				SameName = 1;
+				if (playerNum == 1) {
+					for (int i = 1; i <= 9; i++) {
+						score++;
+					}
+				}
+				
 				
 			}
 			//on pressing on options button
@@ -294,6 +304,13 @@ int main() {
 				SameName = 0;
 				playerNum++;
 				cout << playerNum << " "<<SameName;
+				score = 0;
+				Newgame = 1;
+				if (playerNum == 2) {
+					for (int i = 1; i <= 10; i++) {
+						score++;
+					}
+				}
 				
 			}
 		}
@@ -302,8 +319,7 @@ int main() {
 		//Esc button 
 		else if (Keyboard::isKeyPressed(Keyboard::Escape)) {
 			//setting postion of menu on pressing esc
-			menu.setPosition(player.getPosition().x-400, player.getPosition().y-360);
-			menu.setScale(1.25, 1.5);
+			
 			menuOptions = 0;
 			show = 1;
 			Newgame = 0;
@@ -312,7 +328,9 @@ int main() {
 
 
 		//End of ESC button
+		
 
+		
 
 
 		//Pipe and ground collsion
@@ -673,12 +691,28 @@ void calHighScore(int score, int currentplayer) {
 
 //Swap function
 
-/*for (int i = 0; i < n; i++) {
-        for (int j = 1 + i; j < n; j++) {
-            if (a[i] < a[j]) {
-                temp = a[i];
-                a[i] = a[j];
-                a[j] = temp;
-            }
-        }
-    }*/
+void Swap(int& n1, int& n2,int& n3,int& n4) {
+	int temp;
+	temp = n1;
+	n1 = n2;
+	n2 = temp;
+	//swap player numbers
+	int tempn;
+	tempn = n3;
+	n3 = n4;
+	n4 = tempn;
+	
+}
+
+
+//Sorting Function
+void Sort(int n) {
+	for (int i = 0; i < n; i++) {
+		for (int j = 1 + i; j < n; j++) {
+			if (hs[i].HighScore < hs[j].HighScore) {
+
+				Swap(hs[i].HighScore, hs[j].HighScore,hs[i].playerOrder,hs[j].playerOrder);
+			}
+		}
+	}
+}
