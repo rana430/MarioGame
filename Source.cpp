@@ -75,6 +75,8 @@ Sprite credit;//Credits wallpaper
 Texture Credits;
 Sprite newGame;//New Game button 
 Texture NewGame;
+Sprite gameOver;//Game Over Condition
+Texture gameOvertx;
 Text Data;//text of name of players
 Text Scores;//test of scores of players
 Text text;
@@ -148,7 +150,16 @@ int main() {
 	Scores.setPosition(500, 10);
 	Scores.setCharacterSize(32);
 	//End of High score Data displaying
+	
 
+	//Game Over 
+	gameOvertx.loadFromFile("gameOver.png");
+	gameOver.setTexture(gameOvertx);
+	gameOver.setPosition(0, 0);
+	gameOver.setScale(1.25, 1.5);
+
+
+	//End Of Game Over
 
 	//Credits Wallpaper
 	Credits.loadFromFile("Sky.png");
@@ -319,7 +330,7 @@ int main() {
 		//Esc button 
 		else if (Keyboard::isKeyPressed(Keyboard::Escape)) {
 			//setting postion of menu on pressing esc
-			
+			menu.setPosition(player.getPosition().x-400, player.getPosition().y - 365);
 			menuOptions = 0;
 			show = 1;
 			Newgame = 0;
