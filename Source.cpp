@@ -31,7 +31,7 @@ bool canjump = 1;
 bool canmoverigt = 1;
 bool canmoveleft = 1;
 bool space = 0; 
-bool Newgame = 1;//bool to reset the game and player postion
+bool Newgame = 0;//bool to reset the game and player postion
 bool show = 1;//bool to check if menu is displayed or not
 int pos;
 int playerNum = 1;//number of palyers played the game
@@ -51,8 +51,9 @@ void calHighScore(int, int);
 void DiplayHighScore(int);//Displaying highscores function
 void structOrder();//Setting struct order for each player
 void MenuOptions(int);//function to display menu 
-void Swap(int& n1, int& n2, int& n3, int& n4);
-void Sort(int);
+void Swap(int& n1, int& n2, int& n3, int& n4);//function to swap high scores of two player and their orders
+void Sort(int);//function to sort players decsending according to their highscores
+void Reset(bool);
 //end of functions
 Texture skytx;
 Sprite sky;
@@ -74,7 +75,7 @@ Texture Option;
 Sprite credit;//Credits wallpaper
 Texture Credits;
 Sprite newGame;//New Game button 
-Texture NewGame;
+Texture newGametx;
 Sprite gameOver;//Game Over Condition
 Texture gameOvertx;
 Text Data;//text of name of players
@@ -169,8 +170,8 @@ int main() {
 	//End of credits
 
 	//New Game button
-	NewGame.loadFromFile("button-png-game-3.png");
-	newGame.setTexture(NewGame);
+	newGametx.loadFromFile("button-png-game-3.png");
+	newGame.setTexture(newGametx);
 	newGame.setPosition(230, 140);
 	newGame.setScale(1.25, 1.25);
 
@@ -252,11 +253,11 @@ int main() {
 
 
 	
+	
+	
+	
 	camera.setCenter(player.getPosition().x, player.getPosition().y + 250);
 	window.setView(camera);
-	
-	
-	
 
 	while (window.isOpen())
 	{
@@ -265,7 +266,7 @@ int main() {
 		
 
 		
-
+		
 
 		//Menu displaying
 		Vector2i mousePressed = Mouse::getPosition(window);//variable for determine the position of the mouse in the window
@@ -293,7 +294,8 @@ int main() {
 						score++;
 					}
 				}
-				
+				Newgame = 1;
+				Reset(Newgame);
 				
 			}
 			//on pressing on options button
@@ -314,14 +316,13 @@ int main() {
 				show = 0;
 				SameName = 0;
 				playerNum++;
-				cout << playerNum << " "<<SameName;
-				score = 0;
 				Newgame = 1;
 				if (playerNum == 2) {
 					for (int i = 1; i <= 10; i++) {
 						score++;
 					}
 				}
+				Reset(Newgame);
 				
 			}
 		}
@@ -333,7 +334,7 @@ int main() {
 			menu.setPosition(player.getPosition().x-400, player.getPosition().y - 365);
 			menuOptions = 0;
 			show = 1;
-			Newgame = 0;
+			Newgame = 1;
 			
 		}
 
@@ -725,5 +726,18 @@ void Sort(int n) {
 				Swap(hs[i].HighScore, hs[j].HighScore,hs[i].playerOrder,hs[j].playerOrder);
 			}
 		}
+	}
+}
+
+
+//Reset function
+void Reset(bool New) {
+	if (New) {
+		score = 0;
+		player.setPosition(400, -11);
+		player.setScale(3, 3);
+		camera.setCenter(player.getPosition().x, player.getPosition().y + 250);
+		window.setView(camera);
+
 	}
 }
