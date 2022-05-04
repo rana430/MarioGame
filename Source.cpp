@@ -779,6 +779,8 @@ void Reset(bool New) {
 		score = 0;
 		player.setPosition(400, -11);
 		player.setScale(3, 3);
+		sky.setPosition(0, 0);
+		enemy.setPosition(580, 380);
 		enemyal = 1;
 		marioal = 1;
 		camera.setCenter(player.getPosition().x, player.getPosition().y + 250);
