@@ -31,6 +31,9 @@ bool canjump = 1;
 bool canmoverigt = 1;
 bool canmoveleft = 1;
 bool space = 0; 
+bool rightc = 0;
+bool marioal = 1;
+bool enemyal = 1;
 bool PlayerCase = 1; //1 -> win // 0 -> Lose 
 bool Newgame = 0;//bool to reset the game and player postion
 bool show = 1;//bool to check if menu is displayed or not
@@ -72,21 +75,24 @@ Sprite pipe[3];
 Texture cloudtx;
 Sprite	cloudi[10];
 Sprite menu;//Menu wallpaper
-Texture Menu;
+Texture menutx;
 Sprite highScore;//highscore wallpaper
-Texture HighScore;
+Texture highScoretx;
 Sprite option; //option Wallpaper
 Texture Option;
 Sprite credit;//Credits wallpaper
-Texture Credits;
+Texture Credittx;
 Sprite newGame;//New Game button 
 Texture newGametx;
 Sprite gameOver;//Game Over Condition
 Texture gameOvertx;
+Sprite enemy;//enemy sprite
+Texture enemytx;
 Text Data;//text of name of players
 Text Scores;//test of scores of players
 Text text;
 Text Message;
+Text gameovermessage;
 Font font;
 Vector2f groundPos(3250, 240);
 
@@ -125,8 +131,8 @@ int main() {
 
 	//Menu Sprite declaring
 
-	Menu.loadFromFile("menu.png");
-	menu.setTexture(Menu);
+	menutx.loadFromFile("menu.png");
+	menu.setTexture(menutx);
 	menu.setPosition(0, 0);
 	menu.setScale(1.25, 1.5);
 
@@ -162,8 +168,8 @@ int main() {
 	//End Of Game Over
 
 	//Credits Wallpaper
-	Credits.loadFromFile("Sky.png");
-	credit.setTexture(Credits);
+	Credittx.loadFromFile("Sky.png");
+	credit.setTexture(Credittx);
 	credit.setPosition(0, 0);
 	credit.setScale(1.25, 1.25);
 	//End of credits
@@ -178,8 +184,8 @@ int main() {
 
 
 	//highscore menu for testing
-	HighScore.loadFromFile("Sky.png");
-	highScore.setTexture(HighScore);
+	highScoretx.loadFromFile("Sky.png");
+	highScore.setTexture(highScoretx);
 	highScore.setPosition(0, 0);
 	//End of Testing
 
@@ -195,6 +201,13 @@ int main() {
 	sky.setTexture(skytx);
 	sky.setScale(10, 8);
 	//end of sky
+
+	//enemy
+	enemytx.loadFromFile("goomba.png");
+	enemy.setTexture(enemytx);
+	enemy.setPosition(580, 380);
+	enemy.setScale(2, 2);
+	//end of enemy
 
 	//ground
 
@@ -261,7 +274,28 @@ int main() {
 	{
 
 
-		
+		//enemy 
+		if (enemy.getGlobalBounds().intersects(pipe[1].getGlobalBounds())) {
+			rightc = 1;
+		}
+		if (enemy.getGlobalBounds().intersects(pipe[0].getGlobalBounds())) {
+			rightc = 0;
+		}
+		if (!rightc) {
+			enemy.move(1, 0);
+		}
+		else
+			enemy.move(-1, 0);
+		if (enemy.getGlobalBounds().intersects(player.getGlobalBounds()) && player.getPosition().y < 340) {
+			enemy.setPosition(-100, -100);
+			enemyal = 0;
+		}
+		else if (enemy.getGlobalBounds().intersects(player.getGlobalBounds()) && player.getPosition().y > 340) {
+			marioal = 0;
+			player.setPosition(-100, -100);
+		}
+
+		//end of enemy
 
 		
 		
@@ -610,6 +644,14 @@ void MenuOptions(int n) {
 		window.setView(camera);
 
 		window.draw(sky);
+
+		// Enemy displaying
+		if (marioal)
+			window.draw(player);
+		if (enemyal)
+			window.draw(enemy);
+
+
 		for (int i = 0; i < 10; i++) {
 			window.draw(cloudi[i]);
 		}
@@ -743,6 +785,7 @@ void GameOver(bool f, bool t) {
 		window.clear();
 		window.draw(sky);
 		window.draw(gameOver);
+
 		window.display();
 	}
 }
