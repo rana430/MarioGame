@@ -783,7 +783,7 @@ void Reset(bool New) {
 		marioal = 1;
 		camera.setCenter(player.getPosition().x, player.getPosition().y + 250);
 		window.setView(camera);
-		
+
 	}
 	else {
 		camera.setCenter(400, 240);
