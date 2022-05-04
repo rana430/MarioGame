@@ -31,11 +31,14 @@ bool canjump = 1;
 bool canmoverigt = 1;
 bool canmoveleft = 1;
 bool space = 0; 
+bool PlayerCase = 1; //1 -> win // 0 -> Lose 
 bool Newgame = 0;//bool to reset the game and player postion
 bool show = 1;//bool to check if menu is displayed or not
+bool Full = 0;//check number of players dont exceed 10 players
 int pos;
 int playerNum = 1;//number of palyers played the game
 int score = 0;
+const int num = 10;
 int animationindicator = 0;
 float velocityy = 0;
 float velocityx = 0;
@@ -53,7 +56,9 @@ void structOrder();//Setting struct order for each player
 void MenuOptions(int);//function to display menu 
 void Swap(int& n1, int& n2, int& n3, int& n4);//function to swap high scores of two player and their orders
 void Sort(int);//function to sort players decsending according to their highscores
-void Reset(bool);
+void Reset(bool);//function to reset the setting of the game
+void GameOver(bool, bool);//function to display gameover message
+void Fullmessage(int,int);//function to display message when number of players exceed 10
 //end of functions
 Texture skytx;
 Sprite sky;
@@ -81,6 +86,7 @@ Texture gameOvertx;
 Text Data;//text of name of players
 Text Scores;//test of scores of players
 Text text;
+Text Message;
 Font font;
 Vector2f groundPos(3250, 240);
 
@@ -92,6 +98,8 @@ View camera(FloatRect(0, 0, 800, 485));
 int main() {
 	
 	structOrder();//Calling Struct order function
+
+	Fullmessage(playerNum, num);
 	
 	//cloud
 	cloudtx.loadFromFile("cloud.png");
@@ -141,22 +149,13 @@ int main() {
 
 	//End Of Text
 
-	//High score Data displaying
-	Data.setFont(font);
-	Data.setFillColor(sf::Color(250, 0, 150, 200));
-	Data.setPosition(350, 10);
-	Data.setCharacterSize(32);
-	Scores.setFont(font);
-	Scores.setFillColor(sf::Color(250, 0, 150, 200));
-	Scores.setPosition(500, 10);
-	Scores.setCharacterSize(32);
-	//End of High score Data displaying
+	
 	
 
 	//Game Over 
 	gameOvertx.loadFromFile("gameOver.png");
 	gameOver.setTexture(gameOvertx);
-	gameOver.setPosition(0, 0);
+	gameOver.setPosition(200, 50);
 	gameOver.setScale(1.25, 1.5);
 
 
@@ -289,11 +288,6 @@ int main() {
 				menuOptions = 1;
 				show = 0;
 				SameName = 1;
-				if (playerNum == 1) {
-					for (int i = 1; i <= 9; i++) {
-						score++;
-					}
-				}
 				Newgame = 1;
 				Reset(Newgame);
 				
@@ -469,7 +463,7 @@ int main() {
 		//end of gravity and movement
 		
 
-
+		
 		MenuOptions(menuOptions);
 		
 		player.move(velocityx, -velocityy);
@@ -598,10 +592,9 @@ int detectpipe() {
 
 //Seting Struct Order
 void structOrder() {
-	for (int i = 0; i < 10; i++) {
+	for (int i = 0; i < num; i++) {
 		hs[i].playerOrder = i + 1;
 		hs[i].HighScore = 0;
-		cout << hs[i].playerOrder << " ";
 	}
 
 }
@@ -661,11 +654,14 @@ void MenuOptions(int n) {
 }
 //End of Menu displaying function
 
+
+
 //high score displaying function
 
 void DiplayHighScore(int numplayer) {
 
 	for (int i = 0; i < numplayer; i++) {
+		//High score Data displaying
 		Data.setFont(font);
 		Data.setFillColor(sf::Color(0, 0, 0, 180));
 		Data.setPosition(200, 18 + i * 40);
@@ -676,10 +672,9 @@ void DiplayHighScore(int numplayer) {
 		Scores.setCharacterSize(32);
 		Data.setString("Player " + to_string(hs[i].playerOrder));
 		Scores.setString("\t\t" + to_string(hs[i].HighScore) + "\n");
-
 		window.draw(Data);
 		window.draw(Scores);
-
+		//End of High score Data displaying
 
 	}
 }
@@ -741,5 +736,28 @@ void Reset(bool New) {
 	else {
 		camera.setCenter(400, 240);
 		window.setView(camera);
+	}
+}
+void GameOver(bool f, bool t) {
+	if (!f && t) {
+		window.clear();
+		window.draw(sky);
+		window.draw(gameOver);
+		window.display();
+	}
+}
+
+void Fullmessage(int n,int limit) {
+	if (n>limit && !SameName) {
+		window.clear();
+		window.draw(sky);
+		Message.setFont(font);
+		Message.setFillColor(sf::Color(0, 0, 0, 180));
+		Message.setPosition(200, 200);
+		Message.setCharacterSize(32);
+		Message.setString("Number of Player Exceeded The Limit");
+		window.draw(Message);
+		window.display();
+
 	}
 }
