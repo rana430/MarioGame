@@ -32,8 +32,8 @@ bool canmoverigt = 1;
 bool canmoveleft = 1;
 bool space = 0; 
 bool rightc = 0;
-bool marioal = 1;
-bool enemyal = 1;
+bool marioal = 1;//1 -> mario alive //0 ->  mario died
+bool enemyal = 1;//1 -> enemy alive //0 ->  enemy died
 bool PlayerCase = 1; //1 -> win // 0 -> Lose 
 bool Newgame = 0;//bool to reset the game and player postion
 bool show = 1;//bool to check if menu is displayed or not
@@ -60,8 +60,8 @@ void MenuOptions(int);//function to display menu
 void Swap(int& n1, int& n2, int& n3, int& n4);//function to swap high scores of two player and their orders
 void Sort(int);//function to sort players decsending according to their highscores
 void Reset(bool);//function to reset the setting of the game
-void GameOver(bool, bool);//function to display gameover message
-void Fullmessage(int,int);//function to display message when number of players exceed 10
+bool GameOver();//function to display gameover message
+bool Fullmessage(int,int);//function to display message when number of players exceed 10
 //end of functions
 Texture skytx;
 Sprite sky;
@@ -105,7 +105,8 @@ int main() {
 	
 	structOrder();//Calling Struct order function
 
-	Fullmessage(playerNum, num);
+	
+	
 	
 	//cloud
 	cloudtx.loadFromFile("cloud.png");
@@ -119,14 +120,12 @@ int main() {
 	//mario
 
 	mario.loadFromFile("mario_spritesheet.png");
-
 	player.setTexture(mario);
 	player.setScale(3, 3);
-
-
-	player.setPosition(400, -11);
+    player.setPosition(400, 250);
 	player.setTextureRect(IntRect(0, 0, 16, 32));
 	player.setOrigin(player.getLocalBounds().width / 2, player.getLocalBounds().height / 2);
+
 	//end of mario
 
 	//Menu Sprite declaring
@@ -272,8 +271,7 @@ int main() {
 
 	while (window.isOpen())
 	{
-
-
+		
 		//enemy 
 		if (enemy.getGlobalBounds().intersects(pipe[1].getGlobalBounds())) {
 			rightc = 1;
@@ -284,8 +282,9 @@ int main() {
 		if (!rightc) {
 			enemy.move(1, 0);
 		}
-		else
+		else{
 			enemy.move(-1, 0);
+		}
 		if (enemy.getGlobalBounds().intersects(player.getGlobalBounds()) && player.getPosition().y < 340) {
 			enemy.setPosition(-100, -100);
 			enemyal = 0;
@@ -315,6 +314,7 @@ int main() {
 				Sort(playerNum);
 				show = 0;
 				Newgame = 0;
+				Reset(Newgame);
 			}
 			// On pressing on Play Button
 			else if ((mousePressed.x > 23 && mousePressed.x < 300 && mousePressed.y > 10 && mousePressed.y < 86 && show)) {
@@ -347,8 +347,8 @@ int main() {
 				SameName = 0;
 				playerNum++;
 				Newgame = 1;
-
 				Reset(Newgame);
+				
 				
 			}
 		}
@@ -366,7 +366,9 @@ int main() {
 
 
 		//End of ESC button
-		
+		if (GameOver()) {
+			Newgame = 0;
+		}
 
 		
 
@@ -640,7 +642,8 @@ void MenuOptions(int n) {
 	if (menuOptions == 0) {
 		window.draw(menu);
 	}
-	else if (menuOptions == 1) {
+	else if (menuOptions == 1){
+
 		window.setView(camera);
 
 		window.draw(sky);
@@ -666,6 +669,7 @@ void MenuOptions(int n) {
 		{
 			window.draw(pipe[i]);
 		}
+		
 	}
 	else if (menuOptions == 2) {
 		window.draw(highScore);
@@ -679,6 +683,10 @@ void MenuOptions(int n) {
 	else if (menuOptions == 3) {
 		window.draw(option);
 		window.draw(newGame);
+		if (Fullmessage(playerNum, num)) {
+			window.draw(Message);
+		}
+		
 
 
 	}
@@ -771,36 +779,48 @@ void Reset(bool New) {
 		score = 0;
 		player.setPosition(400, -11);
 		player.setScale(3, 3);
+		enemyal = 1;
+		marioal = 1;
 		camera.setCenter(player.getPosition().x, player.getPosition().y + 250);
 		window.setView(camera);
-
+		
 	}
 	else {
 		camera.setCenter(400, 240);
 		window.setView(camera);
+		
 	}
 }
-void GameOver(bool f, bool t) {
-	if (!f && t) {
-		window.clear();
+
+//function of Displaying gameover data 
+bool GameOver() {
+	window.clear();
+	if (!PlayerCase || !marioal) {
+		
 		window.draw(sky);
 		window.draw(gameOver);
-
-		window.display();
+		return true;
+		
 	}
+	else {
+		return false;
+	}
+	window.display();
 }
-
-void Fullmessage(int n,int limit) {
-	if (n>limit && !SameName) {
-		window.clear();
-		window.draw(sky);
+//function to display that number of players exceed the limit
+bool Fullmessage(int n,int limit) {
+	if (n>=limit && menuOptions==3) {
+		
 		Message.setFont(font);
 		Message.setFillColor(sf::Color(0, 0, 0, 180));
-		Message.setPosition(200, 200);
+		Message.setPosition(150, 90);
 		Message.setCharacterSize(32);
-		Message.setString("Number of Player Exceeded The Limit");
-		window.draw(Message);
-		window.display();
-
+		Message.setString("Number of Players Exceeded The Limit !!!!");
+		show = 0;
+		
+		return true;
+	}
+	else {
+		return false;
 	}
 }
