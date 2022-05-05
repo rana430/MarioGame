@@ -37,7 +37,6 @@ bool Newgame = 0;//bool to reset the game and player postion
 bool Full = 0;//check number of players dont exceed 10 players
 int pos;
 int playerNum = 1;//number of palyers played the game
-int score = 0;
 int animationindicator = 0, plantanimation = 0, coinanimation = 0;
 int goombaAnimation = 0;
 int life = 3;
@@ -65,7 +64,7 @@ void coin_motion();
 void Swap(int& n1, int& n2, int& n3, int& n4);//function to swap high scores of two player and their orders
 void Sort(int);//function to sort players decsending according to their highscores
 void Reset(bool);//function to reset the setting of the game
-//bool GameOver();//function to display gameover message
+//bool GameOver();function to display gameover message
 bool Fullmessage(int, int);//function to display message when number of players exceed 10
 //end of functions
 Texture skytx;
@@ -100,7 +99,7 @@ Texture gameOvertx;
 Sprite enemy;//enemy sprite
 Texture enemytx;
 Text Data;//text of name of players
-Text Scores;//test of scores of players
+Text point;//test of scores of players
 Text text;//Text to display the score of player
 Text Message;//text to display the message that number of palyers exceed the limit
 Text about;//text of credits
@@ -210,10 +209,10 @@ int main() {
 	Data.setFillColor(sf::Color(250, 0, 150, 200));
 	Data.setPosition(350, 10);
 	Data.setCharacterSize(32);
-	Scores.setFont(font);
-	Scores.setFillColor(sf::Color(250, 0, 150, 200));
-	Scores.setPosition(500, 10);
-	Scores.setCharacterSize(32);
+	point.setFont(font);
+	point.setFillColor(sf::Color(250, 0, 150, 200));
+	point.setPosition(500, 10);
+	point.setCharacterSize(32);
 	//End of High score Data displaying
 
 
@@ -339,8 +338,8 @@ int main() {
 
 
 
-	camera.setCenter(player.getPosition().x, player.getPosition().y + 250);
-	window.setView(camera);
+	//camera.setCenter(player.getPosition().x, player.getPosition().y + 250);
+	//window.setView(camera);
 
 	while (window.isOpen())
 	{
@@ -362,7 +361,7 @@ int main() {
 
 				menuOptions = 2;
 				//calling function of calculating high score
-				calHighScore(score, playerNum);
+				calHighScore(scores, playerNum);
 				Sort(playerNum);
 				show = 0;
 				Newgame = 0;
@@ -375,6 +374,7 @@ int main() {
 				show = 0;
 				SameName = 1;
 				Newgame = 1;
+				scores = 0;
 				Reset(Newgame);
 
 			}
@@ -397,6 +397,7 @@ int main() {
 				menuOptions = 1;
 				show = 0;
 				SameName = 0;
+				scores = 0;
 				playerNum++;
 				Newgame = 1;
 				Reset(Newgame);
@@ -408,10 +409,10 @@ int main() {
 
 		//Esc button 
 		else if (Keyboard::isKeyPressed(Keyboard::Escape)) {
-
+			scores = 0;
 			menuOptions = 0;
 			show = 1;
-			Newgame = 0;
+			Newgame = 1;
 			Reset(Newgame);
 
 		}
@@ -766,7 +767,7 @@ void structOrder() {
 	for (int i = 0; i < 10; i++) {
 		hs[i].playerOrder = i + 1;
 		hs[i].HighScore = 0;
-		cout << hs[i].playerOrder << " ";
+		
 	}
 }
 
@@ -848,15 +849,15 @@ void DiplayHighScore(int numplayer) {
 		Data.setFillColor(sf::Color(0, 0, 0, 180));
 		Data.setPosition(200, 18 + i * 40);
 		Data.setCharacterSize(32);
-		Scores.setFont(font);
-		Scores.setFillColor(sf::Color(0, 0, 0, 200));
-		Scores.setPosition(500, 18 + i * 40);
-		Scores.setCharacterSize(32);
+		point.setFont(font);
+		point.setFillColor(sf::Color(0, 0, 0, 200));
+		point.setPosition(500, 18 + i * 40);
+		point.setCharacterSize(32);
 		Data.setString("Player " + to_string(hs[i].playerOrder));
-		Scores.setString("\t\t" + to_string(hs[i].HighScore) + "\n");
+		point.setString("\t\t" + to_string(hs[i].HighScore) + "\n");
 
 		window.draw(Data);
-		window.draw(Scores);
+		window.draw(point);
 
 
 	}
@@ -926,7 +927,7 @@ bool Fullmessage(int n, int limit) {
 //Reset function
 void Reset(bool New) {
 	if (New) {
-		score = 0;
+		scores = 0;
 		player.setPosition(400, -11);
 		player.setScale(3, 3);
 		sky.setPosition(0, 0);
