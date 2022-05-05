@@ -448,7 +448,16 @@ int main() {
 
 				plant[i].setTextureRect(IntRect((plantanimation * 300) + 32, 0, 220, 280));
 
+				if (player.getGlobalBounds().intersects(plant[i].getGlobalBounds())) {
 
+
+
+
+
+					sky.setPosition(-1200, -300);
+					x = 1;
+					endgame.restart();
+				}
 
 			}
 			if (plantclock.getElapsedTime().asSeconds() > 0.2)
@@ -506,7 +515,16 @@ int main() {
 				}
 
 			}
+			if (player.getPosition().y > 600 && !x) {
 
+
+				sky.setPosition(-1200, -300);
+				x = 1;
+				endgame.restart();
+
+
+
+			}
 
 			//ground movement
 			if (ground[3].getPosition().y == 100 || ground[3].getPosition().y == 400) {
@@ -543,7 +561,7 @@ int main() {
 
 				}
 				else { velocityx = 0; }
-				if (player.getGlobalBounds().intersects(ground[detectground()].getGlobalBounds()) && ground[detectground()].getGlobalBounds().top >= (player.getPosition().y + 38)) {
+				if (player.getGlobalBounds().intersects(ground[detectground()].getGlobalBounds()) && ground[detectground()].getGlobalBounds().top >= (player.getPosition().y + 32)) {
 					velocityy = 0;
 					player.setPosition(player.getPosition().x, ground[detectground()].getGlobalBounds().top - 48);
 					canjump = 1;
@@ -803,7 +821,7 @@ void MenuOptions(int n) {
 		z = 1;
 
 	}
-	if (z&&endgame.getElapsedTime().asSeconds()>3) {
+	if (z && endgame.getElapsedTime().asSeconds() > 3) {
 		x = 0;
 		z = 0;
 		main();
@@ -895,7 +913,6 @@ void coin_motion() {
 }
 
 //Swap function
-
 
 
 
