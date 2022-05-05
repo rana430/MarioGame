@@ -22,7 +22,7 @@ int menuOptions = 0;/*
 					4-> to dispaly credits Menu
 					*/
 
-
+bool a = 0;
 
 
 
@@ -39,17 +39,18 @@ int pos;
 int playerNum = 1;//number of palyers played the game
 int animationindicator = 0, plantanimation = 0, coinanimation = 0;
 int goombaAnimation = 0;
-int life = 3;
+int life = 4;
 const int num = 10;
 int scores = 0;
 float velocityy = 0;
 float velocityx = 0;
-float groundMotion = 1, ground2Motion = 1, goombaMotion = 0.4, plantmotion = 0.5, coinmotion = 1, coin2motion = 1;
+float groundMotion = 1, ground2Motion = 1, goombaMotion = 1, plantmotion = 0.5, coinmotion = 1, coin2motion = 1;
 Clock framespeed;
 //functions
 int moveright();
 void moveleft();
 void jump();
+void pipecollision();
 void coin_animation();
 int detectground();
 int detectpipe();
@@ -61,10 +62,14 @@ void read();
 void coincollision();
 void gamend();
 void coin_motion();
+void die();
+void groundmovement();
+void mouseclick();
+void goombaa();
+void planten();
+void movementandgravity();
 void Swap(int& n1, int& n2, int& n3, int& n4);//function to swap high scores of two player and their orders
 void Sort(int);//function to sort players decsending according to their highscores
-void Reset(bool);//function to reset the setting of the game
-//bool GameOver();function to display gameover message
 bool Fullmessage(int, int);//function to display message when number of players exceed 10
 //end of functions
 Texture skytx;
@@ -96,19 +101,19 @@ Sprite newGame;//New Game button
 Texture newGametx;
 Sprite gameOver;//Game Over Condition
 Texture gameOvertx;
-Sprite enemy;//enemy sprite
-Texture enemytx;
 Text Data;//text of name of players
 Text point;//test of scores of players
 Text text;//Text to display the score of player
 Text Message;//text to display the message that number of palyers exceed the limit
 Text about;//text of credits
 Text gameovermessage;
+Text gameend;
 Font font;
 Clock goombaClock, killg, plantclock, coinclock;
 Clock endgame;
-Text gameend;
+
 bool x = 0;
+bool z = 0;
 
 
 sf::RenderWindow window(sf::VideoMode(800, 485), "Super Mario!!");
@@ -116,9 +121,11 @@ View camera(FloatRect(0, 0, 800, 485));
 
 
 int main() {
+	life--;
+	gameend.setCharacterSize(32);
 	gameend.setFont(font);
-	gameend.setFillColor(Color(180, 0, 0, 0));
-
+	gameend.setString("you have " + to_string(life) + " remaining life");
+	gameend.setFillColor(Color(0, 0, 0, 180));
 
 	structOrder();//Calling Struct order function
 
@@ -164,13 +171,13 @@ int main() {
 	player.setOrigin(player.getLocalBounds().width / 2, player.getLocalBounds().height / 2);
 	//end of mario
 
+
 	//Menu Sprite declaring
 
 	menutx.loadFromFile("menu.png");
 	menu.setTexture(menutx);
 	menu.setPosition(0, 0);
 	menu.setScale(1.25, 1.5);
-
 
 	//End of Menu Sprite declaring
 
@@ -192,7 +199,17 @@ int main() {
 	about.setCharacterSize(32);
 
 	//End Of Text
-	
+
+	//High score Data displaying
+	Data.setFont(font);
+	Data.setFillColor(sf::Color(250, 0, 150, 200));
+	Data.setPosition(350, 10);
+	Data.setCharacterSize(32);
+	point.setFont(font);
+	point.setFillColor(sf::Color(250, 0, 150, 200));
+	point.setPosition(500, 10);
+	point.setCharacterSize(32);
+	//End of High score Data displaying
 
 
 	//Game Over 
@@ -203,6 +220,7 @@ int main() {
 
 
 	//End Of Game Over
+
 
 	//High score Data displaying
 	Data.setFont(font);
@@ -336,294 +354,63 @@ int main() {
 
 	read();
 
-
-
-	//camera.setCenter(player.getPosition().x, player.getPosition().y + 250);
-	//window.setView(camera);
+	camera.setCenter(player.getPosition().x, player.getPosition().y + 250);
+	window.setView(camera);
 
 	while (window.isOpen())
 	{
-		coincollision();
+		while (life) {
 
+			coincollision();
 
+			//Menu displaying
+			mouseclick();
+			//End od Menu Displaying
 
+			//Pipe and ground collsion
 
+			pipecollision();
 
+			//end of pipe collision
 
-		//Menu displaying
-		Vector2i mousePressed = Mouse::getPosition(window);//variable for determine the position of the mouse in the window
-
-
-		if (Mouse::isButtonPressed(Mouse::Left)) {
-
-			//on pressing high scores button
-			if ((mousePressed.x > 23 && mousePressed.x < 300 && mousePressed.y>120 && mousePressed.y < 205 && show)) {
-
-				menuOptions = 2;
-				//calling function of calculating high score
-				calHighScore(scores, playerNum);
-				Sort(playerNum);
-				show = 0;
-				Newgame = 0;
-				Reset(Newgame);
-			}
-			// On pressing on Play Button
-			else if ((mousePressed.x > 23 && mousePressed.x < 300 && mousePressed.y > 10 && mousePressed.y < 86 && show)) {
-
-				menuOptions = 1;
-				show = 0;
-				SameName = 1;
-				Newgame = 1;
-				scores = 0;
-				Reset(Newgame);
+			Event event;
+			while (window.pollEvent(event)) {
+				//Closing the game from X button
+				if (event.type == sf::Event::Closed)
+				{
+					window.close();
+				}
+				//End of Closing the game from X button
 
 			}
-			//on pressing on options button
-			else if (mousePressed.x > 23 && mousePressed.x < 300 && mousePressed.y>240 && mousePressed.y < 330 && show) {
-				Newgame = 0;
-				menuOptions = 3;
-				show = 1;
-				Reset(Newgame);
-			}
-			//on pressing credits button
-			else if (mousePressed.x > 23 && mousePressed.x < 300 && mousePressed.y>370 && mousePressed.y < 455 && show) {
-				Newgame = 0;
-				menuOptions = 4;
-				show = 0;
-				Reset(Newgame);
-			}
-			//on pressing New game button
-			else if (menuOptions == 3 && mousePressed.x > 230 && mousePressed.x < 540 && mousePressed.y>140 && mousePressed.y < 280 && show) {
-				menuOptions = 1;
-				show = 0;
-				SameName = 0;
-				scores = 0;
-				playerNum++;
-				Newgame = 1;
-				Reset(Newgame);
+			//end of while event
+			//coin animation
+			coin_animation();
+			//plant 
+			planten();
 
+			// goomba 
 
-			}
+			goombaa();
+
+			//ground movement
+
+			groundmovement();
+
+			//gravity and movement
+			movementandgravity();
+
+			//end of gravity and movement
+
+			MenuOptions(menuOptions);
+
+			player.move(velocityx, -velocityy);
+			camera.move(velocityx, 0);
+			text.move(velocityx, 0);
+
+			sky.move(velocityx, 0);
 		}
-		//End od Menu Displaying
-
-		//Esc button 
-		else if (Keyboard::isKeyPressed(Keyboard::Escape)) {
-			scores = 0;
-			menuOptions = 0;
-			show = 1;
-			Newgame = 1;
-			Reset(Newgame);
-
-		}
-
-		//End of ESC button
-
-
-
-		//Pipe and ground collsion
-		if ((player.getGlobalBounds().intersects(pipe[detectpipe()].getGlobalBounds()) && pipe[detectpipe()].getPosition().x > player.getPosition().x)) {
-			if (pipe[detectpipe()].getGlobalBounds().top > (player.getPosition().y + 42)) {
-				canmoverigt = 1;
-			}
-			else { canmoverigt = 0; }
-
-		}
-
-
-		else { canmoverigt = 1; }
-
-
-		if (player.getGlobalBounds().intersects(pipe[detectpipe()].getGlobalBounds()) && pipe[detectpipe()].getPosition().x < player.getPosition().x) {
-			if (pipe[detectpipe()].getGlobalBounds().top > (player.getPosition().y + 42))
-			{
-
-				canmoveleft = 1;
-			}
-			else { canmoveleft = 0; }
-
-
-		}
-		else { canmoveleft = 1; }
-
-
-		//end of pipe collision
-
-
-		Event event;
-		while (window.pollEvent(event)) {
-			//Closing the game from X button
-			if (event.type == sf::Event::Closed)
-			{
-				window.close();
-			}
-			//End of Closing the game from X button
-
-
-
-
-
-
-
-
-
-
-
-
-		}
-		//end of while event
-		//coin animation
-		coin_animation();
-		//plant 
-		for (size_t i = 0; i < 7; i++)
-		{
-
-			plant[i].setTextureRect(IntRect((plantanimation * 300) + 32, 0, 220, 280));
-
-
-
-		}
-		if (plantclock.getElapsedTime().asSeconds() > 0.2)
-		{
-			plantanimation++;
-			plantclock.restart();
-		}
-		plantanimation %= 2;
-
-		if (plant[3].getPosition().y == 190 || plant[3].getPosition().y == 340) {
-
-			plantmotion *= -1;
-
-		}
-		plant[3].move(0, -plantmotion);
-
-
-		// goomba movement 
-		if (alive) {
-			goomba.setTextureRect(IntRect(goombaAnimation * 210, 0, 165, 161));
-			if (goomba.getGlobalBounds().intersects(pipe[1].getGlobalBounds()) || goomba.getGlobalBounds().intersects(pipe[2].getGlobalBounds())) {
-				goombaMotion *= -1;
-			}
-			if (goombaClock.getElapsedTime().asSeconds() > 0.8) {
-				goombaAnimation++;
-				goombaClock.restart();
-			}
-			if (alive) {
-				goombaAnimation %= 2;
-				goomba.move(-goombaMotion, 0);
-			}
-		}
-
-		//Killing enemies
-		if (player.getGlobalBounds().intersects(goomba.getGlobalBounds())) {
-
-			if (player.getPosition().y + 42 < goomba.getGlobalBounds().top) {
-				alive = 0;
-				goombaMotion = 0;
-				goomba.setTextureRect(IntRect(420, 0, 165, 161));
-				killg.restart();
-
-			}
-			else if (killg.getElapsedTime().asSeconds() > 0.15 && !alive) {
-
-				goomba.setScale(0, 0);
-
-			}
-			else {
-				x = 1;
-
-
-
-			}
-
-		}
-
-
-		//ground movement
-		if (ground[3].getPosition().y == 100 || ground[3].getPosition().y == 400) {
-			groundMotion *= -1;
-		}
-		ground[3].move(0, groundMotion);
-		ground[5].move(0, groundMotion);
-
-		if (ground[4].getPosition().y == 100 || ground[4].getPosition().y == 400) {
-			ground2Motion *= -1;
-		}
-		ground[4].move(0, -ground2Motion);
-
-		//pipecoll
-
-		//coin motion
-		//coin_motion();
-
-		//end of pipe coll
-
-
-		//gravity and movement
-		if (Keyboard::isKeyPressed(Keyboard::Right) && canmoverigt) {
-
-			moveright();
-
-		}
-
-		else if (Keyboard::isKeyPressed(Keyboard::Left) && canmoveleft) {
-
-			moveleft();
-
-
-		}
-		else { velocityx = 0; }
-		if (player.getGlobalBounds().intersects(ground[detectground()].getGlobalBounds()) && ground[detectground()].getGlobalBounds().top >= (player.getPosition().y + 38)) {
-			velocityy = 0;
-			player.setPosition(player.getPosition().x, ground[detectground()].getGlobalBounds().top - 48);
-			canjump = 1;
-			if (Keyboard::isKeyPressed(Keyboard::X) && canjump) {
-
-				velocityy = 6;
-				canjump = 0;
-			}
-
-		}
-
-
-		else if (player.getGlobalBounds().intersects(pipe[detectpipe()].getGlobalBounds()) && pipe[detectpipe()].getGlobalBounds().top >= (player.getPosition().y + 40)) {
-			velocityy = 0;
-
-
-			canjump = 1;
-			if (Keyboard::isKeyPressed(Keyboard::X) && canjump) {
-
-				velocityy = 6;
-				canjump = 0;
-			}
-
-
-		}
-
-		else {
-			velocityy -= 0.1099;
-
-
-		}
-
-
-
-		animationindicator = animationindicator % 3;
-		player.setTextureRect(IntRect(animationindicator * 16, 0, 16, 32));
-
-		//end of gravity and movement
-
-
-
-		MenuOptions(menuOptions);
-
-		player.move(velocityx, -velocityy);
-		camera.move(velocityx, 0);
-		text.move(velocityx, 0);
-
-		sky.move(velocityx, 0);
 	}
-
 	return 0;
 }
 
@@ -652,8 +439,6 @@ void read() {
 	text.setPosition(0, 0);
 	text.setCharacterSize(30);
 }
-
-// function of coin collions
 void coincollision() {
 	for (size_t i = 0; i < 40; i++)
 	{
@@ -823,7 +608,6 @@ void MenuOptions(int n) {
 			window.draw(Message);
 		}
 
-
 	}
 	else if (menuOptions == 4) {
 		window.draw(credit);
@@ -832,12 +616,11 @@ void MenuOptions(int n) {
 	}
 
 
-
+	die();
 
 	window.display();
 
 }
-
 
 
 //high score displaying function
@@ -855,12 +638,55 @@ void DiplayHighScore(int numplayer) {
 		point.setCharacterSize(32);
 		Data.setString("Player " + to_string(hs[i].playerOrder));
 		point.setString("\t\t" + to_string(hs[i].HighScore) + "\n");
-
 		window.draw(Data);
 		window.draw(point);
 
 
 	}
+}
+
+
+void coin_animation() {
+	for (int i = 0; i < 40; i++) {
+		coin[i].setTextureRect(IntRect(36 * coinanimation, 0, 36, 32));
+	}
+
+	if (coinclock.getElapsedTime().asSeconds() > 0.15) {
+		coinanimation++;
+		coinclock.restart();
+	}
+	coinanimation %= 6;
+}
+
+
+
+void coin_motion() {
+
+	for (int i = 11; i < 15; i++) {
+		if (coin[i].getPosition().y == 100 || coin[i].getPosition().y == 400) {
+			coinmotion *= -1;
+		}
+		coin[i].move(0, coinmotion);
+	}
+	for (int i = 19; i < 23; i++) {
+		if (coin[i].getPosition().y == 100 || coin[i].getPosition().y == 400) {
+			coinmotion *= -1;
+		}
+		coin[i].move(0, coinmotion);
+	}
+
+
+	for (int i = 15; i < 19; i++) {
+
+		if (coin[i].getPosition().y == 100 || coin[i].getPosition().y == 400) {
+			coin2motion *= -1;
+		}
+		coin[i].move(0, coin2motion);
+	}
+
+
+
+
 }
 
 // high score calculation function
@@ -873,11 +699,6 @@ void calHighScore(int score, int currentplayer) {
 	}
 
 }
-
-
-
-
-
 //Swap function
 
 void Swap(int& n1, int& n2, int& n3, int& n4) {
@@ -924,83 +745,287 @@ bool Fullmessage(int n, int limit) {
 	}
 }
 
-//Reset function
-void Reset(bool New) {
-	if (New) {
-		scores = 0;
-		player.setPosition(400, -11);
-		player.setScale(3, 3);
-		sky.setPosition(0, 0);
-		goomba.setPosition(1000, 360);
-		goomba.setScale(0.3, 0.3);
-		text.setPosition(0, 0);
-		camera.setCenter(player.getPosition().x, player.getPosition().y + 250);
-		window.setView(camera);
+
+
+void pipecollision() {
+
+
+
+
+	if ((player.getGlobalBounds().intersects(pipe[detectpipe()].getGlobalBounds()) && pipe[detectpipe()].getPosition().x > player.getPosition().x)) {
+		if (pipe[detectpipe()].getGlobalBounds().top > (player.getPosition().y + 42)) {
+			canmoverigt = 1;
+		}
+		else { canmoverigt = 0; }
 
 	}
-	else {
-		camera.setCenter(400, 240);
-		window.setView(camera);
+
+
+	else { canmoverigt = 1; }
+
+
+	if (player.getGlobalBounds().intersects(pipe[detectpipe()].getGlobalBounds()) && pipe[detectpipe()].getPosition().x < player.getPosition().x) {
+		if (pipe[detectpipe()].getGlobalBounds().top > (player.getPosition().y + 42))
+		{
+
+			canmoveleft = 1;
+		}
+		else { canmoveleft = 0; }
+
 
 	}
+	else { canmoveleft = 1; }
 }
-void coin_animation() {
-	for (int i = 0; i < 40; i++) {
-		coin[i].setTextureRect(IntRect(36 * coinanimation, 0, 36, 32));
-	}
 
-	if (coinclock.getElapsedTime().asSeconds() > 0.15) {
-		coinanimation++;
-		coinclock.restart();
-	}
-	coinanimation %= 6;
-}
 
-void gamend() {
 
-	gameend.setString("you have" + to_string(life) + "remaining life");
-	while (!endgame.getElapsedTime().asSeconds() > 5) {
+void die() {
 
 
 
 
+	if (x) {
 		window.draw(sky);
 		window.draw(gameend);
+		camera.setCenter(gameend.getPosition().x, gameend.getPosition().y);
+
+		z = 1;
+
 	}
+	if (z && endgame.getElapsedTime().asSeconds() > 3) {
+		x = 0;
+		z = 0;
+		main();
+
+	}
+}
+
+void groundmovement() {
 
 
-	main();
 
-	x = 0;
+	if (ground[3].getPosition().y == 100 || ground[3].getPosition().y == 400) {
+		groundMotion *= -1;
+	}
+	ground[3].move(0, groundMotion);
+	ground[5].move(0, groundMotion);
+
+	if (ground[4].getPosition().y == 100 || ground[4].getPosition().y == 400) {
+		ground2Motion *= -1;
+	}
+	ground[4].move(0, -ground2Motion);
+
 
 
 }
 
-void coin_motion() {
+void mouseclick() {
+	Vector2i mousePressed = Mouse::getPosition(window);//variable for determine the position of the mouse in the window
 
-	for (int i = 11; i < 15; i++) {
-		if (coin[i].getPosition().y == 100 || coin[i].getPosition().y == 400) {
-			coinmotion *= -1;
+
+	if (Mouse::isButtonPressed(Mouse::Left)) {
+
+		//on pressing high scores button
+		if ((mousePressed.x > 23 && mousePressed.x < 300 && mousePressed.y>120 && mousePressed.y < 205 && show)) {
+
+			menuOptions = 2;
+			calHighScore(scores, playerNum);
+			//calling function of calculating high score
+			calHighScore(scores, playerNum);
+			Sort(playerNum);
+
+			show = 0;
 		}
-		coin[i].move(0, coinmotion);
-	}
-	for (int i = 19; i < 23; i++) {
-		if (coin[i].getPosition().y == 100 || coin[i].getPosition().y == 400) {
-			coinmotion *= -1;
+		// On pressing on Play Button
+		else if (mousePressed.x > 23 && mousePressed.x < 300 && mousePressed.y > 10 && mousePressed.y < 86 && show) {
+
+			menuOptions = 1;
+			show = 0;
+			SameName = 1;
+			
 		}
-		coin[i].move(0, coinmotion);
-	}
+		//on pressing on options button
+		else if (mousePressed.x > 23 && mousePressed.x < 300 && mousePressed.y>240 && mousePressed.y < 330 && show) {
 
-
-	for (int i = 15; i < 19; i++) {
-
-		if (coin[i].getPosition().y == 100 || coin[i].getPosition().y == 400) {
-			coin2motion *= -1;
+			menuOptions = 3;
+			show = 1;
 		}
-		coin[i].move(0, coin2motion);
+		//on pressing credits button
+		else if (mousePressed.x > 23 && mousePressed.x < 300 && mousePressed.y>370 && mousePressed.y < 455 && show) {
+
+			menuOptions = 4;
+			show = 0;
+		}
+		//on pressing New game button
+		else if (menuOptions == 3 && mousePressed.x > 230 && mousePressed.x < 540 && mousePressed.y>140 && mousePressed.y < 280 && show) {
+			menuOptions = 1;
+			show = 0;
+			SameName = 0;
+			playerNum++;
+			
+
+		}
+	}
+	else if (Keyboard::isKeyPressed(Keyboard::Escape)) {
+		menuOptions = 0;
+		show = 1;
+		scores = 0;
+	}
+
+
+}
+
+void goombaa() {
+
+	if (alive) {
+		goomba.setTextureRect(IntRect(goombaAnimation * 210, 0, 165, 161));
+		if (goomba.getGlobalBounds().intersects(pipe[1].getGlobalBounds()) || goomba.getGlobalBounds().intersects(pipe[2].getGlobalBounds())) {
+			goombaMotion *= -1;
+		}
+		if (goombaClock.getElapsedTime().asSeconds() > 0.8) {
+			goombaAnimation++;
+			goombaClock.restart();
+		}
+		if (alive) {
+			goombaAnimation %= 2;
+			goomba.move(-goombaMotion, 0);
+		}
+	}
+
+
+	if (player.getGlobalBounds().intersects(goomba.getGlobalBounds()) && alive) {
+
+		if (player.getPosition().y + 42 < goomba.getGlobalBounds().top) {
+			alive = 0;
+			goombaMotion = 0;
+			goomba.setTextureRect(IntRect(420, 0, 165, 161));
+			killg.restart();
+			a = 1;
+
+		}
+		else {
+			sky.setPosition(-1200, -300);
+			x = 1;
+
+			endgame.restart();
+
+
+		}
+
+
+
+
+	}
+	if (killg.getElapsedTime().asSeconds() > 0.15 && a) {
+
+		goomba.setScale(0, 0);
+		alive = 1;
+		a = 0;
+		goombaMotion = 1;
+	}
+	if (player.getPosition().y > 600 && !x) {
+
+
+		sky.setPosition(-1200, -300);
+		x = 1;
+		endgame.restart();
+
+
+
 	}
 
 
 
+}
+void planten() {
 
+
+
+	for (size_t i = 0; i < 7; i++)
+	{
+
+		plant[i].setTextureRect(IntRect((plantanimation * 300) + 32, 0, 220, 280));
+
+		if (player.getGlobalBounds().intersects(plant[i].getGlobalBounds())) {
+
+
+
+
+
+			sky.setPosition(-1200, -300);
+			x = 1;
+			endgame.restart();
+		}
+
+	}
+	if (plantclock.getElapsedTime().asSeconds() > 0.2)
+	{
+		plantanimation++;
+		plantclock.restart();
+	}
+	plantanimation %= 2;
+
+	if (plant[3].getPosition().y == 190 || plant[3].getPosition().y == 340) {
+
+		plantmotion *= -1;
+
+	}
+	plant[3].move(0, -plantmotion);
+
+}
+
+
+void movementandgravity() {
+	if (!x) {
+		if (Keyboard::isKeyPressed(Keyboard::Right) && canmoverigt) {
+
+			moveright();
+
+		}
+
+		else if (Keyboard::isKeyPressed(Keyboard::Left) && canmoveleft) {
+
+			moveleft();
+
+
+		}
+		else { velocityx = 0; }
+		if (player.getGlobalBounds().intersects(ground[detectground()].getGlobalBounds()) && ground[detectground()].getGlobalBounds().top >= (player.getPosition().y + 32)) {
+			velocityy = 0;
+			player.setPosition(player.getPosition().x, ground[detectground()].getGlobalBounds().top - 48);
+			canjump = 1;
+			if (Keyboard::isKeyPressed(Keyboard::X) && canjump) {
+
+				velocityy = 6;
+				canjump = 0;
+			}
+
+		}
+
+
+		else if (player.getGlobalBounds().intersects(pipe[detectpipe()].getGlobalBounds()) && pipe[detectpipe()].getGlobalBounds().top >= (player.getPosition().y + 40)) {
+			velocityy = 0;
+
+
+			canjump = 1;
+			if (Keyboard::isKeyPressed(Keyboard::X) && canjump) {
+
+				velocityy = 6;
+				canjump = 0;
+			}
+
+
+		}
+
+		else {
+			velocityy -= 0.1099;
+
+
+		}
+
+
+
+		animationindicator = animationindicator % 3;
+		player.setTextureRect(IntRect(animationindicator * 16, 0, 16, 32));
+	}
 }
