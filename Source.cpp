@@ -9,7 +9,7 @@ using namespace sf;
 struct PlayerHighScore {
 	int playerOrder = 1;
 	int HighScore = 0;
-}; 
+};
 PlayerHighScore hs[10];
 
 
@@ -30,56 +30,67 @@ bool SameName = 1;//if player doesnt change his name
 bool canjump = 1;
 bool canmoverigt = 1;
 bool canmoveleft = 1;
-bool space = 0; 
-bool rightc = 0;
-bool marioal = 1;//1 -> mario alive //0 ->  mario died
-bool enemyal = 1;//1 -> enemy alive //0 ->  enemy died
-bool PlayerCase = 1; //1 -> win // 0 -> Lose 
-bool Newgame = 0;//bool to reset the game and player postion
+bool space = 0;
+bool alive = 1;
 bool show = 1;//bool to check if menu is displayed or not
+bool Newgame = 0;//bool to reset the game and player postion
 bool Full = 0;//check number of players dont exceed 10 players
 int pos;
 int playerNum = 1;//number of palyers played the game
 int score = 0;
+int animationindicator = 0, plantanimation = 0, coinanimation = 0;
+int goombaAnimation = 0;
+int life = 3;
 const int num = 10;
-int animationindicator = 0;
+int scores = 0;
 float velocityy = 0;
 float velocityx = 0;
-float groundMotion = 1, ground2Motion = 1;
+float groundMotion = 1, ground2Motion = 1, goombaMotion = 0.4, plantmotion = 0.5, coinmotion = 1, coin2motion = 1;
 Clock framespeed;
 //functions
 int moveright();
 void moveleft();
 void jump();
+void coin_animation();
 int detectground();
 int detectpipe();
 void calHighScore(int, int);
 void DiplayHighScore(int);//Displaying highscores function
 void structOrder();//Setting struct order for each player
-void MenuOptions(int);//function to display menu 
+void MenuOptions(int);
+void read();
+void coincollision();
+void gamend();
+void coin_motion();
 void Swap(int& n1, int& n2, int& n3, int& n4);//function to swap high scores of two player and their orders
 void Sort(int);//function to sort players decsending according to their highscores
 void Reset(bool);//function to reset the setting of the game
-bool GameOver();//function to display gameover message
-bool Fullmessage(int,int);//function to display message when number of players exceed 10
+//bool GameOver();//function to display gameover message
+bool Fullmessage(int, int);//function to display message when number of players exceed 10
 //end of functions
 Texture skytx;
 Sprite sky;
 Texture mario;
 Sprite player;
+Texture planttx;
+Sprite plant[7];
 Texture groundtex;
 Sprite ground[15];
 Texture ground2;
 Texture pipetex;
 Sprite pipe[3];
+Texture coinx;
+Sprite coin[40];
 Texture cloudtx;
 Sprite	cloudi[10];
+Texture goombaTx;
+Sprite goomba;
 Sprite menu;//Menu wallpaper
 Texture menutx;
 Sprite highScore;//highscore wallpaper
 Texture highScoretx;
 Sprite option; //option Wallpaper
-Texture Option;
+Texture optiontx;
 Sprite credit;//Credits wallpaper
 Texture Credittx;
 Sprite newGame;//New Game button 
@@ -90,11 +101,15 @@ Sprite enemy;//enemy sprite
 Texture enemytx;
 Text Data;//text of name of players
 Text Scores;//test of scores of players
-Text text;
-Text Message;
+Text text;//Text to display the score of player
+Text Message;//text to display the message that number of palyers exceed the limit
+Text about;//text of credits
 Text gameovermessage;
 Font font;
-Vector2f groundPos(3250, 240);
+Clock goombaClock, killg, plantclock, coinclock;
+Clock endgame;
+Text gameend;
+bool x = 0;
 
 
 sf::RenderWindow window(sf::VideoMode(800, 485), "Super Mario!!");
@@ -102,12 +117,12 @@ View camera(FloatRect(0, 0, 800, 485));
 
 
 int main() {
-	
+	gameend.setFont(font);
+	gameend.setFillColor(Color(180, 0, 0, 0));
+
+
 	structOrder();//Calling Struct order function
 
-	
-	
-	
 	//cloud
 	cloudtx.loadFromFile("cloud.png");
 
@@ -118,14 +133,36 @@ int main() {
 	}
 	//end of cloud
 	//mario
+	coinx.loadFromFile("coins.png");
+	for (int i = 0; i < 40; i++) {
+		coin[i].setTexture(coinx);
+		coin[i].setScale(1.1, 1.1);
+		coin[i].setTextureRect(IntRect(0, 0, 36, 32));
+		//coin[i].setPosition(100 * i +1260, 350);
+	}
+	for (int i = 0; i < 11; i++) {
 
+		coin[i].setPosition(100 * i + 1265, 350);
+
+	}
+	for (int i = 11; i < 15; i++) {
+		coin[i].setPosition(2512 + ((i - 11) * 60), 120);
+	}
+	for (int i = 15; i < 19; i++) {
+		coin[i].setPosition(2882 + ((i - 15) * 60), 120);
+	}
+	for (int i = 19; i < 23; i++) {
+		coin[i].setPosition(3252 + ((i - 19) * 60), 120);
+	}
 	mario.loadFromFile("mario_spritesheet.png");
+
 	player.setTexture(mario);
 	player.setScale(3, 3);
-    player.setPosition(400, 250);
+
+
+	player.setPosition(400, -11);
 	player.setTextureRect(IntRect(0, 0, 16, 32));
 	player.setOrigin(player.getLocalBounds().width / 2, player.getLocalBounds().height / 2);
-
 	//end of mario
 
 	//Menu Sprite declaring
@@ -135,7 +172,10 @@ int main() {
 	menu.setPosition(0, 0);
 	menu.setScale(1.25, 1.5);
 
+
 	//End of Menu Sprite declaring
+
+
 
 
 	//Font 
@@ -145,17 +185,16 @@ int main() {
 	//Text
 
 
-	text.setFont(font);
-	text.setString("CREDITS !!\n\n\n  Ahmed \n  Rana \n  Aliaa \n  Moaaz \n  Zeyad \n  Nour \n  Mohamed");
-	text.setFillColor(sf::Color(0, 0, 0, 180));
+	about.setFont(font);
+	about.setString("CREDITS !!\n\n\n  Ahmed \n  Rana \n  Aliaa \n  Moaaz \n  Zeyad \n  Nour \n  Mohamed");
+	about.setFillColor(sf::Color(0, 0, 0, 180));
 
-	text.setPosition(350, 10);
-	text.setCharacterSize(32);
+	about.setPosition(350, 10);
+	about.setCharacterSize(32);
 
 	//End Of Text
+	
 
-	
-	
 
 	//Game Over 
 	gameOvertx.loadFromFile("gameOver.png");
@@ -165,6 +204,18 @@ int main() {
 
 
 	//End Of Game Over
+
+	//High score Data displaying
+	Data.setFont(font);
+	Data.setFillColor(sf::Color(250, 0, 150, 200));
+	Data.setPosition(350, 10);
+	Data.setCharacterSize(32);
+	Scores.setFont(font);
+	Scores.setFillColor(sf::Color(250, 0, 150, 200));
+	Scores.setPosition(500, 10);
+	Scores.setCharacterSize(32);
+	//End of High score Data displaying
+
 
 	//Credits Wallpaper
 	Credittx.loadFromFile("Sky.png");
@@ -188,9 +239,10 @@ int main() {
 	highScore.setPosition(0, 0);
 	//End of Testing
 
+
 	//options menu for testing
-	Option.loadFromFile("Sky.png");
-	option.setTexture(Option);
+	optiontx.loadFromFile("Sky.png");
+	option.setTexture(optiontx);
 	option.setPosition(0, 0);
 	//End of Testing
 
@@ -201,12 +253,26 @@ int main() {
 	sky.setScale(10, 8);
 	//end of sky
 
-	//enemy
-	enemytx.loadFromFile("goomba.png");
-	enemy.setTexture(enemytx);
-	enemy.setPosition(580, 380);
-	enemy.setScale(2, 2);
-	//end of enemy
+	//plant
+
+	planttx.loadFromFile("plant.png");
+	for (size_t i = 0; i < 4; i++)
+	{
+		plant[i].setTexture(planttx);
+		plant[i].setScale(0.3, 0.3);
+		plant[i].setTextureRect(IntRect(0, 0, 300, 290));
+
+
+	}
+
+	for (size_t i = 0; i < 2; i++)
+	{
+		plant[i].setPosition(570 + (i * 70), 350);
+
+	}
+
+	plant[2].setPosition(790, 350);
+	plant[3].setPosition(1280, 190);
 
 	//ground
 
@@ -257,47 +323,33 @@ int main() {
 	}
 
 	//end ofpipe
-	
+
+	//enemies
+
+	goombaTx.loadFromFile("pngkey.com-goomba-png-1876196.png");
+
+	goomba.setTexture(goombaTx);
+	goomba.setPosition(1000, 360);
+	goomba.setScale(0.3, 0.3);
+	goomba.setTextureRect(IntRect(0, 0, 160, 161));
+
 	window.setFramerateLimit(120);
 
+	read();
 
 
 
-	
-	
-	
-	
-	
+	camera.setCenter(player.getPosition().x, player.getPosition().y + 250);
+	window.setView(camera);
 
 	while (window.isOpen())
 	{
-		
-		//enemy 
-		if (enemy.getGlobalBounds().intersects(pipe[1].getGlobalBounds())) {
-			rightc = 1;
-		}
-		if (enemy.getGlobalBounds().intersects(pipe[0].getGlobalBounds())) {
-			rightc = 0;
-		}
-		if (!rightc) {
-			enemy.move(1, 0);
-		}
-		else{
-			enemy.move(-1, 0);
-		}
-		if (enemy.getGlobalBounds().intersects(player.getGlobalBounds()) && player.getPosition().y < 340) {
-			enemy.setPosition(-100, -100);
-			enemyal = 0;
-		}
-		else if (enemy.getGlobalBounds().intersects(player.getGlobalBounds()) && player.getPosition().y > 340) {
-			marioal = 0;
-			player.setPosition(-100, -100);
-		}
+		coincollision();
 
-		//end of enemy
 
-		
-		
+
+
+
 
 		//Menu displaying
 		Vector2i mousePressed = Mouse::getPosition(window);//variable for determine the position of the mouse in the window
@@ -324,7 +376,7 @@ int main() {
 				SameName = 1;
 				Newgame = 1;
 				Reset(Newgame);
-				
+
 			}
 			//on pressing on options button
 			else if (mousePressed.x > 23 && mousePressed.x < 300 && mousePressed.y>240 && mousePressed.y < 330 && show) {
@@ -348,29 +400,24 @@ int main() {
 				playerNum++;
 				Newgame = 1;
 				Reset(Newgame);
-				
-				
+
+
 			}
 		}
 		//End od Menu Displaying
 
 		//Esc button 
 		else if (Keyboard::isKeyPressed(Keyboard::Escape)) {
-			
+
 			menuOptions = 0;
 			show = 1;
 			Newgame = 0;
 			Reset(Newgame);
-			
-		}
 
+		}
 
 		//End of ESC button
-		if (GameOver()) {
-			Newgame = 0;
-		}
 
-		
 
 
 		//Pipe and ground collsion
@@ -412,7 +459,7 @@ int main() {
 			//End of Closing the game from X button
 
 
-			
+
 
 
 
@@ -424,8 +471,73 @@ int main() {
 
 		}
 		//end of while event
+		//coin animation
+		coin_animation();
+		//plant 
+		for (size_t i = 0; i < 7; i++)
+		{
 
-		
+			plant[i].setTextureRect(IntRect((plantanimation * 300) + 32, 0, 220, 280));
+
+
+
+		}
+		if (plantclock.getElapsedTime().asSeconds() > 0.2)
+		{
+			plantanimation++;
+			plantclock.restart();
+		}
+		plantanimation %= 2;
+
+		if (plant[3].getPosition().y == 190 || plant[3].getPosition().y == 340) {
+
+			plantmotion *= -1;
+
+		}
+		plant[3].move(0, -plantmotion);
+
+
+		// goomba movement 
+		if (alive) {
+			goomba.setTextureRect(IntRect(goombaAnimation * 210, 0, 165, 161));
+			if (goomba.getGlobalBounds().intersects(pipe[1].getGlobalBounds()) || goomba.getGlobalBounds().intersects(pipe[2].getGlobalBounds())) {
+				goombaMotion *= -1;
+			}
+			if (goombaClock.getElapsedTime().asSeconds() > 0.8) {
+				goombaAnimation++;
+				goombaClock.restart();
+			}
+			if (alive) {
+				goombaAnimation %= 2;
+				goomba.move(-goombaMotion, 0);
+			}
+		}
+
+		//Killing enemies
+		if (player.getGlobalBounds().intersects(goomba.getGlobalBounds())) {
+
+			if (player.getPosition().y + 42 < goomba.getGlobalBounds().top) {
+				alive = 0;
+				goombaMotion = 0;
+				goomba.setTextureRect(IntRect(420, 0, 165, 161));
+				killg.restart();
+
+			}
+			else if (killg.getElapsedTime().asSeconds() > 0.15 && !alive) {
+
+				goomba.setScale(0, 0);
+
+			}
+			else {
+				x = 1;
+
+
+
+			}
+
+		}
+
+
 		//ground movement
 		if (ground[3].getPosition().y == 100 || ground[3].getPosition().y == 400) {
 			groundMotion *= -1;
@@ -440,7 +552,8 @@ int main() {
 
 		//pipecoll
 
-
+		//coin motion
+		//coin_motion();
 
 		//end of pipe coll
 
@@ -455,12 +568,13 @@ int main() {
 		else if (Keyboard::isKeyPressed(Keyboard::Left) && canmoveleft) {
 
 			moveleft();
-			
+
 
 		}
 		else { velocityx = 0; }
-		if (player.getGlobalBounds().intersects(ground[detectground()].getGlobalBounds()) && ground[detectground()].getGlobalBounds().top >= (player.getPosition().y + 40)) {
+		if (player.getGlobalBounds().intersects(ground[detectground()].getGlobalBounds()) && ground[detectground()].getGlobalBounds().top >= (player.getPosition().y + 38)) {
 			velocityy = 0;
+			player.setPosition(player.getPosition().x, ground[detectground()].getGlobalBounds().top - 48);
 			canjump = 1;
 			if (Keyboard::isKeyPressed(Keyboard::X) && canjump) {
 
@@ -495,15 +609,16 @@ int main() {
 
 		animationindicator = animationindicator % 3;
 		player.setTextureRect(IntRect(animationindicator * 16, 0, 16, 32));
-		
-		//end of gravity and movement
-		
 
-		
+		//end of gravity and movement
+
+
+
 		MenuOptions(menuOptions);
-		
+
 		player.move(velocityx, -velocityy);
 		camera.move(velocityx, 0);
+		text.move(velocityx, 0);
 
 		sky.move(velocityx, 0);
 	}
@@ -530,6 +645,28 @@ int main() {
 
 
 // moveright function
+void read() {
+	text.setFont(font);
+	text.setString("score:" + to_string(scores));
+	text.setPosition(0, 0);
+	text.setCharacterSize(30);
+}
+
+// function of coin collions
+void coincollision() {
+	for (size_t i = 0; i < 40; i++)
+	{
+		if (player.getGlobalBounds().intersects(coin[i].getGlobalBounds())) {
+			scores++;
+			coin[i].setScale(0, 0);
+			text.setString("score:" + to_string(scores));
+
+
+		}
+
+
+	}
+}
 
 
 
@@ -624,15 +761,13 @@ int detectpipe() {
 
 	return m;
 }
-
-
 //Seting Struct Order
 void structOrder() {
-	for (int i = 0; i < num; i++) {
+	for (int i = 0; i < 10; i++) {
 		hs[i].playerOrder = i + 1;
 		hs[i].HighScore = 0;
+		cout << hs[i].playerOrder << " ";
 	}
-
 }
 
 //Menu function
@@ -642,24 +777,25 @@ void MenuOptions(int n) {
 	if (menuOptions == 0) {
 		window.draw(menu);
 	}
-	else if (menuOptions == 1){
-
+	else if (menuOptions == 1) {
 		window.setView(camera);
 
 		window.draw(sky);
-
-		// Enemy displaying
-		if (marioal)
-			window.draw(player);
-		if (enemyal)
-			window.draw(enemy);
-
-
 		for (int i = 0; i < 10; i++) {
 			window.draw(cloudi[i]);
 		}
+		window.draw(text);
 		window.draw(player);
+		window.draw(goomba);
+		for (size_t i = 0; i < 40; i++)
+		{
+			window.draw(coin[i]);
+		}
 
+		for (size_t i = 0; i < 4; i++)
+		{
+			window.draw(plant[i]);
+		}
 
 		for (size_t i = 0; i < 15; i++)
 		{
@@ -669,13 +805,12 @@ void MenuOptions(int n) {
 		{
 			window.draw(pipe[i]);
 		}
-		
 	}
 	else if (menuOptions == 2) {
 		window.draw(highScore);
-		
+
 		DiplayHighScore(playerNum);
-		
+
 
 
 
@@ -686,13 +821,12 @@ void MenuOptions(int n) {
 		if (Fullmessage(playerNum, num)) {
 			window.draw(Message);
 		}
-		
 
 
 	}
 	else if (menuOptions == 4) {
 		window.draw(credit);
-		window.draw(text);
+		window.draw(about);
 
 	}
 
@@ -702,7 +836,6 @@ void MenuOptions(int n) {
 	window.display();
 
 }
-//End of Menu displaying function
 
 
 
@@ -711,7 +844,6 @@ void MenuOptions(int n) {
 void DiplayHighScore(int numplayer) {
 
 	for (int i = 0; i < numplayer; i++) {
-		//High score Data displaying
 		Data.setFont(font);
 		Data.setFillColor(sf::Color(0, 0, 0, 180));
 		Data.setPosition(200, 18 + i * 40);
@@ -722,9 +854,10 @@ void DiplayHighScore(int numplayer) {
 		Scores.setCharacterSize(32);
 		Data.setString("Player " + to_string(hs[i].playerOrder));
 		Scores.setString("\t\t" + to_string(hs[i].HighScore) + "\n");
+
 		window.draw(Data);
 		window.draw(Scores);
-		//End of High score Data displaying
+
 
 	}
 }
@@ -735,18 +868,18 @@ void calHighScore(int score, int currentplayer) {
 	hs[currentplayer - 1].HighScore = score;
 	if (score > hs[currentplayer - 1].HighScore) {
 		hs[currentplayer - 1].HighScore = score;
-		
+
 	}
 
 }
 
-	
+
 
 
 
 //Swap function
 
-void Swap(int& n1, int& n2,int& n3,int& n4) {
+void Swap(int& n1, int& n2, int& n3, int& n4) {
 	int temp;
 	temp = n1;
 	n1 = n2;
@@ -756,7 +889,7 @@ void Swap(int& n1, int& n2,int& n3,int& n4) {
 	tempn = n3;
 	n3 = n4;
 	n4 = tempn;
-	
+
 }
 
 
@@ -766,12 +899,29 @@ void Sort(int n) {
 		for (int j = 1 + i; j < n; j++) {
 			if (hs[i].HighScore < hs[j].HighScore) {
 
-				Swap(hs[i].HighScore, hs[j].HighScore,hs[i].playerOrder,hs[j].playerOrder);
+				Swap(hs[i].HighScore, hs[j].HighScore, hs[i].playerOrder, hs[j].playerOrder);
 			}
 		}
 	}
 }
 
+//function to display that number of players exceed the limit
+bool Fullmessage(int n, int limit) {
+	if (n >= limit && menuOptions == 3) {
+
+		Message.setFont(font);
+		Message.setFillColor(sf::Color(0, 0, 0, 180));
+		Message.setPosition(150, 90);
+		Message.setCharacterSize(32);
+		Message.setString("Number of Players Exceeded The Limit !!!!");
+		show = 0;
+
+		return true;
+	}
+	else {
+		return false;
+	}
+}
 
 //Reset function
 void Reset(bool New) {
@@ -780,9 +930,9 @@ void Reset(bool New) {
 		player.setPosition(400, -11);
 		player.setScale(3, 3);
 		sky.setPosition(0, 0);
-		enemy.setPosition(580, 380);
-		enemyal = 1;
-		marioal = 1;
+		goomba.setPosition(1000, 360);
+		goomba.setScale(0.3, 0.3);
+		text.setPosition(0, 0);
 		camera.setCenter(player.getPosition().x, player.getPosition().y + 250);
 		window.setView(camera);
 
@@ -790,39 +940,66 @@ void Reset(bool New) {
 	else {
 		camera.setCenter(400, 240);
 		window.setView(camera);
-		
+
 	}
+}
+void coin_animation() {
+	for (int i = 0; i < 40; i++) {
+		coin[i].setTextureRect(IntRect(36 * coinanimation, 0, 36, 32));
+	}
+
+	if (coinclock.getElapsedTime().asSeconds() > 0.15) {
+		coinanimation++;
+		coinclock.restart();
+	}
+	coinanimation %= 6;
 }
 
-//function of Displaying gameover data 
-bool GameOver() {
-	window.clear();
-	if (!PlayerCase || !marioal) {
-		
+void gamend() {
+
+	gameend.setString("you have" + to_string(life) + "remaining life");
+	while (!endgame.getElapsedTime().asSeconds() > 5) {
+
+
+
+
 		window.draw(sky);
-		window.draw(gameOver);
-		return true;
-		
+		window.draw(gameend);
 	}
-	else {
-		return false;
-	}
-	window.display();
+
+
+	main();
+
+	x = 0;
+
+
 }
-//function to display that number of players exceed the limit
-bool Fullmessage(int n,int limit) {
-	if (n>=limit && menuOptions==3) {
-		
-		Message.setFont(font);
-		Message.setFillColor(sf::Color(0, 0, 0, 180));
-		Message.setPosition(150, 90);
-		Message.setCharacterSize(32);
-		Message.setString("Number of Players Exceeded The Limit !!!!");
-		show = 0;
-		
-		return true;
+
+void coin_motion() {
+
+	for (int i = 11; i < 15; i++) {
+		if (coin[i].getPosition().y == 100 || coin[i].getPosition().y == 400) {
+			coinmotion *= -1;
+		}
+		coin[i].move(0, coinmotion);
 	}
-	else {
-		return false;
+	for (int i = 19; i < 23; i++) {
+		if (coin[i].getPosition().y == 100 || coin[i].getPosition().y == 400) {
+			coinmotion *= -1;
+		}
+		coin[i].move(0, coinmotion);
 	}
+
+
+	for (int i = 15; i < 19; i++) {
+
+		if (coin[i].getPosition().y == 100 || coin[i].getPosition().y == 400) {
+			coin2motion *= -1;
+		}
+		coin[i].move(0, coin2motion);
+	}
+
+
+
+
 }
