@@ -38,7 +38,7 @@ int playerNum = 1;//number of palyers played the game
 int score = 0;
 int animationindicator = 0, plantanimation = 0, coinanimation = 0;
 int goombaAnimation = 0;
-int life = 3;
+int life = 4;
 int scores = 0;
 float velocityy = 0;
 float velocityx = 0;
@@ -90,11 +90,13 @@ Texture NewGame;
 Text Data;//text of name of players
 Text Scores;//test of scores of players
 Text text;
+Text gameend;
 Font font;
 Clock goombaClock, killg, plantclock, coinclock;
 Clock endgame;
-Text gameend;
+
 bool x = 0;
+bool z = 0;
 
 
 sf::RenderWindow window(sf::VideoMode(800, 485), "Super Mario!!");
@@ -102,9 +104,11 @@ View camera(FloatRect(0, 0, 800, 485));
 
 
 int main() {
+	life--;
+	gameend.setCharacterSize(32);
 	gameend.setFont(font);
-	gameend.setFillColor(Color(180, 0, 0, 0));
-
+	gameend.setString("you have" + to_string(life) + "remaining life");
+	gameend.setFillColor(Color(0, 0, 0, 180));
 
 	structOrder();//Calling Struct order function
 
@@ -121,14 +125,14 @@ int main() {
 	coinx.loadFromFile("coins.png");
 	for (int i = 0; i < 40; i++) {
 		coin[i].setTexture(coinx);
-	coin[i].setScale(1.1, 1.1);
-	coin[i].setTextureRect(IntRect(0, 0, 36, 32));
-	//coin[i].setPosition(100 * i +1260, 350);
+		coin[i].setScale(1.1, 1.1);
+		coin[i].setTextureRect(IntRect(0, 0, 36, 32));
+		//coin[i].setPosition(100 * i +1260, 350);
 	}
 	for (int i = 0; i < 11; i++) {
-	
+
 		coin[i].setPosition(100 * i + 1265, 350);
-		
+
 	}
 	for (int i = 11; i < 15; i++) {
 		coin[i].setPosition(2512 + ((i - 11) * 60), 120);
@@ -300,12 +304,12 @@ int main() {
 
 	goombaTx.loadFromFile("pngkey.com-goomba-png-1876196.png");
 
-		goomba.setTexture(goombaTx);
-		goomba.setPosition(1000, 360);
-		goomba.setScale(0.3, 0.3);
-		goomba.setTextureRect(IntRect(0, 0, 160, 161));
-	
-		window.setFramerateLimit(120);
+	goomba.setTexture(goombaTx);
+	goomba.setPosition(1000, 360);
+	goomba.setScale(0.3, 0.3);
+	goomba.setTextureRect(IntRect(0, 0, 160, 161));
+
+	window.setFramerateLimit(120);
 
 	read();
 
@@ -316,165 +320,167 @@ int main() {
 
 	while (window.isOpen())
 	{
-		coincollision();
+		while (life) {
+
+			coincollision();
 
 
 
 
 
 
-		//Menu displaying
-		Vector2i mousePressed = Mouse::getPosition(window);//variable for determine the position of the mouse in the window
+			//Menu displaying
+			Vector2i mousePressed = Mouse::getPosition(window);//variable for determine the position of the mouse in the window
 
 
-		if (Mouse::isButtonPressed(Mouse::Left)) {
+			if (Mouse::isButtonPressed(Mouse::Left)) {
 
-			//on pressing high scores button
-			if ((mousePressed.x > 23 && mousePressed.x < 300 && mousePressed.y>120 && mousePressed.y < 205 && show)) {
+				//on pressing high scores button
+				if ((mousePressed.x > 23 && mousePressed.x < 300 && mousePressed.y>120 && mousePressed.y < 205 && show)) {
 
-				menuOptions = 2;
-				calHighScore(score, playerNum);
+					menuOptions = 2;
+					calHighScore(score, playerNum);
 
-				show = 0;
-			}
-			// On pressing on Play Button
-			else if ((mousePressed.x > 23 && mousePressed.x < 300 && mousePressed.y > 10 && mousePressed.y < 86 && show)) {
+					show = 0;
+				}
+				// On pressing on Play Button
+				else if ((mousePressed.x > 23 && mousePressed.x < 300 && mousePressed.y > 10 && mousePressed.y < 86 && show)) {
 
-				menuOptions = 1;
-				show = 0;
-				SameName = 1;
-				for (int i = 0; i < 9; i++) {
-					score++;
-					cout << score << " ";
+					menuOptions = 1;
+					show = 0;
+					SameName = 1;
+					for (int i = 0; i < 9; i++) {
+						score++;
+						cout << score << " ";
+					}
+				}
+				//on pressing on options button
+				else if (mousePressed.x > 23 && mousePressed.x < 300 && mousePressed.y>240 && mousePressed.y < 330 && show) {
+
+					menuOptions = 3;
+					show = 1;
+				}
+				//on pressing credits button
+				else if (mousePressed.x > 23 && mousePressed.x < 300 && mousePressed.y>370 && mousePressed.y < 455 && show) {
+
+					menuOptions = 4;
+					show = 0;
+				}
+				//on pressing New game button
+				else if (menuOptions == 3 && mousePressed.x > 230 && mousePressed.x < 540 && mousePressed.y>140 && mousePressed.y < 280 && show) {
+					menuOptions = 1;
+					show = 0;
+					SameName = 0;
+					playerNum++;
+					cout << playerNum << " " << SameName;
+
 				}
 			}
-			//on pressing on options button
-			else if (mousePressed.x > 23 && mousePressed.x < 300 && mousePressed.y>240 && mousePressed.y < 330 && show) {
+			//End od Menu Displaying
 
-				menuOptions = 3;
+			//Esc button 
+			else if (Keyboard::isKeyPressed(Keyboard::Escape)) {
+				menuOptions = 0;
 				show = 1;
 			}
-			//on pressing credits button
-			else if (mousePressed.x > 23 && mousePressed.x < 300 && mousePressed.y>370 && mousePressed.y < 455 && show) {
 
-				menuOptions = 4;
-				show = 0;
+
+			//End of ESC button
+
+
+
+			//Pipe and ground collsion
+			if ((player.getGlobalBounds().intersects(pipe[detectpipe()].getGlobalBounds()) && pipe[detectpipe()].getPosition().x > player.getPosition().x)) {
+				if (pipe[detectpipe()].getGlobalBounds().top > (player.getPosition().y + 42)) {
+					canmoverigt = 1;
+				}
+				else { canmoverigt = 0; }
+
 			}
-			//on pressing New game button
-			else if (menuOptions == 3 && mousePressed.x > 230 && mousePressed.x < 540 && mousePressed.y>140 && mousePressed.y < 280 && show) {
-				menuOptions = 1;
-				show = 0;
-				SameName = 0;
-				playerNum++;
-				cout << playerNum << " " << SameName;
+
+
+			else { canmoverigt = 1; }
+
+
+			if (player.getGlobalBounds().intersects(pipe[detectpipe()].getGlobalBounds()) && pipe[detectpipe()].getPosition().x < player.getPosition().x) {
+				if (pipe[detectpipe()].getGlobalBounds().top > (player.getPosition().y + 42))
+				{
+
+					canmoveleft = 1;
+				}
+				else { canmoveleft = 0; }
+
 
 			}
-		}
-		//End od Menu Displaying
-
-		//Esc button 
-		else if (Keyboard::isKeyPressed(Keyboard::Escape)) {
-			menuOptions = 0;
-			show = 1;
-		}
+			else { canmoveleft = 1; }
 
 
-		//End of ESC button
+			//end of pipe collision
+
+
+			Event event;
+			while (window.pollEvent(event)) {
+				//Closing the game from X button
+				if (event.type == sf::Event::Closed)
+				{
+					window.close();
+				}
+				//End of Closing the game from X button
 
 
 
-		//Pipe and ground collsion
-		if ((player.getGlobalBounds().intersects(pipe[detectpipe()].getGlobalBounds()) && pipe[detectpipe()].getPosition().x > player.getPosition().x)) {
-			if (pipe[detectpipe()].getGlobalBounds().top > (player.getPosition().y + 42)) {
-				canmoverigt = 1;
+
+
+
+
+
+
+
+
+
 			}
-			else { canmoverigt = 0; }
-
-		}
-
-
-		else { canmoverigt = 1; }
-
-
-		if (player.getGlobalBounds().intersects(pipe[detectpipe()].getGlobalBounds()) && pipe[detectpipe()].getPosition().x < player.getPosition().x) {
-			if (pipe[detectpipe()].getGlobalBounds().top > (player.getPosition().y + 42))
+			//end of while event
+			//coin animation
+			coin_animation();
+			//plant 
+			for (size_t i = 0; i < 7; i++)
 			{
 
-				canmoveleft = 1;
+				plant[i].setTextureRect(IntRect((plantanimation * 300) + 32, 0, 220, 280));
+
+
+
 			}
-			else { canmoveleft = 0; }
-
-
-		}
-		else { canmoveleft = 1; }
-
-
-		//end of pipe collision
-
-
-		Event event;
-		while (window.pollEvent(event)) {
-			//Closing the game from X button
-			if (event.type == sf::Event::Closed)
+			if (plantclock.getElapsedTime().asSeconds() > 0.2)
 			{
-				window.close();
+				plantanimation++;
+				plantclock.restart();
 			}
-			//End of Closing the game from X button
+			plantanimation %= 2;
 
+			if (plant[3].getPosition().y == 190 || plant[3].getPosition().y == 340) {
 
+				plantmotion *= -1;
 
-
-
-
-
-
-
-
-
-
-		}
-		//end of while event
-		//coin animation
-		coin_animation();
-		//plant 
-		for (size_t i = 0; i < 7; i++)
-		{
-
-			plant[i].setTextureRect(IntRect((plantanimation * 300) + 32, 0, 220, 280));
-
-
-
-		}
-		if (plantclock.getElapsedTime().asSeconds() > 0.2)
-		{
-			plantanimation++;
-			plantclock.restart();
-		}
-		plantanimation %= 2;
-
-		if (plant[3].getPosition().y == 190 || plant[3].getPosition().y == 340) {
-
-			plantmotion *= -1;
-
-		}
-		plant[3].move(0, -plantmotion);
-	
-
-		// goomba movement 
-		if (alive) {
-			goomba.setTextureRect(IntRect(goombaAnimation * 210, 0, 165, 161));
-			if (goomba.getGlobalBounds().intersects(pipe[1].getGlobalBounds()) || goomba.getGlobalBounds().intersects(pipe[2].getGlobalBounds())) {
-				goombaMotion *= -1;
 			}
-			if (goombaClock.getElapsedTime().asSeconds() > 0.8) {
-				goombaAnimation++;
-				goombaClock.restart();
-			}
+			plant[3].move(0, -plantmotion);
+
+
+			// goomba movement 
 			if (alive) {
-				goombaAnimation %= 2;
-				goomba.move(-goombaMotion, 0);
+				goomba.setTextureRect(IntRect(goombaAnimation * 210, 0, 165, 161));
+				if (goomba.getGlobalBounds().intersects(pipe[1].getGlobalBounds()) || goomba.getGlobalBounds().intersects(pipe[2].getGlobalBounds())) {
+					goombaMotion *= -1;
+				}
+				if (goombaClock.getElapsedTime().asSeconds() > 0.8) {
+					goombaAnimation++;
+					goombaClock.restart();
+				}
+				if (alive) {
+					goombaAnimation %= 2;
+					goomba.move(-goombaMotion, 0);
+				}
 			}
-		}
 
 			//Killing enemies
 			if (player.getGlobalBounds().intersects(goomba.getGlobalBounds())) {
@@ -484,108 +490,110 @@ int main() {
 					goombaMotion = 0;
 					goomba.setTextureRect(IntRect(420, 0, 165, 161));
 					killg.restart();
-					
+
 				}
-				else if(killg.getElapsedTime().asSeconds()>0.15&&!alive) {
-				
+				else if (killg.getElapsedTime().asSeconds() > 0.15 && !alive) {
+
 					goomba.setScale(0, 0);
-				
+
 				}
 				else {
-					 x = 1;
-			
-				
-					
+					sky.setPosition(-1200, -300);
+					x = 1;
+					endgame.restart();
+
+
 				}
 
 			}
-		
-			
-		//ground movement
-		if (ground[3].getPosition().y==100 || ground[3].getPosition().y == 400) {
-			groundMotion *= -1;
-		}
-		ground[3].move(0, groundMotion);
-		ground[5].move(0, groundMotion);
-
-		if (ground[4].getPosition().y == 100 || ground[4].getPosition().y == 400) {
-			ground2Motion *= -1;
-		}
-		ground[4].move(0, -ground2Motion);
-
-		//pipecoll
-
-		//coin motion
-		//coin_motion();
-
-		//end of pipe coll
 
 
-		//gravity and movement
-		if (Keyboard::isKeyPressed(Keyboard::Right) && canmoverigt) {
-
-			moveright();
-
-		}
-
-		else if (Keyboard::isKeyPressed(Keyboard::Left) && canmoveleft) {
-
-			moveleft();
-
-
-		}
-		else { velocityx = 0; }
-		if (player.getGlobalBounds().intersects(ground[detectground()].getGlobalBounds()) && ground[detectground()].getGlobalBounds().top >= (player.getPosition().y + 38)) {
-			velocityy = 0;
-			player.setPosition(player.getPosition().x, ground[detectground()].getGlobalBounds().top-48);
-			canjump = 1;
-			if (Keyboard::isKeyPressed(Keyboard::X) && canjump) {
-
-				velocityy = 6;
-				canjump = 0;
+			//ground movement
+			if (ground[3].getPosition().y == 100 || ground[3].getPosition().y == 400) {
+				groundMotion *= -1;
 			}
+			ground[3].move(0, groundMotion);
+			ground[5].move(0, groundMotion);
 
-		}
-
-
-		else if (player.getGlobalBounds().intersects(pipe[detectpipe()].getGlobalBounds()) && pipe[detectpipe()].getGlobalBounds().top >= (player.getPosition().y + 40)) {
-			velocityy = 0;
-
-
-			canjump = 1;
-			if (Keyboard::isKeyPressed(Keyboard::X) && canjump) {
-
-				velocityy = 6;
-				canjump = 0;
+			if (ground[4].getPosition().y == 100 || ground[4].getPosition().y == 400) {
+				ground2Motion *= -1;
 			}
+			ground[4].move(0, -ground2Motion);
+
+			//pipecoll
+
+			//coin motion
+			//coin_motion();
+
+			//end of pipe coll
 
 
+			//gravity and movement
+			if (!x) {
+				if (Keyboard::isKeyPressed(Keyboard::Right) && canmoverigt) {
+
+					moveright();
+
+				}
+
+				else if (Keyboard::isKeyPressed(Keyboard::Left) && canmoveleft) {
+
+					moveleft();
+
+
+				}
+				else { velocityx = 0; }
+				if (player.getGlobalBounds().intersects(ground[detectground()].getGlobalBounds()) && ground[detectground()].getGlobalBounds().top >= (player.getPosition().y + 38)) {
+					velocityy = 0;
+					player.setPosition(player.getPosition().x, ground[detectground()].getGlobalBounds().top - 48);
+					canjump = 1;
+					if (Keyboard::isKeyPressed(Keyboard::X) && canjump) {
+
+						velocityy = 6;
+						canjump = 0;
+					}
+
+				}
+
+
+				else if (player.getGlobalBounds().intersects(pipe[detectpipe()].getGlobalBounds()) && pipe[detectpipe()].getGlobalBounds().top >= (player.getPosition().y + 40)) {
+					velocityy = 0;
+
+
+					canjump = 1;
+					if (Keyboard::isKeyPressed(Keyboard::X) && canjump) {
+
+						velocityy = 6;
+						canjump = 0;
+					}
+
+
+				}
+
+				else {
+					velocityy -= 0.1099;
+
+
+				}
+
+
+
+				animationindicator = animationindicator % 3;
+				player.setTextureRect(IntRect(animationindicator * 16, 0, 16, 32));
+			}
+			//end of gravity and movement
+
+
+
+			MenuOptions(menuOptions);
+
+			player.move(velocityx, -velocityy);
+			camera.move(velocityx, 0);
+			text.move(velocityx, 0);
+
+			sky.move(velocityx, 0);
 		}
-
-		else {
-			velocityy -= 0.1099;
-
-
-		}
-
-
-
-		animationindicator = animationindicator % 3;
-		player.setTextureRect(IntRect(animationindicator * 16, 0, 16, 32));
-
-		//end of gravity and movement
-
-
-
-		MenuOptions(menuOptions);
-
-		player.move(velocityx, -velocityy);
-		camera.move(velocityx, 0);
-		text.move(velocityx, 0);
-
-		sky.move(velocityx, 0);
 	}
-
 	return 0;
 }
 
@@ -628,7 +636,7 @@ void coincollision() {
 
 	}
 }
-	
+
 
 
 int moveright() {
@@ -787,7 +795,20 @@ void MenuOptions(int n) {
 		window.draw(text);
 
 	}
+	if (x) {
+		window.draw(sky);
+		window.draw(gameend);
+		camera.setCenter(gameend.getPosition().x, gameend.getPosition().y);
 
+		z = 1;
+
+	}
+	if (z&&endgame.getElapsedTime().asSeconds()>3) {
+		x = 0;
+		z = 0;
+		main();
+
+	}
 
 
 
@@ -834,7 +855,7 @@ void coin_animation() {
 	for (int i = 0; i < 40; i++) {
 		coin[i].setTextureRect(IntRect(36 * coinanimation, 0, 36, 32));
 	}
-	
+
 	if (coinclock.getElapsedTime().asSeconds() > 0.15) {
 		coinanimation++;
 		coinclock.restart();
@@ -842,28 +863,10 @@ void coin_animation() {
 	coinanimation %= 6;
 }
 
-void gamend() {
-	
-	gameend.setString("you have" + to_string(life) + "remaining life");
-	while (!endgame.getElapsedTime().asSeconds() > 5) {
 
-
-
-
-		window.draw(sky);
-		window.draw(gameend);
-	}
-
-
-	main();
-
-	x = 0;
-
-	 
-}
 
 void coin_motion() {
-	
+
 	for (int i = 11; i < 15; i++) {
 		if (coin[i].getPosition().y == 100 || coin[i].getPosition().y == 400) {
 			coinmotion *= -1;
@@ -887,12 +890,11 @@ void coin_motion() {
 	}
 
 
-	
-	
+
+
 }
 
 //Swap function
-
 
 
 
