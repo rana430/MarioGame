@@ -48,6 +48,7 @@ Clock framespeed;
 int moveright();
 void moveleft();
 void jump();
+void pipecollision();
 void coin_animation();
 int detectground();
 int detectpipe();
@@ -59,6 +60,12 @@ void read();
 void coincollision();
 void gamend();
 void coin_motion();
+void die();
+void groundmovement();
+void mouseclick();
+void goombaa();
+void planten();
+void movementandgravity();
 //end of functions
 Texture skytx;
 Sprite sky;
@@ -313,8 +320,6 @@ int main() {
 
 	read();
 
-
-
 	camera.setCenter(player.getPosition().x, player.getPosition().y + 250);
 	window.setView(camera);
 
@@ -324,99 +329,15 @@ int main() {
 
 			coincollision();
 
-
-
-
-
-
 			//Menu displaying
-			Vector2i mousePressed = Mouse::getPosition(window);//variable for determine the position of the mouse in the window
-
-
-			if (Mouse::isButtonPressed(Mouse::Left)) {
-
-				//on pressing high scores button
-				if ((mousePressed.x > 23 && mousePressed.x < 300 && mousePressed.y>120 && mousePressed.y < 205 && show)) {
-
-					menuOptions = 2;
-					calHighScore(score, playerNum);
-
-					show = 0;
-				}
-				// On pressing on Play Button
-				else if ((mousePressed.x > 23 && mousePressed.x < 300 && mousePressed.y > 10 && mousePressed.y < 86 && show)) {
-
-					menuOptions = 1;
-					show = 0;
-					SameName = 1;
-					for (int i = 0; i < 9; i++) {
-						score++;
-						cout << score << " ";
-					}
-				}
-				//on pressing on options button
-				else if (mousePressed.x > 23 && mousePressed.x < 300 && mousePressed.y>240 && mousePressed.y < 330 && show) {
-
-					menuOptions = 3;
-					show = 1;
-				}
-				//on pressing credits button
-				else if (mousePressed.x > 23 && mousePressed.x < 300 && mousePressed.y>370 && mousePressed.y < 455 && show) {
-
-					menuOptions = 4;
-					show = 0;
-				}
-				//on pressing New game button
-				else if (menuOptions == 3 && mousePressed.x > 230 && mousePressed.x < 540 && mousePressed.y>140 && mousePressed.y < 280 && show) {
-					menuOptions = 1;
-					show = 0;
-					SameName = 0;
-					playerNum++;
-					cout << playerNum << " " << SameName;
-
-				}
-			}
+			mouseclick();
 			//End od Menu Displaying
 
-			//Esc button 
-			else if (Keyboard::isKeyPressed(Keyboard::Escape)) {
-				menuOptions = 0;
-				show = 1;
-			}
-
-
-			//End of ESC button
-
-
-
 			//Pipe and ground collsion
-			if ((player.getGlobalBounds().intersects(pipe[detectpipe()].getGlobalBounds()) && pipe[detectpipe()].getPosition().x > player.getPosition().x)) {
-				if (pipe[detectpipe()].getGlobalBounds().top > (player.getPosition().y + 42)) {
-					canmoverigt = 1;
-				}
-				else { canmoverigt = 0; }
 
-			}
-
-
-			else { canmoverigt = 1; }
-
-
-			if (player.getGlobalBounds().intersects(pipe[detectpipe()].getGlobalBounds()) && pipe[detectpipe()].getPosition().x < player.getPosition().x) {
-				if (pipe[detectpipe()].getGlobalBounds().top > (player.getPosition().y + 42))
-				{
-
-					canmoveleft = 1;
-				}
-				else { canmoveleft = 0; }
-
-
-			}
-			else { canmoveleft = 1; }
-
+			pipecollision();
 
 			//end of pipe collision
-
 
 			Event event;
 			while (window.pollEvent(event)) {
@@ -427,181 +348,25 @@ int main() {
 				}
 				//End of Closing the game from X button
 
-
-
-
-
-
-
-
-
-
-
-
 			}
 			//end of while event
 			//coin animation
 			coin_animation();
 			//plant 
-			for (size_t i = 0; i < 7; i++)
-			{
+			planten();
 
-				plant[i].setTextureRect(IntRect((plantanimation * 300) + 32, 0, 220, 280));
+			// goomba 
 
-				if (player.getGlobalBounds().intersects(plant[i].getGlobalBounds())) {
-
-
-
-
-
-					sky.setPosition(-1200, -300);
-					x = 1;
-					endgame.restart();
-				}
-
-			}
-			if (plantclock.getElapsedTime().asSeconds() > 0.2)
-			{
-				plantanimation++;
-				plantclock.restart();
-			}
-			plantanimation %= 2;
-
-			if (plant[3].getPosition().y == 190 || plant[3].getPosition().y == 340) {
-
-				plantmotion *= -1;
-
-			}
-			plant[3].move(0, -plantmotion);
-
-
-			// goomba movement 
-			if (alive) {
-				goomba.setTextureRect(IntRect(goombaAnimation * 210, 0, 165, 161));
-				if (goomba.getGlobalBounds().intersects(pipe[1].getGlobalBounds()) || goomba.getGlobalBounds().intersects(pipe[2].getGlobalBounds())) {
-					goombaMotion *= -1;
-				}
-				if (goombaClock.getElapsedTime().asSeconds() > 0.8) {
-					goombaAnimation++;
-					goombaClock.restart();
-				}
-				if (alive) {
-					goombaAnimation %= 2;
-					goomba.move(-goombaMotion, 0);
-				}
-			}
-
-			//Killing enemies
-			if (player.getGlobalBounds().intersects(goomba.getGlobalBounds())) {
-
-				if (player.getPosition().y + 42 < goomba.getGlobalBounds().top) {
-					alive = 0;
-					goombaMotion = 0;
-					goomba.setTextureRect(IntRect(420, 0, 165, 161));
-					killg.restart();
-
-				}
-				else if (killg.getElapsedTime().asSeconds() > 0.15 && !alive) {
-
-					goomba.setScale(0, 0);
-
-				}
-				else {
-					sky.setPosition(-1200, -300);
-					x = 1;
-					endgame.restart();
-
-
-				}
-
-			}
-			if (player.getPosition().y > 600 && !x) {
-
-
-				sky.setPosition(-1200, -300);
-				x = 1;
-				endgame.restart();
-
-
-
-			}
+			goombaa();
 
 			//ground movement
-			if (ground[3].getPosition().y == 100 || ground[3].getPosition().y == 400) {
-				groundMotion *= -1;
-			}
-			ground[3].move(0, groundMotion);
-			ground[5].move(0, groundMotion);
 
-			if (ground[4].getPosition().y == 100 || ground[4].getPosition().y == 400) {
-				ground2Motion *= -1;
-			}
-			ground[4].move(0, -ground2Motion);
-
-			//pipecoll
-
-			//coin motion
-			//coin_motion();
-
-			//end of pipe coll
-
+			groundmovement();
 
 			//gravity and movement
-			if (!x) {
-				if (Keyboard::isKeyPressed(Keyboard::Right) && canmoverigt) {
+			movementandgravity();
 
-					moveright();
-
-				}
-
-				else if (Keyboard::isKeyPressed(Keyboard::Left) && canmoveleft) {
-
-					moveleft();
-
-
-				}
-				else { velocityx = 0; }
-				if (player.getGlobalBounds().intersects(ground[detectground()].getGlobalBounds()) && ground[detectground()].getGlobalBounds().top >= (player.getPosition().y + 32)) {
-					velocityy = 0;
-					player.setPosition(player.getPosition().x, ground[detectground()].getGlobalBounds().top - 48);
-					canjump = 1;
-					if (Keyboard::isKeyPressed(Keyboard::X) && canjump) {
-
-						velocityy = 6;
-						canjump = 0;
-					}
-
-				}
-
-
-				else if (player.getGlobalBounds().intersects(pipe[detectpipe()].getGlobalBounds()) && pipe[detectpipe()].getGlobalBounds().top >= (player.getPosition().y + 40)) {
-					velocityy = 0;
-
-
-					canjump = 1;
-					if (Keyboard::isKeyPressed(Keyboard::X) && canjump) {
-
-						velocityy = 6;
-						canjump = 0;
-					}
-
-
-				}
-
-				else {
-					velocityy -= 0.1099;
-
-
-				}
-
-
-
-				animationindicator = animationindicator % 3;
-				player.setTextureRect(IntRect(animationindicator * 16, 0, 16, 32));
-			}
 			//end of gravity and movement
-
-
 
 			MenuOptions(menuOptions);
 
@@ -813,22 +578,9 @@ void MenuOptions(int n) {
 		window.draw(text);
 
 	}
-	if (x) {
-		window.draw(sky);
-		window.draw(gameend);
-		camera.setCenter(gameend.getPosition().x, gameend.getPosition().y);
-
-		z = 1;
-
-	}
-	if (z && endgame.getElapsedTime().asSeconds() > 3) {
-		x = 0;
-		z = 0;
-		main();
-
-	}
 
 
+	die();
 
 	window.display();
 
@@ -913,13 +665,277 @@ void coin_motion() {
 }
 
 //Swap function
+void pipecollision() {
+
+
+
+
+	if ((player.getGlobalBounds().intersects(pipe[detectpipe()].getGlobalBounds()) && pipe[detectpipe()].getPosition().x > player.getPosition().x)) {
+		if (pipe[detectpipe()].getGlobalBounds().top > (player.getPosition().y + 42)) {
+			canmoverigt = 1;
+		}
+		else { canmoverigt = 0; }
+
+	}
+
+
+	else { canmoverigt = 1; }
+
+
+	if (player.getGlobalBounds().intersects(pipe[detectpipe()].getGlobalBounds()) && pipe[detectpipe()].getPosition().x < player.getPosition().x) {
+		if (pipe[detectpipe()].getGlobalBounds().top > (player.getPosition().y + 42))
+		{
+
+			canmoveleft = 1;
+		}
+		else { canmoveleft = 0; }
+
+
+	}
+	else { canmoveleft = 1; }
+}
+
+
+
+void die() {
+
+
+
+
+	if (x) {
+		window.draw(sky);
+		window.draw(gameend);
+		camera.setCenter(gameend.getPosition().x, gameend.getPosition().y);
+
+		z = 1;
+
+	}
+	if (z && endgame.getElapsedTime().asSeconds() > 3) {
+		x = 0;
+		z = 0;
+		main();
+
+	}
+}
+
+void groundmovement() {
+
+
+
+	if (ground[3].getPosition().y == 100 || ground[3].getPosition().y == 400) {
+		groundMotion *= -1;
+	}
+	ground[3].move(0, groundMotion);
+	ground[5].move(0, groundMotion);
+
+	if (ground[4].getPosition().y == 100 || ground[4].getPosition().y == 400) {
+		ground2Motion *= -1;
+	}
+	ground[4].move(0, -ground2Motion);
+
+
+
+}
+
+void mouseclick() {
+	Vector2i mousePressed = Mouse::getPosition(window);//variable for determine the position of the mouse in the window
+
+
+	if (Mouse::isButtonPressed(Mouse::Left)) {
+
+		//on pressing high scores button
+		if ((mousePressed.x > 23 && mousePressed.x < 300 && mousePressed.y>120 && mousePressed.y < 205 && show)) {
+
+			menuOptions = 2;
+			calHighScore(score, playerNum);
+
+			show = 0;
+		}
+		// On pressing on Play Button
+		else if ((mousePressed.x > 23 && mousePressed.x < 300 && mousePressed.y > 10 && mousePressed.y < 86 && show)) {
+
+			menuOptions = 1;
+			show = 0;
+			SameName = 1;
+			for (int i = 0; i < 9; i++) {
+				score++;
+				cout << score << " ";
+			}
+		}
+		//on pressing on options button
+		else if (mousePressed.x > 23 && mousePressed.x < 300 && mousePressed.y>240 && mousePressed.y < 330 && show) {
+
+			menuOptions = 3;
+			show = 1;
+		}
+		//on pressing credits button
+		else if (mousePressed.x > 23 && mousePressed.x < 300 && mousePressed.y>370 && mousePressed.y < 455 && show) {
+
+			menuOptions = 4;
+			show = 0;
+		}
+		//on pressing New game button
+		else if (menuOptions == 3 && mousePressed.x > 230 && mousePressed.x < 540 && mousePressed.y>140 && mousePressed.y < 280 && show) {
+			menuOptions = 1;
+			show = 0;
+			SameName = 0;
+			playerNum++;
+			cout << playerNum << " " << SameName;
+
+		}
+	}
+	else if (Keyboard::isKeyPressed(Keyboard::Escape)) {
+		menuOptions = 0;
+		show = 1;
+	}
+
+
+}
+
+void goombaa() {
+
+	if (alive) {
+		goomba.setTextureRect(IntRect(goombaAnimation * 210, 0, 165, 161));
+		if (goomba.getGlobalBounds().intersects(pipe[1].getGlobalBounds()) || goomba.getGlobalBounds().intersects(pipe[2].getGlobalBounds())) {
+			goombaMotion *= -1;
+		}
+		if (goombaClock.getElapsedTime().asSeconds() > 0.8) {
+			goombaAnimation++;
+			goombaClock.restart();
+		}
+		if (alive) {
+			goombaAnimation %= 2;
+			goomba.move(-goombaMotion, 0);
+		}
+	}
+
+
+	if (player.getGlobalBounds().intersects(goomba.getGlobalBounds())) {
+
+		if (player.getPosition().y + 42 < goomba.getGlobalBounds().top) {
+			alive = 0;
+			goombaMotion = 0;
+			goomba.setTextureRect(IntRect(420, 0, 165, 161));
+			killg.restart();
+
+		}
+		else if (killg.getElapsedTime().asSeconds() > 0.15 && !alive) {
+
+			goomba.setScale(0, 0);
+
+		}
+		else {
+			sky.setPosition(-1200, -300);
+			x = 1;
+			endgame.restart();
+
+
+		}
+
+	}
+	if (player.getPosition().y > 600 && !x) {
+
+
+		sky.setPosition(-1200, -300);
+		x = 1;
+		endgame.restart();
+
+
+
+	}
+
+
+
+}
+void planten() {
+
+
+
+	for (size_t i = 0; i < 7; i++)
+	{
+
+		plant[i].setTextureRect(IntRect((plantanimation * 300) + 32, 0, 220, 280));
+
+		if (player.getGlobalBounds().intersects(plant[i].getGlobalBounds())) {
 
 
 
 
 
+			sky.setPosition(-1200, -300);
+			x = 1;
+			endgame.restart();
+		}
+
+	}
+	if (plantclock.getElapsedTime().asSeconds() > 0.2)
+	{
+		plantanimation++;
+		plantclock.restart();
+	}
+	plantanimation %= 2;
+
+	if (plant[3].getPosition().y == 190 || plant[3].getPosition().y == 340) {
+
+		plantmotion *= -1;
+
+	}
+	plant[3].move(0, -plantmotion);
+
+}
+
+
+void movementandgravity() {
+	if (!x) {
+		if (Keyboard::isKeyPressed(Keyboard::Right) && canmoverigt) {
+
+			moveright();
+
+		}
+
+		else if (Keyboard::isKeyPressed(Keyboard::Left) && canmoveleft) {
+
+			moveleft();
+
+
+		}
+		else { velocityx = 0; }
+		if (player.getGlobalBounds().intersects(ground[detectground()].getGlobalBounds()) && ground[detectground()].getGlobalBounds().top >= (player.getPosition().y + 32)) {
+			velocityy = 0;
+			player.setPosition(player.getPosition().x, ground[detectground()].getGlobalBounds().top - 48);
+			canjump = 1;
+			if (Keyboard::isKeyPressed(Keyboard::X) && canjump) {
+
+				velocityy = 6;
+				canjump = 0;
+			}
+
+		}
+
+
+		else if (player.getGlobalBounds().intersects(pipe[detectpipe()].getGlobalBounds()) && pipe[detectpipe()].getGlobalBounds().top >= (player.getPosition().y + 40)) {
+			velocityy = 0;
+
+
+			canjump = 1;
+			if (Keyboard::isKeyPressed(Keyboard::X) && canjump) {
+
+				velocityy = 6;
+				canjump = 0;
+			}
+
+
+		}
+
+		else {
+			velocityy -= 0.1099;
+
+
+		}
 
 
 
-
-
+		animationindicator = animationindicator % 3;
+		player.setTextureRect(IntRect(animationindicator * 16, 0, 16, 32));
+	}
+}
