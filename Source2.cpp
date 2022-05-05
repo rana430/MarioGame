@@ -114,7 +114,7 @@ int main() {
 	life--;
 	gameend.setCharacterSize(32);
 	gameend.setFont(font);
-	gameend.setString("you have" + to_string(life) + "remaining life");
+	gameend.setString("you have  " + to_string(life - 1) + "  remaining life");
 	gameend.setFillColor(Color(0, 0, 0, 180));
 
 	structOrder();//Calling Struct order function
@@ -713,8 +713,14 @@ void die() {
 	if (z && endgame.getElapsedTime().asSeconds() > 3) {
 		x = 0;
 		z = 0;
-		main();
+		if (life - 1 == 0) {
+			show = 1;
+			menuOptions = 0;
 
+			life = 4;
+
+		}
+		else { main(); }
 	}
 }
 
