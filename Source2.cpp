@@ -22,7 +22,7 @@ int menuOptions = 0;/*
 					4-> to dispaly credits Menu
 					*/
 
-
+bool a = 0;
 
 
 
@@ -42,7 +42,7 @@ int life = 4;
 int scores = 0;
 float velocityy = 0;
 float velocityx = 0;
-float groundMotion = 1, ground2Motion = 1, goombaMotion = 0.4, plantmotion = 0.5, coinmotion = 1, coin2motion = 1;
+float groundMotion = 1, ground2Motion = 1, goombaMotion = 1, plantmotion = 0.5, coinmotion = 1, coin2motion = 1;
 Clock framespeed;
 //functions
 int moveright();
@@ -810,28 +810,35 @@ void goombaa() {
 	}
 
 
-	if (player.getGlobalBounds().intersects(goomba.getGlobalBounds())) {
+	if (player.getGlobalBounds().intersects(goomba.getGlobalBounds()) && alive) {
 
 		if (player.getPosition().y + 42 < goomba.getGlobalBounds().top) {
 			alive = 0;
 			goombaMotion = 0;
 			goomba.setTextureRect(IntRect(420, 0, 165, 161));
 			killg.restart();
-
-		}
-		else if (killg.getElapsedTime().asSeconds() > 0.15 && !alive) {
-
-			goomba.setScale(0, 0);
+			a = 1;
 
 		}
 		else {
 			sky.setPosition(-1200, -300);
 			x = 1;
+
 			endgame.restart();
 
 
 		}
 
+
+
+
+	}
+	if (killg.getElapsedTime().asSeconds() > 0.15 && a) {
+
+		goomba.setScale(0, 0);
+		alive = 1;
+		a = 0;
+		goombaMotion = 1;
 	}
 	if (player.getPosition().y > 600 && !x) {
 
