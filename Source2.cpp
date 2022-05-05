@@ -110,6 +110,12 @@ bool x = 0;
 bool z = 0;
 
 
+
+
+SoundBuffer buffer;
+Sound sound;
+Music music;
+
 sf::RenderWindow window(sf::VideoMode(800, 485), "Super Mario!!");
 View camera(FloatRect(0, 0, 800, 485));
 
@@ -321,6 +327,18 @@ int main() {
 	goomba.setTextureRect(IntRect(0, 0, 160, 161));
 
 	window.setFramerateLimit(120);
+	//sound
+
+
+
+	buffer.loadFromFile("coin.ogg");
+
+	sound.setBuffer(buffer);
+
+	music.openFromFile("overworld.ogg");
+	music.play();
+	music.setLoop(z);
+	//end of sound
 
 	read();
 
@@ -417,7 +435,7 @@ void coincollision() {
 			coin[i].setScale(0, 0);
 			text.setString("score:" + to_string(scores));
 
-
+			sound.play();
 		}
 
 
