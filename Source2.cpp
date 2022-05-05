@@ -66,6 +66,9 @@ void mouseclick();
 void goombaa();
 void planten();
 void movementandgravity();
+void Swap(int& n1, int& n2, int& n3, int& n4);//function to swap high scores of two player and their orders
+void Sort(int);//function to sort players decsending according to their highscores
+bool Fullmessage(int, int);//function to display message when number of players exceed 10
 //end of functions
 Texture skytx;
 Sprite sky;
@@ -98,6 +101,7 @@ Text Data;//text of name of players
 Text Scores;//test of scores of players
 Text text;
 Text gameend;
+Text Message;
 Font font;
 Clock goombaClock, killg, plantclock, coinclock;
 Clock endgame;
@@ -231,7 +235,7 @@ int main() {
 
 
 	//sky
-	skytx.loadFromFile("sky2.png");
+	skytx.loadFromFile("sky.png");
 	sky.setTexture(skytx);
 	sky.setScale(10, 8);
 	//end of sky
@@ -950,5 +954,48 @@ void movementandgravity() {
 
 		animationindicator = animationindicator % 3;
 		player.setTextureRect(IntRect(animationindicator * 16, 0, 16, 32));
+	}
+}
+void Swap(int& n1, int& n2, int& n3, int& n4) {
+	int temp;
+	temp = n1;
+	n1 = n2;
+	n2 = temp;
+	//swap player numbers
+	int tempn;
+	tempn = n3;
+	n3 = n4;
+	n4 = tempn;
+
+}
+
+
+//Sorting Function
+void Sort(int n) {
+	for (int i = 0; i < n; i++) {
+		for (int j = 1 + i; j < n; j++) {
+			if (hs[i].HighScore < hs[j].HighScore) {
+
+				Swap(hs[i].HighScore, hs[j].HighScore, hs[i].playerOrder, hs[j].playerOrder);
+			}
+		}
+	}
+}
+
+//function to display that number of players exceed the limit
+bool Fullmessage(int n, int limit) {
+	if (n >= limit && menuOptions == 3) {
+
+		Message.setFont(font);
+		Message.setFillColor(sf::Color(0, 0, 0, 180));
+		Message.setPosition(150, 90);
+		Message.setCharacterSize(32);
+		Message.setString("Number of Players Exceeded The Limit !!!!");
+		show = 0;
+
+		return true;
+	}
+	else {
+		return false;
 	}
 }
