@@ -44,7 +44,7 @@ const int num = 10;
 int scores = 0;
 float velocityy = 0;
 float velocityx = 0;
-float groundMotion = 1, ground2Motion = 1, goombaMotion = 0.45,goomba2Motion = 0.45 , plantmotion = 0.5, coinmotion = 1, coin2motion = 1;
+float groundMotion = 1, ground2Motion = 1, goombaMotion = 0.45, goomba2Motion = 0.45, plantmotion = 0.5, coinmotion = 1, coin2motion = 1;
 Clock framespeed;
 //functions
 int moveright();
@@ -73,6 +73,11 @@ void movementandgravity();
 void Swap(int& n1, int& n2, int& n3, int& n4);//function to swap high scores of two player and their orders
 void Sort(int);//function to sort players decsending according to their highscores
 bool Fullmessage(int, int);//function to display message when number of players exceed 10
+int detectblock();
+int detectblock2();
+int detectblock3();
+int detectblock33();
+
 //end of functions
 Texture blocktx;
 Texture block3tx;
@@ -278,7 +283,7 @@ int main() {
 
 
 	//sky
-	skytx.loadFromFile("sky2.png");
+	skytx.loadFromFile("sky.png");
 	sky.setTexture(skytx);
 	sky.setScale(10, 8);
 	//end of sky
@@ -321,7 +326,7 @@ int main() {
 		block3[i].setPosition(6710 + (i * 44), 362);
 	}
 	for (int i = 5; i < 9; i++) {
-		block3[i].setPosition(6754 + (i-5) * 44, 314);
+		block3[i].setPosition(6754 + (i - 5) * 44, 314);
 	}
 	for (int i = 9; i < 12; i++) {
 		block3[i].setPosition(6798 + (i - 9) * 44, 266);
@@ -375,7 +380,7 @@ int main() {
 	for (int i = 4; i < 7; i++) {
 		ground[i].setTexture(ground2);
 		ground[i].setScale(0.3, 0.4);
-		ground[i].setPosition(3012+ ((i - 3) * 370), 120);
+		ground[i].setPosition(3012 + ((i - 3) * 370), 120);
 		if (i == 5) {
 			ground[i].setPosition(3012 + ((i - 3) * 370), 370);
 		}
@@ -426,10 +431,10 @@ int main() {
 		goomba[i].setScale(0.3, 0.3);
 		goomba[i].setTextureRect(IntRect(0, 0, 160, 161));
 	}
-		goomba[0].setPosition(1500, 360);
-		for (int i = 1; i < 3; i++) {
-			goomba[i].setPosition(5015 + (i - 1) * 800, 360);
-		}
+	goomba[0].setPosition(1500, 360);
+	for (int i = 1; i < 3; i++) {
+		goomba[i].setPosition(5015 + (i - 1) * 800, 360);
+	}
 	window.setFramerateLimit(120);
 	//sound
 
@@ -667,7 +672,7 @@ void MenuOptions(int n) {
 		window.draw(player);
 		for (size_t i = 0; i < 3; i++)
 		{
-		  window.draw(goomba[i]);
+			window.draw(goomba[i]);
 
 		}
 		for (size_t i = 0; i < 40; i++)
@@ -676,15 +681,15 @@ void MenuOptions(int n) {
 		}
 		for (size_t i = 0; i < 10; i++)
 		{
-		  window.draw(block2[i]);
+			window.draw(block2[i]);
 
-		  window.draw(block[i]);
+			window.draw(block[i]);
 		}
 		for (size_t i = 0; i < 30; i++)
 		{
 			window.draw(block3[i]);
 		}
-		
+
 
 		for (size_t i = 0; i < 7; i++)
 		{
@@ -867,9 +872,33 @@ void pipecollision() {
 		else { canmoverigt = 0; }
 
 	}
+	else if ((player.getGlobalBounds().intersects(block[detectblock()].getGlobalBounds()) && block[detectblock()].getPosition().x > player.getPosition().x)) {
 
+		if (block[detectblock()].getGlobalBounds().top > (player.getPosition().y + 42)) {
+			canmoverigt = 1;
+		}
+		else { canmoverigt = 0; }
+	}
+	else if ((player.getGlobalBounds().intersects(block2[detectblock2()].getGlobalBounds()) && block2[detectblock2()].getPosition().x > player.getPosition().x)) {
+
+		if (block2[detectblock2()].getGlobalBounds().top > (player.getPosition().y + 42)) {
+			canmoverigt = 1;
+		}
+		else { canmoverigt = 0; }
+	}
+	else if (player.getGlobalBounds().intersects(block3[detectblock33()].getGlobalBounds())) {
+		if (block3[detectblock3()].getGlobalBounds().top > (player.getPosition().y + 35)) {
+			canmoverigt = 1;
+		}
+		else { canmoverigt = 0; }
+		canmoverigt = 0;
+
+
+	}
 
 	else { canmoverigt = 1; }
+
+
 
 
 	if (player.getGlobalBounds().intersects(pipe[detectpipe()].getGlobalBounds()) && pipe[detectpipe()].getPosition().x < player.getPosition().x) {
@@ -882,6 +911,21 @@ void pipecollision() {
 
 
 	}
+
+
+	else if ((player.getGlobalBounds().intersects(block2[detectblock2()].getGlobalBounds()) && block2[detectblock2()].getPosition().x < player.getPosition().x)) {
+
+		if (block2[detectblock2()].getGlobalBounds().top > (player.getPosition().y + 42)) {
+			canmoveleft = 1;
+		}
+		else { canmoveleft = 0; }
+	}
+
+
+
+
+
+
 	else { canmoveleft = 1; }
 }
 
@@ -903,8 +947,15 @@ void die() {
 	if (z && endgame.getElapsedTime().asSeconds() > 3) {
 		x = 0;
 		z = 0;
-		main();
+		if (life - 1 == 0) {
+			menuOptions = 0;
+			show = 1;
+			life = 4;
 
+		}
+		else {
+			main();
+		}
 	}
 }
 
@@ -988,29 +1039,29 @@ void goombaa() {
 		if (alive) {
 			goomba[i].setTextureRect(IntRect(goombaAnimation * 210, 0, 165, 161));
 
-		if (goomba[0].getGlobalBounds().intersects(pipe[1].getGlobalBounds()) || goomba[0].getGlobalBounds().intersects(pipe[2].getGlobalBounds())) {
-			goombaMotion *= -1;
-		}
-		if (goomba[1].getGlobalBounds().intersects(pipe[3].getGlobalBounds()) || goomba[1].getGlobalBounds().intersects(goomba[2].getGlobalBounds())) {
-			goomba2Motion *= -1;
-		}
-		if (goombaClock.getElapsedTime().asSeconds() > 0.8) {
-			goombaAnimation++;
-			goombaClock.restart();
-		}
-		if (alive) {
-			goombaAnimation %= 2;
-			goomba[0].move(-goombaMotion, 0);
-			goomba[1].move(-goomba2Motion, 0);
-			goomba[2].move(goomba2Motion, 0);
-		}
+			if (goomba[0].getGlobalBounds().intersects(pipe[1].getGlobalBounds()) || goomba[0].getGlobalBounds().intersects(pipe[2].getGlobalBounds())) {
+				goombaMotion *= -1;
+			}
+			if (goomba[1].getGlobalBounds().intersects(pipe[3].getGlobalBounds()) || goomba[1].getGlobalBounds().intersects(goomba[2].getGlobalBounds())) {
+				goomba2Motion *= -1;
+			}
+			if (goombaClock.getElapsedTime().asSeconds() > 0.8) {
+				goombaAnimation++;
+				goombaClock.restart();
+			}
+			if (alive) {
+				goombaAnimation %= 2;
+				goomba[0].move(-goombaMotion, 0);
+				goomba[1].move(-goomba2Motion, 0);
+				goomba[2].move(goomba2Motion, 0);
+			}
 
 		}
 
 
 		if (player.getGlobalBounds().intersects(goomba[i].getGlobalBounds()) && alive) {
 
-			if (player.getPosition().y + 42 < goomba[i].getGlobalBounds().top) {
+			if (player.getPosition().y + 40 < goomba[i].getGlobalBounds().top) {
 				alive = 0;
 				goombaMotion = 0;
 				goomba[i].setTextureRect(IntRect(420, 0, 165, 161));
@@ -1021,6 +1072,7 @@ void goombaa() {
 			else {
 				sky.setPosition(-1200, -300);
 				x = 1;
+
 
 				endgame.restart();
 
@@ -1086,10 +1138,21 @@ void planten() {
 		plantmotion *= -1;
 
 	}
+
 	plant[3].move(0, -plantmotion);
 	for (size_t i = 5; i < 7; i++)
 	{
 		plant[i].move(0, -plantmotion);
+
+	}
+	for (size_t i = 5; i < 7; i++)
+	{
+		if (plant[i].getPosition().y < 190) {
+
+
+			plantmotion *= -1;
+		}
+
 	}
 
 }
@@ -1116,7 +1179,7 @@ void movementandgravity() {
 			canjump = 1;
 			if (Keyboard::isKeyPressed(Keyboard::X) && canjump) {
 
-				mariojump.play();	
+				mariojump.play();
 				velocityy = 6;
 				canjump = 0;
 			}
@@ -1136,31 +1199,149 @@ void movementandgravity() {
 			}
 
 
+
+
+		}
+		else if (player.getGlobalBounds().intersects(block[detectblock()].getGlobalBounds()) && block[detectblock()].getGlobalBounds().top >= (player.getPosition().y + 40)) {
+			velocityy = 0;
+
+
+			canjump = 1;
+			if (Keyboard::isKeyPressed(Keyboard::X) && canjump) {
+				mariojump.play();
+				velocityy = 6;
+				canjump = 0;
+			}
+
+
+
+
+		}
+
+		else if (player.getGlobalBounds().intersects(block2[detectblock2()].getGlobalBounds()) && block2[detectblock2()].getGlobalBounds().top >= (player.getPosition().y + 40)) {
+			velocityy = 0;
+
+
+			canjump = 1;
+			if (Keyboard::isKeyPressed(Keyboard::X) && canjump) {
+				mariojump.play();
+				velocityy = 6;
+				canjump = 0;
+			}
+
+
+
+
+		}
+		else if (player.getGlobalBounds().intersects(block3[detectblock3()].getGlobalBounds()) && block3[detectblock3()].getGlobalBounds().top >= (player.getPosition().y + 40)) {
+			velocityy = 0;
+
+
+			canjump = 1;
+			if (Keyboard::isKeyPressed(Keyboard::X) && canjump) {
+				mariojump.play();
+				velocityy = 6;
+				canjump = 0;
+			}
+
+
+
+
 		}
 
 		else {
+
 			velocityy -= 0.1099;
-
-
 		}
 
 
 
-		animationindicator = animationindicator % 3;
-		player.setTextureRect(IntRect(animationindicator * 16, 0, 16, 32));
 	}
+
+
+
+	animationindicator = animationindicator % 3;
+	player.setTextureRect(IntRect(animationindicator * 16, 0, 16, 32));
+
 }
 
 void block_collision() {
 	for (int i = 0; i < 12; i++) {
-		if (player.getGlobalBounds().intersects(block[i].getGlobalBounds())) {
+		if (player.getGlobalBounds().intersects(block[i].getGlobalBounds()) && player.getPosition().y - 40 > block[i].getGlobalBounds().top + block[i].getGlobalBounds().height && player.getPosition().x > block[i].getGlobalBounds().left) {
 			velocityy = 0;
 			block[i].setTexture(block3tx);
 			block[i].setScale(0.1, 0.1);
 		}
-		if (player.getGlobalBounds().intersects(block2[i].getGlobalBounds())) {
+
+		if (player.getGlobalBounds().intersects(block2[i].getGlobalBounds()) && player.getPosition().y - 42 > block2[i].getGlobalBounds().top + block2[i].getGlobalBounds().height && player.getPosition().x > block2[i].getGlobalBounds().left) {
 			block2[i].setScale(0, 0);
+			velocityy = 0;
 		}
 
+	}
+}
+int detectblock() {
+	int m = 0;
+
+	for (int i = 0; i < 12; i++) {
+		if (player.getGlobalBounds().intersects(block[i].getGlobalBounds())) {
+
+			m = i;
+			return m;
+		}
+
+
+	}
+
+}
+int detectblock2() {
+
+	int n = 0;
+	for (int i = 0; i < 12; i++) {
+
+		if (player.getGlobalBounds().intersects(block2[i].getGlobalBounds())) {
+
+
+			n = i;
+			return n;
+		}
+
+	}
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+int detectblock3() {
+	int m = 0;
+	int n = 0;
+	for (int i = 0; i < 30; i++) {
+		if (player.getGlobalBounds().intersects(block3[i].getGlobalBounds())) {
+
+			m = i;
+			return m;
+		}
+	}
+}
+int detectblock33() {
+	int m = 0;
+	int n = 0;
+	for (int i = 0; i < 30; i++) {
+		if (player.getGlobalBounds().intersects(block3[i].getGlobalBounds()) && player.getPosition().x + 22 <= block3[i].getGlobalBounds().left) {
+
+			m = i;
+			return m;
+		}
 	}
 }
