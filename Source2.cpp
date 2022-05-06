@@ -33,16 +33,18 @@ bool canmoveleft = 1;
 bool space = 0;
 bool alive = 1;
 bool show = 1;//bool to check if menu is displayed or not
+bool Newgame = 0;//bool to reset the game and player postion
+bool Full = 0;//check number of players dont exceed 10 players
 int pos;
 int playerNum = 1;//number of palyers played the game
-int score = 0;
 int animationindicator = 0, plantanimation = 0, coinanimation = 0;
 int goombaAnimation = 0;
 int life = 4;
+const int num = 10;
 int scores = 0;
 float velocityy = 0;
 float velocityx = 0;
-float groundMotion = 1, ground2Motion = 1, goombaMotion = 1, plantmotion = 0.5, coinmotion = 1, coin2motion = 1;
+float groundMotion = 1, ground2Motion = 1, goombaMotion = 0.45,goomba2Motion = 0.45 , plantmotion = 0.5, coinmotion = 1, coin2motion = 1;
 Clock framespeed;
 //functions
 int moveright();
@@ -51,6 +53,7 @@ void jump();
 void pipecollision();
 void coin_animation();
 int detectground();
+int detectblock();
 int detectpipe();
 void calHighScore(int, int);
 void DiplayHighScore(int);//Displaying highscores function
@@ -65,11 +68,19 @@ void groundmovement();
 void mouseclick();
 void goombaa();
 void planten();
+void block_collision();
 void movementandgravity();
 void Swap(int& n1, int& n2, int& n3, int& n4);//function to swap high scores of two player and their orders
 void Sort(int);//function to sort players decsending according to their highscores
 bool Fullmessage(int, int);//function to display message when number of players exceed 10
 //end of functions
+Texture blocktx;
+Texture block3tx;
+Sprite block[12];
+Texture block2tx;
+Sprite block2[12];
+Texture block4tx;
+Sprite block3[30];
 Texture skytx;
 Sprite sky;
 Texture mario;
@@ -77,31 +88,35 @@ Sprite player;
 Texture planttx;
 Sprite plant[7];
 Texture groundtex;
-Sprite ground[15];
+Sprite ground[16];
 Texture ground2;
 Texture pipetex;
-Sprite pipe[3];
+Sprite pipe[7];
 Texture coinx;
 Sprite coin[40];
 Texture cloudtx;
 Sprite	cloudi[10];
 Texture goombaTx;
-Sprite goomba;
+Sprite goomba[3];
 Sprite menu;//Menu wallpaper
-Texture Menu;
+Texture menutx;
 Sprite highScore;//highscore wallpaper
-Texture HighScore;
+Texture highScoretx;
 Sprite option; //option Wallpaper
-Texture Option;
+Texture optiontx;
 Sprite credit;//Credits wallpaper
-Texture Credits;
+Texture Credittx;
 Sprite newGame;//New Game button 
-Texture NewGame;
+Texture newGametx;
+Sprite gameOver;//Game Over Condition
+Texture gameOvertx;
 Text Data;//text of name of players
-Text Scores;//test of scores of players
-Text text;
+Text point;//test of scores of players
+Text text;//Text to display the score of player
+Text Message;//text to display the message that number of palyers exceed the limit
+Text about;//text of credits
+Text gameovermessage;
 Text gameend;
-Text Message;
 Font font;
 Clock goombaClock, killg, plantclock, coinclock;
 Clock endgame;
@@ -109,12 +124,10 @@ Clock endgame;
 bool x = 0;
 bool z = 0;
 
-
-
-
 SoundBuffer buffer, mariojumpb, mariodieb;
 Sound sound, mariojump, mariodie;
 Music music;
+
 
 sf::RenderWindow window(sf::VideoMode(800, 485), "Super Mario!!");
 View camera(FloatRect(0, 0, 800, 485));
@@ -124,7 +137,7 @@ int main() {
 	life--;
 	gameend.setCharacterSize(32);
 	gameend.setFont(font);
-	gameend.setString("you have  " + to_string(life - 1) + "  remaining life");
+	gameend.setString("you have " + to_string(life) + " remaining life");
 	gameend.setFillColor(Color(0, 0, 0, 180));
 
 	structOrder();//Calling Struct order function
@@ -146,19 +159,19 @@ int main() {
 		coin[i].setTextureRect(IntRect(0, 0, 36, 32));
 		//coin[i].setPosition(100 * i +1260, 350);
 	}
-	for (int i = 0; i < 11; i++) {
+	for (int i = 0; i < 15; i++) {
 
-		coin[i].setPosition(100 * i + 1265, 350);
+		coin[i].setPosition(100 * i + 1765, 350);
 
-	}
-	for (int i = 11; i < 15; i++) {
-		coin[i].setPosition(2512 + ((i - 11) * 60), 120);
 	}
 	for (int i = 15; i < 19; i++) {
-		coin[i].setPosition(2882 + ((i - 15) * 60), 120);
+		coin[i].setPosition(3390 + ((i - 15) * 60), 120);
 	}
 	for (int i = 19; i < 23; i++) {
-		coin[i].setPosition(3252 + ((i - 19) * 60), 120);
+		coin[i].setPosition(3760 + ((i - 19) * 60), 120);
+	}
+	for (int i = 23; i < 27; i++) {
+		coin[i].setPosition(4130 + ((i - 23) * 60), 120);
 	}
 	mario.loadFromFile("mario_spritesheet.png");
 
@@ -171,10 +184,11 @@ int main() {
 	player.setOrigin(player.getLocalBounds().width / 2, player.getLocalBounds().height / 2);
 	//end of mario
 
+
 	//Menu Sprite declaring
 
-	Menu.loadFromFile("menu.png");
-	menu.setTexture(Menu);
+	menutx.loadFromFile("menu.png");
+	menu.setTexture(menutx);
 	menu.setPosition(0, 0);
 	menu.setScale(1.25, 1.5);
 
@@ -190,12 +204,12 @@ int main() {
 	//Text
 
 
-	text.setFont(font);
-	text.setString("CREDITS !!\n\n\n  Ahmed \n  Rana \n  Aliaa \n  Moaaz \n  Zeyad \n  Nour \n  Mohamed");
-	text.setFillColor(sf::Color(0, 0, 0, 180));
+	about.setFont(font);
+	about.setString("CREDITS !!\n\n\n  Ahmed \n  Rana \n  Aliaa \n  Moaaz \n  Zeyad \n  Nour \n  Mohamed");
+	about.setFillColor(sf::Color(0, 0, 0, 180));
 
-	text.setPosition(350, 10);
-	text.setCharacterSize(32);
+	about.setPosition(350, 10);
+	about.setCharacterSize(32);
 
 	//End Of Text
 
@@ -204,23 +218,45 @@ int main() {
 	Data.setFillColor(sf::Color(250, 0, 150, 200));
 	Data.setPosition(350, 10);
 	Data.setCharacterSize(32);
-	Scores.setFont(font);
-	Scores.setFillColor(sf::Color(250, 0, 150, 200));
-	Scores.setPosition(500, 10);
-	Scores.setCharacterSize(32);
+	point.setFont(font);
+	point.setFillColor(sf::Color(250, 0, 150, 200));
+	point.setPosition(500, 10);
+	point.setCharacterSize(32);
+	//End of High score Data displaying
+
+
+	//Game Over 
+	gameOvertx.loadFromFile("gameOver.png");
+	gameOver.setTexture(gameOvertx);
+	gameOver.setPosition(200, 50);
+	gameOver.setScale(1.25, 1.5);
+
+
+	//End Of Game Over
+
+
+	//High score Data displaying
+	Data.setFont(font);
+	Data.setFillColor(sf::Color(250, 0, 150, 200));
+	Data.setPosition(350, 10);
+	Data.setCharacterSize(32);
+	point.setFont(font);
+	point.setFillColor(sf::Color(250, 0, 150, 200));
+	point.setPosition(500, 10);
+	point.setCharacterSize(32);
 	//End of High score Data displaying
 
 
 	//Credits Wallpaper
-	Credits.loadFromFile("Sky.png");
-	credit.setTexture(Credits);
+	Credittx.loadFromFile("Sky.png");
+	credit.setTexture(Credittx);
 	credit.setPosition(0, 0);
 	credit.setScale(1.25, 1.25);
 	//End of credits
 
 	//New Game button
-	NewGame.loadFromFile("button-png-game-3.png");
-	newGame.setTexture(NewGame);
+	newGametx.loadFromFile("button-png-game-3.png");
+	newGame.setTexture(newGametx);
 	newGame.setPosition(230, 140);
 	newGame.setScale(1.25, 1.25);
 
@@ -228,28 +264,76 @@ int main() {
 
 
 	//highscore menu for testing
-	HighScore.loadFromFile("Sky.png");
-	highScore.setTexture(HighScore);
+	highScoretx.loadFromFile("Sky.png");
+	highScore.setTexture(highScoretx);
 	highScore.setPosition(0, 0);
 	//End of Testing
 
+
 	//options menu for testing
-	Option.loadFromFile("Sky.png");
-	option.setTexture(Option);
+	optiontx.loadFromFile("Sky.png");
+	option.setTexture(optiontx);
 	option.setPosition(0, 0);
 	//End of Testing
 
 
 	//sky
-	skytx.loadFromFile("sky.png");
+	skytx.loadFromFile("sky2.png");
 	sky.setTexture(skytx);
 	sky.setScale(10, 8);
 	//end of sky
 
+	// block
+	blocktx.loadFromFile("qblock.png");
+	block3tx.loadFromFile("blockN.png");
+	for (int i = 0; i < 12; i++) {
+		block[i].setTexture(blocktx);
+		block[0].setPosition(460, 230);
+		block[i].setScale(0.11, 0.11);
+	}
+	for (int i = 1; i < 3; i++) {
+		block[i].setPosition(650 + ((i - 1) * 100), 230);
+	}
+	for (int i = 3; i < 5; i++) {
+		block[i].setPosition(625 + ((i - 3) * 150), 80);
+	}
+	for (int i = 5; i < 8; i++) {
+		block[i].setPosition(6300 + (i - 5) * 50, 80);
+	}
+	block2tx.loadFromFile("block.png");
+	for (int i = 0; i < 12; i++) {
+		block2[i].setTexture(block2tx);
+		block2[i].setScale(0.11, 0.11);
+	}
+	for (int i = 0; i < 3; i++) {
+		block2[i].setPosition(600 + (i * 100), 230);
+	}
+	for (int i = 3; i < 10; i++) {
+		block2[i].setPosition(6200 + (i - 3) * 50, 230);
+	}
+
+	block4tx.loadFromFile("dblock.png");
+	for (int i = 0; i < 30; i++) {
+		block3[i].setTexture(block4tx);
+		block3[i].setScale(0.3, 0.3);
+	}
+	for (int i = 0; i < 5; i++) {
+		block3[i].setPosition(6710 + (i * 44), 362);
+	}
+	for (int i = 5; i < 9; i++) {
+		block3[i].setPosition(6754 + (i-5) * 44, 314);
+	}
+	for (int i = 9; i < 12; i++) {
+		block3[i].setPosition(6798 + (i - 9) * 44, 266);
+	}
+	for (int i = 12; i < 14; i++) {
+		block3[i].setPosition(6842 + (i - 12) * 44, 218);
+	}
+	block3[14].setPosition(6886, 170);
 	//plant
 
 	planttx.loadFromFile("plant.png");
-	for (size_t i = 0; i < 4; i++)
+	for (size_t i = 0; i < 7; i++)
 	{
 		plant[i].setTexture(planttx);
 		plant[i].setScale(0.3, 0.3);
@@ -260,13 +344,17 @@ int main() {
 
 	for (size_t i = 0; i < 2; i++)
 	{
-		plant[i].setPosition(570 + (i * 70), 350);
+		plant[i].setPosition(1070 + (i * 70), 350);
 
 	}
 
-	plant[2].setPosition(790, 350);
-	plant[3].setPosition(1280, 190);
-
+	plant[2].setPosition(1290, 350);
+	plant[3].setPosition(1780, 190);
+	plant[4].setPosition(4610, 350);
+	for (size_t i = 5; i < 7; i++)
+	{
+		plant[i].setPosition(4910 + ((i - 5) * 1000), 190);
+	}
 	//ground
 
 
@@ -276,7 +364,7 @@ int main() {
 
 
 
-	for (int i = 0; i < 3; i++) {
+	for (int i = 0; i < 4; i++) {
 
 		ground[i].setTexture(groundtex);
 
@@ -284,35 +372,48 @@ int main() {
 		ground[i].setPosition(i * ground[i].getGlobalBounds().width, 410);
 
 	}
-	for (int i = 3; i < 6; i++) {
+	for (int i = 4; i < 7; i++) {
 		ground[i].setTexture(ground2);
 		ground[i].setScale(0.3, 0.4);
-		ground[i].setPosition(2512 + ((i - 3) * 370), 120);
-		if (i == 4) {
-			ground[i].setPosition(2512 + ((i - 3) * 370), 370);
+		ground[i].setPosition(3012+ ((i - 3) * 370), 120);
+		if (i == 5) {
+			ground[i].setPosition(3012 + ((i - 3) * 370), 370);
 		}
 	}
 
-	for (int i = 7; i < 13; i++) {
+	for (int i = 7; i < 10; i++) {
 
 		ground[i].setTexture(groundtex);
 
 		ground[i].setScale(0.4, 0.6);
-		ground[i].setPosition(3580 + ((i - 7) * ground[i].getGlobalBounds().width), 410);
+		ground[i].setPosition(4520 + ((i - 7) * ground[i].getGlobalBounds().width), 410);
 
 	}
+	/*for (int i = 10; i < 13; i++) {
+		ground[i].setScale(0.4, 0.6);
+		ground[i].setPosition(6800 + (i - 10) * 500, 410);
+	}
+	*/
 
 	//end of ground
 	//pipe
 	pipetex.loadFromFile("pipe.jpg");
 
 
-	for (size_t i = 0; i < 3; i++)
+	for (size_t i = 0; i < 7; i++)
 	{
 		pipe[i].setTexture(pipetex);
 		pipe[i].setScale(1.4, 1.8);
-		pipe[i].setPosition(i * 400 + 450, 270);
 
+	}
+	for (size_t i = 0; i < 3; i++)
+	{
+		pipe[i].setPosition(i * 400 + 950, 270);
+
+	}
+	for (size_t i = 3; i < 5; i++)
+	{
+		pipe[i].setPosition(4880 + ((i - 3) * 1000), 270);
 	}
 
 	//end ofpipe
@@ -320,16 +421,17 @@ int main() {
 	//enemies
 
 	goombaTx.loadFromFile("pngkey.com-goomba-png-1876196.png");
-
-	goomba.setTexture(goombaTx);
-	goomba.setPosition(1000, 360);
-	goomba.setScale(0.3, 0.3);
-	goomba.setTextureRect(IntRect(0, 0, 160, 161));
-
+	for (int i = 0; i < 3; i++) {
+		goomba[i].setTexture(goombaTx);
+		goomba[i].setScale(0.3, 0.3);
+		goomba[i].setTextureRect(IntRect(0, 0, 160, 161));
+	}
+		goomba[0].setPosition(1500, 360);
+		for (int i = 1; i < 3; i++) {
+			goomba[i].setPosition(5015 + (i - 1) * 800, 360);
+		}
 	window.setFramerateLimit(120);
 	//sound
-
-
 
 	buffer.loadFromFile("coin.ogg");
 	mariodieb.loadFromFile("lost.ogg");
@@ -341,7 +443,6 @@ int main() {
 	music.openFromFile("overworld.ogg");
 	music.play();
 	music.setLoop(z);
-	//end of sound
 
 	read();
 
@@ -387,6 +488,8 @@ int main() {
 			//ground movement
 
 			groundmovement();
+			//block
+			block_collision();
 
 			//gravity and movement
 			movementandgravity();
@@ -400,7 +503,6 @@ int main() {
 			text.move(velocityx, 0);
 
 			sky.move(velocityx, 0);
-
 		}
 	}
 	return 0;
@@ -439,7 +541,7 @@ void coincollision() {
 			coin[i].setScale(0, 0);
 			text.setString("score:" + to_string(scores));
 
-			sound.play();
+
 		}
 
 
@@ -510,10 +612,9 @@ void jump() {
 }
 //end of jumpfunction
 
-
 int detectground() {
 	int j = 0;
-	for (size_t i = 0; i < 15; i++)
+	for (size_t i = 0; i < 13; i++)
 	{
 		if (player.getPosition().x > ground[i].getGlobalBounds().left && (ground[i].getGlobalBounds().left + ground[i].getGlobalBounds().width) * i) {
 
@@ -528,7 +629,7 @@ int detectground() {
 }
 int detectpipe() {
 	int m = 0;
-	for (size_t i = 0; i < 3; i++)
+	for (size_t i = 0; i < 7; i++)
 	{
 		if (player.getGlobalBounds().intersects(pipe[i].getGlobalBounds())) {
 
@@ -544,7 +645,7 @@ void structOrder() {
 	for (int i = 0; i < 10; i++) {
 		hs[i].playerOrder = i + 1;
 		hs[i].HighScore = 0;
-		cout << hs[i].playerOrder << " ";
+
 	}
 }
 
@@ -564,22 +665,37 @@ void MenuOptions(int n) {
 		}
 		window.draw(text);
 		window.draw(player);
-		window.draw(goomba);
+		for (size_t i = 0; i < 3; i++)
+		{
+		  window.draw(goomba[i]);
+
+		}
 		for (size_t i = 0; i < 40; i++)
 		{
 			window.draw(coin[i]);
 		}
+		for (size_t i = 0; i < 10; i++)
+		{
+		  window.draw(block2[i]);
 
-		for (size_t i = 0; i < 4; i++)
+		  window.draw(block[i]);
+		}
+		for (size_t i = 0; i < 30; i++)
+		{
+			window.draw(block3[i]);
+		}
+		
+
+		for (size_t i = 0; i < 7; i++)
 		{
 			window.draw(plant[i]);
 		}
 
-		for (size_t i = 0; i < 15; i++)
+		for (size_t i = 0; i < 13; i++)
 		{
 			window.draw(ground[i]);
 		}
-		for (size_t i = 0; i < 3; i++)
+		for (size_t i = 0; i < 5; i++)
 		{
 			window.draw(pipe[i]);
 		}
@@ -596,12 +712,14 @@ void MenuOptions(int n) {
 	else if (menuOptions == 3) {
 		window.draw(option);
 		window.draw(newGame);
-
+		if (Fullmessage(playerNum, num)) {
+			window.draw(Message);
+		}
 
 	}
 	else if (menuOptions == 4) {
 		window.draw(credit);
-		window.draw(text);
+		window.draw(about);
 
 	}
 
@@ -622,30 +740,19 @@ void DiplayHighScore(int numplayer) {
 		Data.setFillColor(sf::Color(0, 0, 0, 180));
 		Data.setPosition(200, 18 + i * 40);
 		Data.setCharacterSize(32);
-		Scores.setFont(font);
-		Scores.setFillColor(sf::Color(0, 0, 0, 200));
-		Scores.setPosition(500, 18 + i * 40);
-		Scores.setCharacterSize(32);
+		point.setFont(font);
+		point.setFillColor(sf::Color(0, 0, 0, 200));
+		point.setPosition(500, 18 + i * 40);
+		point.setCharacterSize(32);
 		Data.setString("Player " + to_string(hs[i].playerOrder));
-		Scores.setString("\t\t" + to_string(hs[i].HighScore) + "\n");
-
+		point.setString("\t\t" + to_string(hs[i].HighScore) + "\n");
 		window.draw(Data);
-		window.draw(Scores);
+		window.draw(point);
 
 
 	}
 }
 
-// high score calculation function
-//local val score
-void calHighScore(int score, int currentplayer) {
-	hs[currentplayer - 1].HighScore = score;
-	if (score > hs[currentplayer - 1].HighScore) {
-		hs[currentplayer - 1].HighScore = score;
-		cout << score << " ";
-	}
-
-}
 
 void coin_animation() {
 	for (int i = 0; i < 40; i++) {
@@ -690,301 +797,18 @@ void coin_motion() {
 
 }
 
+// high score calculation function
+//local val score
+void calHighScore(int score, int currentplayer) {
+	hs[currentplayer - 1].HighScore = score;
+	if (score > hs[currentplayer - 1].HighScore) {
+		hs[currentplayer - 1].HighScore = score;
+
+	}
+
+}
 //Swap function
-void pipecollision() {
 
-
-
-
-	if ((player.getGlobalBounds().intersects(pipe[detectpipe()].getGlobalBounds()) && pipe[detectpipe()].getPosition().x > player.getPosition().x)) {
-		if (pipe[detectpipe()].getGlobalBounds().top > (player.getPosition().y + 42)) {
-			canmoverigt = 1;
-		}
-		else { canmoverigt = 0; }
-
-	}
-
-
-	else { canmoverigt = 1; }
-
-
-	if (player.getGlobalBounds().intersects(pipe[detectpipe()].getGlobalBounds()) && pipe[detectpipe()].getPosition().x < player.getPosition().x) {
-		if (pipe[detectpipe()].getGlobalBounds().top > (player.getPosition().y + 42))
-		{
-
-			canmoveleft = 1;
-		}
-		else { canmoveleft = 0; }
-
-
-	}
-	else { canmoveleft = 1; }
-}
-
-
-
-void die() {
-
-
-
-
-	if (x) {
-
-		window.draw(sky);
-		window.draw(gameend);
-		camera.setCenter(gameend.getPosition().x, gameend.getPosition().y);
-
-		z = 1;
-
-	}
-	if (z && endgame.getElapsedTime().asSeconds() > 3) {
-		x = 0;
-		z = 0;
-		if (life - 1 == 0) {
-			show = 1;
-			menuOptions = 0;
-
-			life = 4;
-
-		}
-		else { main(); }
-	}
-}
-
-void groundmovement() {
-
-
-
-	if (ground[3].getPosition().y == 100 || ground[3].getPosition().y == 400) {
-		groundMotion *= -1;
-	}
-	ground[3].move(0, groundMotion);
-	ground[5].move(0, groundMotion);
-
-	if (ground[4].getPosition().y == 100 || ground[4].getPosition().y == 400) {
-		ground2Motion *= -1;
-	}
-	ground[4].move(0, -ground2Motion);
-
-
-
-}
-
-void mouseclick() {
-	Vector2i mousePressed = Mouse::getPosition(window);//variable for determine the position of the mouse in the window
-
-
-	if (Mouse::isButtonPressed(Mouse::Left)) {
-
-		//on pressing high scores button
-		if ((mousePressed.x > 23 && mousePressed.x < 300 && mousePressed.y>120 && mousePressed.y < 205 && show)) {
-
-			menuOptions = 2;
-			calHighScore(score, playerNum);
-
-			show = 0;
-		}
-		// On pressing on Play Button
-		else if ((mousePressed.x > 23 && mousePressed.x < 300 && mousePressed.y > 10 && mousePressed.y < 86 && show)) {
-
-			menuOptions = 1;
-			show = 0;
-			SameName = 1;
-			for (int i = 0; i < 9; i++) {
-				score++;
-				cout << score << " ";
-			}
-		}
-		//on pressing on options button
-		else if (mousePressed.x > 23 && mousePressed.x < 300 && mousePressed.y>240 && mousePressed.y < 330 && show) {
-
-			menuOptions = 3;
-			show = 1;
-		}
-		//on pressing credits button
-		else if (mousePressed.x > 23 && mousePressed.x < 300 && mousePressed.y>370 && mousePressed.y < 455 && show) {
-
-			menuOptions = 4;
-			show = 0;
-		}
-		//on pressing New game button
-		else if (menuOptions == 3 && mousePressed.x > 230 && mousePressed.x < 540 && mousePressed.y>140 && mousePressed.y < 280 && show) {
-			menuOptions = 1;
-			show = 0;
-			SameName = 0;
-			playerNum++;
-			cout << playerNum << " " << SameName;
-
-		}
-	}
-	else if (Keyboard::isKeyPressed(Keyboard::Escape)) {
-		menuOptions = 0;
-		show = 1;
-	}
-
-
-}
-
-void goombaa() {
-
-	if (alive) {
-		goomba.setTextureRect(IntRect(goombaAnimation * 210, 0, 165, 161));
-		if (goomba.getGlobalBounds().intersects(pipe[1].getGlobalBounds()) || goomba.getGlobalBounds().intersects(pipe[2].getGlobalBounds())) {
-			goombaMotion *= -1;
-		}
-		if (goombaClock.getElapsedTime().asSeconds() > 0.8) {
-			goombaAnimation++;
-			goombaClock.restart();
-		}
-		if (alive) {
-			goombaAnimation %= 2;
-			goomba.move(-goombaMotion, 0);
-		}
-	}
-
-
-	if (player.getGlobalBounds().intersects(goomba.getGlobalBounds()) && alive) {
-
-		if (player.getPosition().y + 36 < goomba.getGlobalBounds().top) {
-			alive = 0;
-			goombaMotion = 0;
-			goomba.setTextureRect(IntRect(420, 0, 165, 161));
-			killg.restart();
-			a = 1;
-
-		}
-		else {
-			sky.setPosition(-1200, -300);
-			x = 1;
-
-			endgame.restart();
-
-
-		}
-
-
-
-
-	}
-	if (killg.getElapsedTime().asSeconds() > 0.15 && a) {
-
-		goomba.setScale(0, 0);
-		alive = 1;
-		a = 0;
-		goombaMotion = 1;
-	}
-	if (player.getPosition().y > 600 && !x) {
-
-
-		sky.setPosition(-1200, -300);
-		x = 1;
-		endgame.restart();
-
-
-
-	}
-
-
-
-}
-void planten() {
-
-
-
-	for (size_t i = 0; i < 7; i++)
-	{
-
-		plant[i].setTextureRect(IntRect((plantanimation * 300) + 32, 0, 220, 280));
-
-		if (player.getGlobalBounds().intersects(plant[i].getGlobalBounds())) {
-
-
-
-
-
-			sky.setPosition(-1200, -300);
-			x = 1;
-			endgame.restart();
-		}
-
-	}
-	if (plantclock.getElapsedTime().asSeconds() > 0.2)
-	{
-		plantanimation++;
-		plantclock.restart();
-	}
-	plantanimation %= 2;
-
-	if (plant[3].getPosition().y == 190 || plant[3].getPosition().y == 340) {
-
-		plantmotion *= -1;
-
-	}
-	if (plant[3].getPosition().y < 190) {
-		plantmotion *= -1;
-
-	}
-
-	plant[3].move(0, -plantmotion);
-
-}
-
-
-void movementandgravity() {
-	if (!x) {
-		if (Keyboard::isKeyPressed(Keyboard::Right) && canmoverigt) {
-
-			moveright();
-
-		}
-
-		else if (Keyboard::isKeyPressed(Keyboard::Left) && canmoveleft) {
-
-			moveleft();
-
-
-		}
-		else { velocityx = 0; }
-		if (player.getGlobalBounds().intersects(ground[detectground()].getGlobalBounds()) && ground[detectground()].getGlobalBounds().top >= (player.getPosition().y + 32)) {
-			velocityy = 0;
-			player.setPosition(player.getPosition().x, ground[detectground()].getGlobalBounds().top - 48);
-			canjump = 1;
-			if (Keyboard::isKeyPressed(Keyboard::X) && canjump) {
-				mariojump.play();
-				velocityy = 6;
-				canjump = 0;
-
-			}
-
-		}
-
-
-		else if (player.getGlobalBounds().intersects(pipe[detectpipe()].getGlobalBounds()) && pipe[detectpipe()].getGlobalBounds().top >= (player.getPosition().y + 40)) {
-			velocityy = 0;
-
-
-			canjump = 1;
-			if (Keyboard::isKeyPressed(Keyboard::X) && canjump) {
-				mariojump.play();
-				velocityy = 6;
-				canjump = 0;
-			}
-
-
-		}
-
-		else {
-			velocityy -= 0.1099;
-
-
-		}
-
-
-
-		animationindicator = animationindicator % 3;
-		player.setTextureRect(IntRect(animationindicator * 16, 0, 16, 32));
-	}
-}
 void Swap(int& n1, int& n2, int& n3, int& n4) {
 	int temp;
 	temp = n1;
@@ -1026,5 +850,317 @@ bool Fullmessage(int n, int limit) {
 	}
 	else {
 		return false;
+	}
+}
+
+
+
+void pipecollision() {
+
+
+
+
+	if ((player.getGlobalBounds().intersects(pipe[detectpipe()].getGlobalBounds()) && pipe[detectpipe()].getPosition().x > player.getPosition().x)) {
+		if (pipe[detectpipe()].getGlobalBounds().top > (player.getPosition().y + 42)) {
+			canmoverigt = 1;
+		}
+		else { canmoverigt = 0; }
+
+	}
+
+
+	else { canmoverigt = 1; }
+
+
+	if (player.getGlobalBounds().intersects(pipe[detectpipe()].getGlobalBounds()) && pipe[detectpipe()].getPosition().x < player.getPosition().x) {
+		if (pipe[detectpipe()].getGlobalBounds().top > (player.getPosition().y + 42))
+		{
+
+			canmoveleft = 1;
+		}
+		else { canmoveleft = 0; }
+
+
+	}
+	else { canmoveleft = 1; }
+}
+
+
+
+void die() {
+
+
+
+
+	if (x) {
+		window.draw(sky);
+		window.draw(gameend);
+		camera.setCenter(gameend.getPosition().x, gameend.getPosition().y);
+
+		z = 1;
+
+	}
+	if (z && endgame.getElapsedTime().asSeconds() > 3) {
+		x = 0;
+		z = 0;
+		main();
+
+	}
+}
+
+void groundmovement() {
+
+
+
+	if (ground[4].getPosition().y == 100 || ground[4].getPosition().y == 400) {
+		groundMotion *= -1;
+	}
+	ground[4].move(0, groundMotion);
+	ground[6].move(0, groundMotion);
+
+	if (ground[5].getPosition().y == 100 || ground[5].getPosition().y == 400) {
+		ground2Motion *= -1;
+	}
+	ground[5].move(0, -ground2Motion);
+
+
+
+}
+
+void mouseclick() {
+	Vector2i mousePressed = Mouse::getPosition(window);//variable for determine the position of the mouse in the window
+
+
+	if (Mouse::isButtonPressed(Mouse::Left)) {
+
+		//on pressing high scores button
+		if ((mousePressed.x > 23 && mousePressed.x < 300 && mousePressed.y>120 && mousePressed.y < 205 && show)) {
+
+			menuOptions = 2;
+			calHighScore(scores, playerNum);
+			//calling function of calculating high score
+			calHighScore(scores, playerNum);
+			Sort(playerNum);
+
+			show = 0;
+		}
+		// On pressing on Play Button
+		else if (mousePressed.x > 23 && mousePressed.x < 300 && mousePressed.y > 10 && mousePressed.y < 86 && show) {
+
+			menuOptions = 1;
+			show = 0;
+			SameName = 1;
+
+		}
+		//on pressing on options button
+		else if (mousePressed.x > 23 && mousePressed.x < 300 && mousePressed.y>240 && mousePressed.y < 330 && show) {
+
+			menuOptions = 3;
+			show = 1;
+		}
+		//on pressing credits button
+		else if (mousePressed.x > 23 && mousePressed.x < 300 && mousePressed.y>370 && mousePressed.y < 455 && show) {
+
+			menuOptions = 4;
+			show = 0;
+		}
+		//on pressing New game button
+		else if (menuOptions == 3 && mousePressed.x > 230 && mousePressed.x < 540 && mousePressed.y>140 && mousePressed.y < 280 && show) {
+			menuOptions = 1;
+			show = 0;
+			SameName = 0;
+			playerNum++;
+
+
+		}
+	}
+	else if (Keyboard::isKeyPressed(Keyboard::Escape)) {
+		menuOptions = 0;
+		show = 1;
+		scores = 0;
+	}
+
+
+}
+
+void goombaa() {
+	for (int i = 0; i < 3; i++) {
+		if (alive) {
+			goomba[i].setTextureRect(IntRect(goombaAnimation * 210, 0, 165, 161));
+
+		if (goomba[0].getGlobalBounds().intersects(pipe[1].getGlobalBounds()) || goomba[0].getGlobalBounds().intersects(pipe[2].getGlobalBounds())) {
+			goombaMotion *= -1;
+		}
+		if (goomba[1].getGlobalBounds().intersects(pipe[3].getGlobalBounds()) || goomba[1].getGlobalBounds().intersects(goomba[2].getGlobalBounds())) {
+			goomba2Motion *= -1;
+		}
+		if (goombaClock.getElapsedTime().asSeconds() > 0.8) {
+			goombaAnimation++;
+			goombaClock.restart();
+		}
+		if (alive) {
+			goombaAnimation %= 2;
+			goomba[0].move(-goombaMotion, 0);
+			goomba[1].move(-goomba2Motion, 0);
+			goomba[2].move(goomba2Motion, 0);
+		}
+
+		}
+
+
+		if (player.getGlobalBounds().intersects(goomba[i].getGlobalBounds()) && alive) {
+
+			if (player.getPosition().y + 42 < goomba[i].getGlobalBounds().top) {
+				alive = 0;
+				goombaMotion = 0;
+				goomba[i].setTextureRect(IntRect(420, 0, 165, 161));
+				killg.restart();
+				a = 1;
+
+			}
+			else {
+				sky.setPosition(-1200, -300);
+				x = 1;
+
+				endgame.restart();
+
+
+			}
+
+
+
+
+		}
+		if (killg.getElapsedTime().asSeconds() > 0.15 && a) {
+
+			goomba[i].setScale(0, 0);
+			alive = 1;
+			a = 0;
+			goombaMotion = 1;
+		}
+		if (player.getPosition().y > 600 && !x) {
+
+
+			sky.setPosition(-1200, -300);
+			x = 1;
+			endgame.restart();
+
+
+
+		}
+	}
+
+
+
+}
+void planten() {
+
+
+
+	for (size_t i = 0; i < 7; i++)
+	{
+
+		plant[i].setTextureRect(IntRect((plantanimation * 300) + 32, 0, 220, 280));
+
+		if (player.getGlobalBounds().intersects(plant[i].getGlobalBounds())) {
+
+
+
+
+
+			sky.setPosition(-1200, -300);
+			x = 1;
+			endgame.restart();
+		}
+
+	}
+	if (plantclock.getElapsedTime().asSeconds() > 0.2)
+	{
+		plantanimation++;
+		plantclock.restart();
+	}
+	plantanimation %= 2;
+
+	if (plant[3].getPosition().y == 190 || plant[3].getPosition().y == 340) {
+
+		plantmotion *= -1;
+
+	}
+	plant[3].move(0, -plantmotion);
+	for (size_t i = 5; i < 7; i++)
+	{
+		plant[i].move(0, -plantmotion);
+	}
+
+}
+
+
+void movementandgravity() {
+	if (!x) {
+		if (Keyboard::isKeyPressed(Keyboard::Right) && canmoverigt) {
+
+			moveright();
+
+		}
+
+		else if (Keyboard::isKeyPressed(Keyboard::Left) && canmoveleft) {
+
+			moveleft();
+
+
+		}
+		else { velocityx = 0; }
+		if (player.getGlobalBounds().intersects(ground[detectground()].getGlobalBounds()) && ground[detectground()].getGlobalBounds().top >= (player.getPosition().y + 32)) {
+			velocityy = 0;
+			player.setPosition(player.getPosition().x, ground[detectground()].getGlobalBounds().top - 48);
+			canjump = 1;
+			if (Keyboard::isKeyPressed(Keyboard::X) && canjump) {
+
+				mariojump.play();	
+				velocityy = 6;
+				canjump = 0;
+			}
+
+		}
+
+
+		else if (player.getGlobalBounds().intersects(pipe[detectpipe()].getGlobalBounds()) && pipe[detectpipe()].getGlobalBounds().top >= (player.getPosition().y + 40)) {
+			velocityy = 0;
+
+
+			canjump = 1;
+			if (Keyboard::isKeyPressed(Keyboard::X) && canjump) {
+				mariojump.play();
+				velocityy = 6;
+				canjump = 0;
+			}
+
+
+		}
+
+		else {
+			velocityy -= 0.1099;
+
+
+		}
+
+
+
+		animationindicator = animationindicator % 3;
+		player.setTextureRect(IntRect(animationindicator * 16, 0, 16, 32));
+	}
+}
+
+void block_collision() {
+	for (int i = 0; i < 12; i++) {
+		if (player.getGlobalBounds().intersects(block[i].getGlobalBounds())) {
+			velocityy = 0;
+			block[i].setTexture(block3tx);
+			block[i].setScale(0.1, 0.1);
+		}
+		if (player.getGlobalBounds().intersects(block2[i].getGlobalBounds())) {
+			block2[i].setScale(0, 0);
+		}
+
 	}
 }
