@@ -39,7 +39,7 @@ int pos;
 int playerNum = 1;//number of palyers played the game
 int animationindicator = 0, plantanimation = 0, coinanimation = 0;
 int goombaAnimation = 0;
-int life = 4;
+int life = 2;
 const int num = 10;
 int scores = 0;
 float velocityy = 0;
@@ -249,8 +249,14 @@ int main() {
 	//End Of Game Over
 
 
-	
+	//Game over message
 
+	playerHpoints.setFont(font);
+	playerHpoints.setFillColor(sf::Color(0, 0, 0, 180));
+	playerHpoints.setString("Score: " + to_string(scores));
+	playerHpoints.setCharacterSize(32);
+	
+	//ENd of game over message
 
 	//Credits Wallpaper
 	Credittx.loadFromFile("Sky.png");
@@ -736,6 +742,13 @@ void MenuOptions(int n) {
 		window.draw(about);
 
 	}
+	else if (menuOptions == 5) {
+		gameIsover();
+		window.draw(sky);
+		window.draw(gameOver);
+		window.draw(gameovermessage);
+		window.draw(playerHpoints);
+	}
 
 
 	die();
@@ -946,30 +959,28 @@ void die() {
 
 
 	if (x) {
-		if (life - 1 != 0) {
-			window.draw(sky);
-			window.draw(gameend);
-			camera.setCenter(gameend.getPosition().x, gameend.getPosition().y);
-			z = 1;
-		}
 		
+		
+		window.draw(sky);
+		window.draw(gameend);
+		camera.setCenter(gameend.getPosition().x, gameend.getPosition().y);
+		z = 1;
 
 	}
-	if (z && endgame.getElapsedTime().asSeconds() > 3) {
+	if (z && endgame.getElapsedTime().asSeconds() > 2) {
 		x = 0;
 		z = 0;
 		if (life - 1 == 0) {
-			gameIsover();
-			window.draw(sky);
-			window.draw(gameOver);
-			window.draw(gameovermessage);
-			window.draw(playerHpoints);
+			
+			menuOptions = 5;
 			endgame.restart();
 			menuOptions = 0;
 			show = 1;
+			scores = 0;
 			life = 4;
 
 		}
+		
 		else {
 			main();
 		}
@@ -1370,8 +1381,6 @@ void gameIsover() {
 	
 	gameOver.setPosition(200, 50);
 	gameovermessage.setPosition(230, 300);
-	gameovermessage.setCharacterSize(32);
-	gameovermessage.setFillColor(sf::Color(0, 0, 0, 180));
 	playerHpoints.setPosition(400, 300);
 	sky.setPosition(0, 0);
 	
