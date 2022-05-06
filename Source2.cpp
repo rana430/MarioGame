@@ -112,8 +112,8 @@ bool z = 0;
 
 
 
-SoundBuffer buffer;
-Sound sound;
+SoundBuffer buffer, mariojumpb, mariodieb;
+Sound sound, mariojump, mariodie;
 Music music;
 
 sf::RenderWindow window(sf::VideoMode(800, 485), "Super Mario!!");
@@ -332,9 +332,12 @@ int main() {
 
 
 	buffer.loadFromFile("coin.ogg");
+	mariodieb.loadFromFile("lost.ogg");
+	mariodie.setBuffer(mariodieb);
 
 	sound.setBuffer(buffer);
-
+	mariojumpb.loadFromFile("mariojump.ogg");
+	mariojump.setBuffer(mariojumpb);
 	music.openFromFile("overworld.ogg");
 	music.play();
 	music.setLoop(z);
@@ -397,6 +400,7 @@ int main() {
 			text.move(velocityx, 0);
 
 			sky.move(velocityx, 0);
+
 		}
 	}
 	return 0;
@@ -725,6 +729,7 @@ void die() {
 
 
 	if (x) {
+
 		window.draw(sky);
 		window.draw(gameend);
 		camera.setCenter(gameend.getPosition().x, gameend.getPosition().y);
@@ -840,7 +845,7 @@ void goombaa() {
 
 	if (player.getGlobalBounds().intersects(goomba.getGlobalBounds()) && alive) {
 
-		if (player.getPosition().y + 42 < goomba.getGlobalBounds().top) {
+		if (player.getPosition().y + 36 < goomba.getGlobalBounds().top) {
 			alive = 0;
 			goombaMotion = 0;
 			goomba.setTextureRect(IntRect(420, 0, 165, 161));
@@ -915,6 +920,11 @@ void planten() {
 		plantmotion *= -1;
 
 	}
+	if (plant[3].getPosition().y < 190) {
+		plantmotion *= -1;
+
+	}
+
 	plant[3].move(0, -plantmotion);
 
 }
@@ -940,9 +950,10 @@ void movementandgravity() {
 			player.setPosition(player.getPosition().x, ground[detectground()].getGlobalBounds().top - 48);
 			canjump = 1;
 			if (Keyboard::isKeyPressed(Keyboard::X) && canjump) {
-
+				mariojump.play();
 				velocityy = 6;
 				canjump = 0;
+
 			}
 
 		}
@@ -954,7 +965,7 @@ void movementandgravity() {
 
 			canjump = 1;
 			if (Keyboard::isKeyPressed(Keyboard::X) && canjump) {
-
+				mariojump.play();
 				velocityy = 6;
 				canjump = 0;
 			}
