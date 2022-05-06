@@ -39,7 +39,7 @@ int pos;
 int playerNum = 1;//number of palyers played the game
 int animationindicator = 0, plantanimation = 0, coinanimation = 0;
 int goombaAnimation = 0;
-int life = 2;
+int life = 4;
 const int num = 10;
 int scores = 0;
 float velocityy = 0;
@@ -119,7 +119,7 @@ Text Data;//text of name of players
 Text point;//test of scores of players
 Text text;//Text to display the score of player
 Text Message;//text to display the message that number of palyers exceed the limit
-Text about;//text of credits
+Text about;//text of creditsText playerHpoints;//txt of high score of player when game over
 Text playerHpoints;//txt of high score of player when game over
 Text gameovermessage;
 Text gameend;
@@ -143,7 +143,7 @@ int main() {
 	life--;
 	gameend.setCharacterSize(32);
 	gameend.setFont(font);
-	gameend.setString("you have " + to_string(life) + " remaining life");
+	gameend.setString("you have " + to_string(life-1) + " remaining life");
 	gameend.setFillColor(Color(0, 0, 0, 180));
 
 	structOrder();//Calling Struct order function
@@ -218,7 +218,7 @@ int main() {
 	about.setCharacterSize(32);
 
 	//End Of Text
-	
+
 	//high score board data
 	Data.setFont(font);
 	Data.setFillColor(sf::Color(0, 0, 0, 180));
@@ -228,9 +228,9 @@ int main() {
 	point.setFillColor(sf::Color(0, 0, 0, 200));
 	point.setPosition(500, 18);
 	point.setCharacterSize(32);
-	
+
 	//End of high score board
-	
+
 	//high score of player when gameover
 
 	playerHpoints.setFont(font);
@@ -255,8 +255,22 @@ int main() {
 	playerHpoints.setFillColor(sf::Color(0, 0, 0, 180));
 	playerHpoints.setString("Score: " + to_string(scores));
 	playerHpoints.setCharacterSize(32);
-	
+
 	//ENd of game over message
+
+
+
+	//High score Data displaying
+	Data.setFont(font);
+	Data.setFillColor(sf::Color(250, 0, 150, 200));
+	Data.setPosition(350, 10);
+	Data.setCharacterSize(32);
+	point.setFont(font);
+	point.setFillColor(sf::Color(250, 0, 150, 200));
+	point.setPosition(500, 10);
+	point.setCharacterSize(32);
+	//End of High score Data displaying
+
 
 	//Credits Wallpaper
 	Credittx.loadFromFile("Sky.png");
@@ -456,9 +470,9 @@ int main() {
 	music.setLoop(z);
 
 	read();
+
 	camera.setCenter(player.getPosition().x, player.getPosition().y + 250);
 	window.setView(camera);
-	
 
 	while (window.isOpen())
 	{
@@ -510,18 +524,19 @@ int main() {
 			MenuOptions(menuOptions);
 
 			player.move(velocityx, -velocityy);
-			menu.move(velocityx, 0);
 			camera.move(velocityx, 0);
 			text.move(velocityx, 0);
+			menu.move(velocityx, 0);
+			option.move(velocityx, 0);
 			highScore.move(velocityx, 0);
-			gameOver.move(velocityx, 0);
+			newGame.move(velocityx, 0);
 			about.move(velocityx, 0);
+			credit.move(velocityx, 0);
 			Data.move(velocityx, 0);
 			point.move(velocityx, 0);
-			option.move(velocityx, 0);
-			newGame.move(velocityx, 0);
-			credit.move(velocityx, 0);
-			Message.move(velocityx, 0);
+			gameOver.move(velocityx, 0);
+			gameovermessage.move(velocityx, 0);
+			playerHpoints.move(velocityx, 0);
 			sky.move(velocityx, 0);
 		}
 	}
@@ -744,12 +759,7 @@ void MenuOptions(int n) {
 	}
 	else if (menuOptions == 5) {
 		gameIsover();
-		window.draw(sky);
-		window.draw(gameOver);
-		window.draw(gameovermessage);
-		window.draw(playerHpoints);
 	}
-
 
 	die();
 
@@ -959,19 +969,17 @@ void die() {
 
 
 	if (x) {
-		
-		
 		window.draw(sky);
 		window.draw(gameend);
 		camera.setCenter(gameend.getPosition().x, gameend.getPosition().y);
+
 		z = 1;
 
 	}
-	if (z && endgame.getElapsedTime().asSeconds() > 2) {
+	if (z && endgame.getElapsedTime().asSeconds() > 3) {
 		x = 0;
 		z = 0;
 		if (life - 1 == 0) {
-			
 			menuOptions = 5;
 			endgame.restart();
 			menuOptions = 0;
@@ -980,7 +988,6 @@ void die() {
 			life = 4;
 
 		}
-		
 		else {
 			main();
 		}
@@ -1024,7 +1031,7 @@ void mouseclick() {
 		}
 		// On pressing on Play Button
 		else if (mousePressed.x > 23 && mousePressed.x < 300 && mousePressed.y > 10 && mousePressed.y < 86 && show) {
-			
+
 			menuOptions = 1;
 			show = 0;
 			SameName = 1;
@@ -1052,14 +1059,12 @@ void mouseclick() {
 			life = 4;
 			sky.setPosition(0, 0);
 			main();
-			
+
 		}
 	}
 	else if (Keyboard::isKeyPressed(Keyboard::Escape)) {
 		menuOptions = 0;
 		show = 1;
-		
-		
 	}
 
 
@@ -1378,10 +1383,14 @@ int detectblock33() {
 }
 
 void gameIsover() {
-	
+
 	gameOver.setPosition(200, 50);
 	gameovermessage.setPosition(230, 300);
 	playerHpoints.setPosition(400, 300);
 	sky.setPosition(0, 0);
-	
+	window.draw(sky);
+	window.draw(gameOver);
+	window.draw(gameovermessage);
+	window.draw(playerHpoints);
+
 }
