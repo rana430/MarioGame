@@ -23,22 +23,23 @@ int menuOptions = 0;/*
 					*/
 
 bool a = 0;
-bool MarioDied = 0;
-bool EnemyDied = 0;
-bool NewReset = 0;
+
+
+
 bool SameName = 1;//if player doesnt change his name
 bool canjump = 1;
 bool canmoverigt = 1;
 bool canmoveleft = 1;
 bool space = 0;
 bool alive = 1;
-bool show = 1;//bool to check if menu is displayed or not 1-> can click  0-> cant click
+bool show = 1;//bool to check if menu is displayed or not
+bool Newgame = 0;//bool to reset the game and player postion
 bool Full = 0;//check number of players dont exceed 10 players
 int pos;
 int playerNum = 1;//number of palyers played the game
 int animationindicator = 0, plantanimation = 0, coinanimation = 0;
 int goombaAnimation = 0;
-int life = 3;
+int life = 4;
 const int num = 10;
 int scores = 0;
 float velocityy = 0;
@@ -62,7 +63,7 @@ void read();
 void coincollision();
 void gamend();
 void coin_motion();
-void die(int&);
+void die();
 void groundmovement();
 void mouseclick();
 void goombaa();
@@ -72,8 +73,11 @@ void movementandgravity();
 void Swap(int& n1, int& n2, int& n3, int& n4);//function to swap high scores of two player and their orders
 void Sort(int);//function to sort players decsending according to their highscores
 bool Fullmessage(int, int);//function to display message when number of players exceed 10
-void reset(bool);//function to reset the menu options 
-
+int detectblock();
+int detectblock2();
+int detectblock3();
+int detectblock33();
+void gameIsover();
 //end of functions
 Texture blocktx;
 Texture block3tx;
@@ -123,7 +127,8 @@ Font font;
 Clock goombaClock, killg, plantclock, coinclock;
 Clock endgame;
 
-
+bool x = 0;
+bool z = 0;
 
 SoundBuffer buffer, mariojumpb, mariodieb;
 Sound sound, mariojump, mariodie;
@@ -135,7 +140,7 @@ View camera(FloatRect(0, 0, 800, 485));
 
 
 int main() {
-	
+	life--;
 	gameend.setCharacterSize(32);
 	gameend.setFont(font);
 	gameend.setString("you have " + to_string(life) + " remaining life");
@@ -213,12 +218,24 @@ int main() {
 	about.setCharacterSize(32);
 
 	//End Of Text
-
+	
+	//high score board data
+	Data.setFont(font);
+	Data.setFillColor(sf::Color(0, 0, 0, 180));
+	Data.setPosition(200, 18);
+	Data.setCharacterSize(32);
+	point.setFont(font);
+	point.setFillColor(sf::Color(0, 0, 0, 200));
+	point.setPosition(500, 18);
+	point.setCharacterSize(32);
+	
+	//End of high score board
+	
 	//high score of player when gameover
 
 	playerHpoints.setFont(font);
 	playerHpoints.setFillColor(sf::Color(0, 0, 0, 180));
-	playerHpoints.setString("High Score: " + to_string(hs[playerNum-1].HighScore));
+	playerHpoints.setString("High Score: " + to_string(hs[playerNum - 1].HighScore));
 	playerHpoints.setCharacterSize(32);
 
 	//End if high score
@@ -231,6 +248,8 @@ int main() {
 
 	//End Of Game Over
 
+
+	
 
 
 	//Credits Wallpaper
@@ -264,7 +283,7 @@ int main() {
 
 
 	//sky
-	skytx.loadFromFile("sky2.png");
+	skytx.loadFromFile("sky.png");
 	sky.setTexture(skytx);
 	sky.setScale(10, 8);
 	//end of sky
@@ -428,12 +447,12 @@ int main() {
 	mariojump.setBuffer(mariojumpb);
 	music.openFromFile("overworld.ogg");
 	music.play();
-	music.setLoop(EnemyDied);
+	music.setLoop(z);
 
 	read();
-
 	camera.setCenter(player.getPosition().x, player.getPosition().y + 250);
 	window.setView(camera);
+	
 
 	while (window.isOpen())
 	{
@@ -485,9 +504,18 @@ int main() {
 			MenuOptions(menuOptions);
 
 			player.move(velocityx, -velocityy);
+			menu.move(velocityx, 0);
 			camera.move(velocityx, 0);
 			text.move(velocityx, 0);
-
+			highScore.move(velocityx, 0);
+			gameOver.move(velocityx, 0);
+			about.move(velocityx, 0);
+			Data.move(velocityx, 0);
+			point.move(velocityx, 0);
+			option.move(velocityx, 0);
+			newGame.move(velocityx, 0);
+			credit.move(velocityx, 0);
+			Message.move(velocityx, 0);
 			sky.move(velocityx, 0);
 		}
 	}
@@ -550,6 +578,14 @@ int moveright() {
 }
 
 
+
+
+
+
+
+
+
+
 //end of move rightfunction
 
 
@@ -605,8 +641,6 @@ int detectground() {
 	return j;
 
 }
-
-
 int detectpipe() {
 	int m = 0;
 	for (size_t i = 0; i < 7; i++)
@@ -624,7 +658,7 @@ int detectpipe() {
 void structOrder() {
 	for (int i = 0; i < 10; i++) {
 		hs[i].playerOrder = i + 1;
-		hs[i].HighScore = 0;
+		
 
 	}
 }
@@ -704,7 +738,7 @@ void MenuOptions(int n) {
 	}
 
 
-	die(life);
+	die();
 
 	window.display();
 
@@ -847,9 +881,33 @@ void pipecollision() {
 		else { canmoverigt = 0; }
 
 	}
+	else if ((player.getGlobalBounds().intersects(block[detectblock()].getGlobalBounds()) && block[detectblock()].getPosition().x > player.getPosition().x)) {
 
+		if (block[detectblock()].getGlobalBounds().top > (player.getPosition().y + 42)) {
+			canmoverigt = 1;
+		}
+		else { canmoverigt = 0; }
+	}
+	else if ((player.getGlobalBounds().intersects(block2[detectblock2()].getGlobalBounds()) && block2[detectblock2()].getPosition().x > player.getPosition().x)) {
+
+		if (block2[detectblock2()].getGlobalBounds().top > (player.getPosition().y + 42)) {
+			canmoverigt = 1;
+		}
+		else { canmoverigt = 0; }
+	}
+	else if (player.getGlobalBounds().intersects(block3[detectblock33()].getGlobalBounds())) {
+		if (block3[detectblock3()].getGlobalBounds().top > (player.getPosition().y + 35)) {
+			canmoverigt = 1;
+		}
+		else { canmoverigt = 0; }
+		canmoverigt = 0;
+
+
+	}
 
 	else { canmoverigt = 1; }
+
+
 
 
 	if (player.getGlobalBounds().intersects(pipe[detectpipe()].getGlobalBounds()) && pipe[detectpipe()].getPosition().x < player.getPosition().x) {
@@ -862,38 +920,59 @@ void pipecollision() {
 
 
 	}
+
+
+	else if ((player.getGlobalBounds().intersects(block2[detectblock2()].getGlobalBounds()) && block2[detectblock2()].getPosition().x < player.getPosition().x)) {
+
+		if (block2[detectblock2()].getGlobalBounds().top > (player.getPosition().y + 42)) {
+			canmoveleft = 1;
+		}
+		else { canmoveleft = 0; }
+	}
+
+
+
+
+
+
 	else { canmoveleft = 1; }
 }
 
 
 
-void die(int& live) {
+void die() {
 
 
 
 
-	if (MarioDied) {
-		live--;
-		window.draw(sky);
-		window.draw(gameend);
-		camera.setCenter(gameend.getPosition().x, gameend.getPosition().y);
-		cout << live << " ";
-		EnemyDied = 1;
-
-	}
-	if (EnemyDied && endgame.getElapsedTime().asSeconds() > 3) {
-		MarioDied = 0;
-		EnemyDied = 0;
-		main();
+	if (x) {
+		if (life - 1 != 0) {
+			window.draw(sky);
+			window.draw(gameend);
+			camera.setCenter(gameend.getPosition().x, gameend.getPosition().y);
+			z = 1;
+		}
+		
 
 	}
-	if (life == 0) {
-		NewReset = 1;
-		reset(NewReset);
-		window.draw(sky);
-		window.draw(gameOver);
-		window.draw(text);
-		window.draw(playerHpoints);
+	if (z && endgame.getElapsedTime().asSeconds() > 3) {
+		x = 0;
+		z = 0;
+		if (life - 1 == 0) {
+			gameIsover();
+			window.draw(sky);
+			window.draw(gameOver);
+			window.draw(gameovermessage);
+			window.draw(playerHpoints);
+			endgame.restart();
+			menuOptions = 0;
+			show = 1;
+			life = 4;
+
+		}
+		else {
+			main();
+		}
 	}
 }
 
@@ -926,35 +1005,31 @@ void mouseclick() {
 		if ((mousePressed.x > 23 && mousePressed.x < 300 && mousePressed.y>120 && mousePressed.y < 205 && show)) {
 
 			menuOptions = 2;
-			calHighScore(scores, playerNum);
 			//calling function of calculating high score
 			calHighScore(scores, playerNum);
 			Sort(playerNum);
-			NewReset = 0;
+
 			show = 0;
 		}
 		// On pressing on Play Button
 		else if (mousePressed.x > 23 && mousePressed.x < 300 && mousePressed.y > 10 && mousePressed.y < 86 && show) {
-
+			
 			menuOptions = 1;
 			show = 0;
 			SameName = 1;
-			NewReset = 0;
-			main();
+
 		}
 		//on pressing on options button
 		else if (mousePressed.x > 23 && mousePressed.x < 300 && mousePressed.y>240 && mousePressed.y < 330 && show) {
 
 			menuOptions = 3;
 			show = 1;
-			NewReset = 0;
 		}
 		//on pressing credits button
 		else if (mousePressed.x > 23 && mousePressed.x < 300 && mousePressed.y>370 && mousePressed.y < 455 && show) {
 
 			menuOptions = 4;
 			show = 0;
-			NewReset = 0;
 		}
 		//on pressing New game button
 		else if (menuOptions == 3 && mousePressed.x > 230 && mousePressed.x < 540 && mousePressed.y>140 && mousePressed.y < 280 && show) {
@@ -962,18 +1037,18 @@ void mouseclick() {
 			show = 0;
 			SameName = 0;
 			playerNum++;
+			scores = 0;
 			life = 4;
-			NewReset = 0;
+			sky.setPosition(0, 0);
 			main();
-
-
+			
 		}
 	}
 	else if (Keyboard::isKeyPressed(Keyboard::Escape)) {
 		menuOptions = 0;
 		show = 1;
-		NewReset = 1;
-		reset(NewReset);
+		
+		
 	}
 
 
@@ -1006,7 +1081,7 @@ void goombaa() {
 
 		if (player.getGlobalBounds().intersects(goomba[i].getGlobalBounds()) && alive) {
 
-			if (player.getPosition().y + 30 < goomba[i].getGlobalBounds().top) {
+			if (player.getPosition().y + 40 < goomba[i].getGlobalBounds().top) {
 				alive = 0;
 				goombaMotion = 0;
 				goomba[i].setTextureRect(IntRect(420, 0, 165, 161));
@@ -1016,7 +1091,8 @@ void goombaa() {
 			}
 			else {
 				sky.setPosition(-1200, -300);
-				MarioDied = 1;
+				x = 1;
+
 
 				endgame.restart();
 
@@ -1034,11 +1110,11 @@ void goombaa() {
 			a = 0;
 			goombaMotion = 1;
 		}
-		if (player.getPosition().y > 600 && !MarioDied) {
+		if (player.getPosition().y > 600 && !x) {
 
 
 			sky.setPosition(-1200, -300);
-			MarioDied = 1;
+			x = 1;
 			endgame.restart();
 
 
@@ -1049,7 +1125,6 @@ void goombaa() {
 
 
 }
-//function of plant , plant motion , collsion with plant 
 void planten() {
 
 
@@ -1066,7 +1141,7 @@ void planten() {
 
 
 			sky.setPosition(-1200, -300);
-			MarioDied = 1;
+			x = 1;
 			endgame.restart();
 		}
 
@@ -1083,17 +1158,28 @@ void planten() {
 		plantmotion *= -1;
 
 	}
+
 	plant[3].move(0, -plantmotion);
 	for (size_t i = 5; i < 7; i++)
 	{
 		plant[i].move(0, -plantmotion);
+
+	}
+	for (size_t i = 5; i < 7; i++)
+	{
+		if (plant[i].getPosition().y < 190) {
+
+
+			plantmotion *= -1;
+		}
+
 	}
 
 }
 
 
 void movementandgravity() {
-	if (!MarioDied) {
+	if (!x) {
 		if (Keyboard::isKeyPressed(Keyboard::Right) && canmoverigt) {
 
 			moveright();
@@ -1133,57 +1219,160 @@ void movementandgravity() {
 			}
 
 
+
+
+		}
+		else if (player.getGlobalBounds().intersects(block[detectblock()].getGlobalBounds()) && block[detectblock()].getGlobalBounds().top >= (player.getPosition().y + 40)) {
+			velocityy = 0;
+
+
+			canjump = 1;
+			if (Keyboard::isKeyPressed(Keyboard::X) && canjump) {
+				mariojump.play();
+				velocityy = 6;
+				canjump = 0;
+			}
+
+
+
+
+		}
+
+		else if (player.getGlobalBounds().intersects(block2[detectblock2()].getGlobalBounds()) && block2[detectblock2()].getGlobalBounds().top >= (player.getPosition().y + 40)) {
+			velocityy = 0;
+
+
+			canjump = 1;
+			if (Keyboard::isKeyPressed(Keyboard::X) && canjump) {
+				mariojump.play();
+				velocityy = 6;
+				canjump = 0;
+			}
+
+
+
+
+		}
+		else if (player.getGlobalBounds().intersects(block3[detectblock3()].getGlobalBounds()) && block3[detectblock3()].getGlobalBounds().top >= (player.getPosition().y + 40)) {
+			velocityy = 0;
+
+
+			canjump = 1;
+			if (Keyboard::isKeyPressed(Keyboard::X) && canjump) {
+				mariojump.play();
+				velocityy = 6;
+				canjump = 0;
+			}
+
+
+
+
 		}
 
 		else {
+
 			velocityy -= 0.1099;
-
-
 		}
 
 
 
-		animationindicator = animationindicator % 3;
-		player.setTextureRect(IntRect(animationindicator * 16, 0, 16, 32));
 	}
+
+
+
+	animationindicator = animationindicator % 3;
+	player.setTextureRect(IntRect(animationindicator * 16, 0, 16, 32));
+
 }
 
 void block_collision() {
 	for (int i = 0; i < 12; i++) {
-		if (player.getGlobalBounds().intersects(block[i].getGlobalBounds())) {
+		if (player.getGlobalBounds().intersects(block[i].getGlobalBounds()) && player.getPosition().y - 40 > block[i].getGlobalBounds().top + block[i].getGlobalBounds().height && player.getPosition().x > block[i].getGlobalBounds().left) {
 			velocityy = 0;
 			block[i].setTexture(block3tx);
 			block[i].setScale(0.1, 0.1);
 		}
-		if (player.getGlobalBounds().intersects(block2[i].getGlobalBounds())) {
+
+		if (player.getGlobalBounds().intersects(block2[i].getGlobalBounds()) && player.getPosition().y - 42 > block2[i].getGlobalBounds().top + block2[i].getGlobalBounds().height && player.getPosition().x > block2[i].getGlobalBounds().left) {
 			block2[i].setScale(0, 0);
+			velocityy = 0;
 		}
 
 	}
 }
+int detectblock() {
+	int m = 0;
 
+	for (int i = 0; i < 12; i++) {
+		if (player.getGlobalBounds().intersects(block[i].getGlobalBounds())) {
 
-//Reset function to return menu options page 
-void reset(bool New) {
-	if (New) {
-		menu.setPosition(0, 0);
-		gameOver.setPosition(200, 50);
-		text.setPosition(230, 300);
-		text.setCharacterSize(32);
-		text.setFillColor(sf::Color(0, 0, 0, 180));
-		playerHpoints.setPosition(400,300);
-		sky.setPosition(0, 0);
-		camera.setCenter(800 / 2, 485 / 2);
-		window.setView(camera);
-
+			m = i;
+			return m;
+		}
 
 
 	}
-	else {
-		menu.setPosition(0, 0);
-		camera.setCenter(player.getPosition().x, player.getPosition().y + 250);
-		window.setView(camera);
+
+}
+int detectblock2() {
+
+	int n = 0;
+	for (int i = 0; i < 12; i++) {
+
+		if (player.getGlobalBounds().intersects(block2[i].getGlobalBounds())) {
+
+
+			n = i;
+			return n;
+		}
+
 	}
 
+}
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+int detectblock3() {
+	int m = 0;
+	int n = 0;
+	for (int i = 0; i < 30; i++) {
+		if (player.getGlobalBounds().intersects(block3[i].getGlobalBounds())) {
+
+			m = i;
+			return m;
+		}
+	}
+}
+int detectblock33() {
+	int m = 0;
+	int n = 0;
+	for (int i = 0; i < 30; i++) {
+		if (player.getGlobalBounds().intersects(block3[i].getGlobalBounds()) && player.getPosition().x + 22 <= block3[i].getGlobalBounds().left) {
+
+			m = i;
+			return m;
+		}
+	}
+}
+
+void gameIsover() {
+	
+	gameOver.setPosition(200, 50);
+	gameovermessage.setPosition(230, 300);
+	gameovermessage.setCharacterSize(32);
+	gameovermessage.setFillColor(sf::Color(0, 0, 0, 180));
+	playerHpoints.setPosition(400, 300);
+	sky.setPosition(0, 0);
+	
 }
