@@ -34,7 +34,6 @@ bool canmoveleft = 1;
 bool space = 0;
 bool alive[3] = { 1,1,1 };
 bool show = 1;//bool to check if menu is displayed or not  1->cant click   0->can click
-bool show2 = 1;//1->can click right or left  0-> cant click right or left 
 bool Newgame = 0;//bool to reset the game and player postion
 bool Full = 0;//check number of players dont exceed 10 players
 int pos;
@@ -132,6 +131,7 @@ Text about;//text of credits
 Text gameovermessage;
 Text gameend;
 Text playerHpoints;
+Text HScore;
 Text EndScore;//score of player at the end of the game
 Font font;
 Clock goombaClock, killg, plantclock, coinclock;
@@ -233,7 +233,7 @@ int main() {
 	playerHpoints.setFillColor(sf::Color(0, 0, 0, 180));
 	playerHpoints.setString("High Score: " + to_string(hs[playerNum - 1].HighScore));
 	playerHpoints.setCharacterSize(32);
-
+	calHighScore(scores, playerNum);
 	//end of player high score
 
 	//win
@@ -262,8 +262,17 @@ int main() {
 	EndScore.setFillColor(sf::Color(0, 0, 0, 180));
 	EndScore.setCharacterSize(32);
 	EndScore.setString("Score : " + to_string(scores));
-
+	calHighScore(scores, playerNum);
 	//end of score
+
+	//player high score during playing
+	HScore.setFont(font);
+	HScore.setFillColor(sf::Color(255, 255, 255, 180));
+	HScore.setString("High Score: " + to_string(hs[playerNum - 1].HighScore));
+	HScore.setCharacterSize(32);
+	HScore.setPosition(600, 0);
+
+	//end of player high score
 
 	//High score Data displaying
 	Data.setFont(font);
@@ -588,7 +597,7 @@ int main() {
 			gameovermessage.move(velocityx, 0);
 			playerHpoints.move(velocityx, 0);
 			sky.move(velocityx, 0);;
-
+			HScore.move(velocityx, 0);
 		}
 	}
 	return 0;
@@ -777,6 +786,8 @@ void MenuOptions(int n) {
 			window.draw(cloudi[i]);
 		}
 		window.draw(text);
+		calHighScore(scores, playerNum);
+		window.draw(HScore);
 		window.draw(castle);
 		window.draw(player);
 		for (size_t i = 0; i < 3; i++)
@@ -917,7 +928,7 @@ void coin_motion() {
 // high score calculation function
 //local val score
 void calHighScore(int score, int currentplayer) {
-	hs[currentplayer - 1].HighScore = score;
+	//hs[currentplayer - 1].HighScore = score;
 	if (score > hs[currentplayer - 1].HighScore) {
 		hs[currentplayer - 1].HighScore = score;
 
@@ -1066,7 +1077,7 @@ void die() {
 			calHighScore(scores, playerNum);
 			playerHpoints.setString("High Score: " + to_string(hs[playerNum - 1].HighScore));
 			EndScore.setString("Score : " + to_string(scores));
-
+			
 		}
 		EnemyDied = 1;
 
@@ -1078,6 +1089,7 @@ void die() {
 			life = 4;
 			menuOptions = 0;
 			show = 1;
+			scores = 0;
 		}
 		else {
 			main();
@@ -1484,7 +1496,7 @@ void reset(bool New) {
 		sky.setPosition(0, 0);
 		camera.setCenter(800 / 2, 485 / 2);
 		window.setView(camera);
-
+		
 
 
 	}
