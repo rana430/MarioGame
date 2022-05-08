@@ -80,7 +80,7 @@ int detectblock3();
 int detectblock33();
 void reset(bool);
 void won();
-void livel2();
+void top_collision();
 
 //end of functions
 Texture castletx;
@@ -156,7 +156,7 @@ int main() {
 	gameend.setFillColor(Color(0, 0, 0, 180));
 
 	structOrder();//Calling Struct order function
-	calHighScore(scores,playerNum);
+	calHighScore(scores, playerNum);
 	//cloud
 	cloudtx.loadFromFile("cloud.png");
 
@@ -244,7 +244,7 @@ int main() {
 	win.setPosition(7900, -100);
 
 	//end of win 
-	
+
 
 
 	//Game Over 
@@ -522,7 +522,6 @@ int main() {
 	mariojump.setBuffer(mariojumpb);
 	music.openFromFile("overworld.ogg");
 	music.play();
-	music.setLoop(EnemyDied);
 
 	read();
 
@@ -538,6 +537,7 @@ int main() {
 			}
 
 			coincollision();
+			music.setLoop(1);
 
 			//Menu displaying
 			mouseclick();
@@ -560,6 +560,7 @@ int main() {
 
 			}
 			//end of while event
+			top_collision();
 			//coin animation
 			coin_animation();
 			//plant 
@@ -581,10 +582,21 @@ int main() {
 			//end of gravity and movement
 
 			MenuOptions(menuOptions);
+		
 
+			if (player.getPosition().x < 400) {
+				camera.move(0, 0);
+				text.move(0, 0);
+				HScore.move(0, 0);
+				sky.move(0, 0);
+			}
+			else {
+				camera.move(velocityx, 0);
+				text.move(velocityx, 0);
+				HScore.move(velocityx, 0);
+				sky.move(velocityx, 0);
+			}
 			player.move(velocityx, -velocityy);
-			camera.move(velocityx, 0);
-			text.move(velocityx, 0);
 			menu.move(velocityx, 0);
 			option.move(velocityx, 0);
 			highScore.move(velocityx, 0);
@@ -596,8 +608,8 @@ int main() {
 			gameOver.move(velocityx, 0);
 			gameovermessage.move(velocityx, 0);
 			playerHpoints.move(velocityx, 0);
-			sky.move(velocityx, 0);;
-			HScore.move(velocityx, 0);
+			
+			
 		}
 	}
 	return 0;
@@ -661,6 +673,7 @@ void coincollision() {
 			scores++;
 			coin[i].setScale(0, 0);
 			text.setString("score:" + to_string(scores));
+			sound.play();
 		}
 
 
@@ -698,7 +711,7 @@ int moveright() {
 
 //moveleft function
 void moveleft() {
-	if (menuOptions==1) {
+	if (menuOptions == 1) {
 		velocityx = -2;
 
 
@@ -766,7 +779,7 @@ int detectpipe() {
 void structOrder() {
 	for (int i = 0; i < 10; i++) {
 		hs[i].playerOrder = i + 1;
-		
+
 
 	}
 }
@@ -795,13 +808,19 @@ void MenuOptions(int n) {
 			window.draw(goomba[i]);
 
 		}
-		for (size_t i = 0; i < 40; i++)
+		for (size_t i = 0; i < 26; i++)
 		{
 			window.draw(coin[i]);
 		}
-		for (size_t i = 0; i < 10; i++)
+		for (size_t i = 0; i < 8; i++)
 		{
 			window.draw(block2[i]);
+
+			window.draw(block[i]);
+		}
+		for (size_t i = 0; i < 8; i++)
+		{
+			
 
 			window.draw(block[i]);
 		}
@@ -928,7 +947,7 @@ void coin_motion() {
 // high score calculation function
 //local val score
 void calHighScore(int score, int currentplayer) {
-	
+
 	if (score > hs[currentplayer - 1].HighScore) {
 		hs[currentplayer - 1].HighScore = score;
 
@@ -1044,7 +1063,10 @@ void pipecollision() {
 		else { canmoveleft = 0; }
 	}
 
+	else if (player.getPosition().x < 25) {
 
+		canmoveleft = 0;
+	}
 
 
 
@@ -1077,7 +1099,7 @@ void die() {
 			calHighScore(scores, playerNum);
 			playerHpoints.setString("High Score: " + to_string(hs[playerNum - 1].HighScore));
 			EndScore.setString("Score : " + to_string(scores));
-			
+
 		}
 		EnemyDied = 1;
 
@@ -1128,7 +1150,7 @@ void mouseclick() {
 		if ((mousePressed.x > 23 && mousePressed.x < 300 && mousePressed.y>120 && mousePressed.y < 205 && show)) {
 
 			menuOptions = 2;
-			
+
 			//calling function of calculating high score
 			calHighScore(scores, playerNum);
 			Sort(playerNum);
@@ -1172,7 +1194,7 @@ void mouseclick() {
 	else if (Keyboard::isKeyPressed(Keyboard::Escape)) {
 		menuOptions = 0;
 		show = 1;
-		
+
 	}
 
 
@@ -1281,27 +1303,20 @@ void planten() {
 	}
 	plantanimation %= 2;
 
-	if (plant[3].getPosition().y == 190 || plant[3].getPosition().y == 340) {
+	if (plant[3].getPosition().y < 190 || plant[3].getPosition().y > 340) {
 
 		plantmotion *= -1;
 
 	}
 
 	plant[3].move(0, -plantmotion);
+	
 	for (size_t i = 5; i < 7; i++)
 	{
 		plant[i].move(0, -plantmotion);
 
 	}
-	for (size_t i = 5; i < 7; i++)
-	{
-		if (plant[i].getPosition().y < 190) {
-
-
-			plantmotion *= -1;
-		}
-
-	}
+	
 
 }
 
@@ -1418,7 +1433,11 @@ void block_collision() {
 		if (player.getGlobalBounds().intersects(block[i].getGlobalBounds()) && player.getPosition().y - 40 > block[i].getGlobalBounds().top + block[i].getGlobalBounds().height && player.getPosition().x > block[i].getGlobalBounds().left) {
 			velocityy = 0;
 			block[i].setTexture(block3tx);
+			sound.play();
 			block[i].setScale(0.1, 0.1);
+			scores++;
+			text.setString("score:" + to_string(scores));
+
 		}
 
 		if (player.getGlobalBounds().intersects(block2[i].getGlobalBounds()) && player.getPosition().y - 42 > block2[i].getGlobalBounds().top + block2[i].getGlobalBounds().height && player.getPosition().x > block2[i].getGlobalBounds().left) {
@@ -1496,7 +1515,7 @@ void reset(bool New) {
 		sky.setPosition(0, 0);
 		camera.setCenter(800 / 2, 485 / 2);
 		window.setView(camera);
-		
+
 
 
 	}
@@ -1505,4 +1524,14 @@ void reset(bool New) {
 		camera.setCenter(player.getPosition().x, player.getPosition().y + 250);
 		window.setView(camera);
 	}
+}
+void top_collision() {
+
+
+	if (player.getPosition().y < 0) {
+
+
+		player.setPosition(player.getPosition().x, 0);
+	}
+
 }
