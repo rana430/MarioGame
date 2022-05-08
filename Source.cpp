@@ -662,15 +662,15 @@ void coincollision() {
 
 
 int moveright() {
+	if (!show) {
+		velocityx = 2;
 
-	velocityx = 2;
-
-	player.setScale(3, 3);
-	if (framespeed.getElapsedTime().asSeconds() > 0.1) {
-		animationindicator++;
-		framespeed.restart();
+		player.setScale(3, 3);
+		if (framespeed.getElapsedTime().asSeconds() > 0.1) {
+			animationindicator++;
+			framespeed.restart();
+		}
 	}
-
 	return velocityx;
 }
 
@@ -688,18 +688,19 @@ int moveright() {
 
 //moveleft function
 void moveleft() {
-	velocityx = -2;
+	if (!show) {
+		velocityx = -2;
 
 
-	player.setScale(-3, 3);
+		player.setScale(-3, 3);
 
 
-	if (framespeed.getElapsedTime().asSeconds() > 0.1) {
-		animationindicator++;
-		framespeed.restart();
+		if (framespeed.getElapsedTime().asSeconds() > 0.1) {
+			animationindicator++;
+			framespeed.restart();
+		}
+
 	}
-
-
 
 
 
@@ -711,11 +712,11 @@ void moveleft() {
 //jump function
 void jump() {
 
+	if (!show) {
+		velocityy = 8;
 
-	velocityy = 8;
 
-
-
+	}
 
 
 
