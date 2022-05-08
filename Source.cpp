@@ -33,6 +33,7 @@ bool canmoverigt = 1;
 bool canmoveleft = 1;
 bool space = 0;
 bool alive[3] = { 1,1,1 };
+bool blockq[8] = { 1,1,1,1,1,1,1,1 };
 bool show = 1;//bool to check if menu is displayed or not  1->cant click   0->can click
 bool Newgame = 0;//bool to reset the game and player postion
 bool Full = 0;//check number of players dont exceed 10 players
@@ -1429,13 +1430,16 @@ void movementandgravity() {
 }
 
 void block_collision() {
-	for (int i = 0; i < 12; i++) {
+	for (int i = 0; i < 8; i++) {
 		if (player.getGlobalBounds().intersects(block[i].getGlobalBounds()) && player.getPosition().y - 40 > block[i].getGlobalBounds().top + block[i].getGlobalBounds().height && player.getPosition().x > block[i].getGlobalBounds().left) {
 			velocityy = 0;
 			block[i].setTexture(block3tx);
 			sound.play();
 			block[i].setScale(0.1, 0.1);
-			scores++;
+			if (blockq[i]) {
+				scores++;
+			}
+			blockq[i] = 0;
 			text.setString("score:" + to_string(scores));
 
 		}
