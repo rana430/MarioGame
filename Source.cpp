@@ -33,7 +33,8 @@ bool canmoverigt = 1;
 bool canmoveleft = 1;
 bool space = 0;
 bool alive[3] = { 1,1,1 };
-bool show = 1;//bool to check if menu is displayed or not
+bool show = 1;//bool to check if menu is displayed or not  1->cant click   0->can click
+bool show2 = 1;//1->can click right or left  0-> cant click right or left 
 bool Newgame = 0;//bool to reset the game and player postion
 bool Full = 0;//check number of players dont exceed 10 players
 int pos;
@@ -662,7 +663,7 @@ void coincollision() {
 
 
 int moveright() {
-	if (!show) {
+	if (menuOptions == 1) {
 		velocityx = 2;
 
 		player.setScale(3, 3);
@@ -688,7 +689,7 @@ int moveright() {
 
 //moveleft function
 void moveleft() {
-	if (!show) {
+	if (menuOptions==1) {
 		velocityx = -2;
 
 
@@ -712,7 +713,7 @@ void moveleft() {
 //jump function
 void jump() {
 
-	if (!show) {
+	if (menuOptions == 1) {
 		velocityy = 8;
 
 
