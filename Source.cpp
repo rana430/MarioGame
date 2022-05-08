@@ -626,25 +626,26 @@ void won() {
 
 	//sky.setPosition(7800, 0);
 	velocityx = 0;
-
-	window.draw(sky);
-	if (winclock.getElapsedTime().asSeconds() > 2) {
-		camera.setCenter(800 / 2, 485 / 2);
-		window.setView(camera);
+	velocityy = 0;
+	if (winclock.getElapsedTime().asSeconds() > 2 ) {
+		
+		window.draw(sky);
 		window.draw(win);
-		window.close();
-
+		
+		
 	}
 	
-	/*if (winclock.getElapsedTime().asSeconds() > 4) {
-
-		menuOptions = 4;
-		window.draw(credit);
-		about.setPosition(350, 10);
-		window.draw(about);
-
+	if (winclock.getElapsedTime().asSeconds() > 5) {
 		
-	}*/
+		window.draw(credit);
+		window.draw(about);
+	}
+	if (winclock.getElapsedTime().asSeconds() > 8) {
+
+
+
+		window.close();
+	}
 
 
 }
