@@ -33,10 +33,11 @@ bool canmoverigt = 1;
 bool canmoveleft = 1;
 bool space = 0;
 bool alive[3] = { 1,1,1 };
-bool blockq[8] = { 1,1,1,1,1,1,1,1 };
 bool show = 1;//bool to check if menu is displayed or not  1->cant click   0->can click
 bool Newgame = 0;//bool to reset the game and player postion
 bool Full = 0;//check number of players dont exceed 10 players
+bool blockq[8] = { 1,1,1,1,1,1,1,1 };
+int highestscore = 0;
 int pos;
 int playerNum = 1;//number of palyers played the game
 int animationindicator = 0, plantanimation = 0, coinanimation = 0;
@@ -49,22 +50,17 @@ float velocityx = 0;
 float groundMotion = 1, ground2Motion = 1, goombaMotion = 0.45, goomba2Motion = 0.45, plantmotion = 0.5, coinmotion = 1, coin2motion = 1;
 Clock framespeed;
 //functions
-int moveright();
+bool Fullmessage(int, int);//function to display message when number of players exceed 10
 void moveleft();
 void jump();
 void pipecollision();
 void coin_animation();
-int detectground();
-int detectblock();
-int detectpipe();
 void calHighScore(int, int);
 void DiplayHighScore(int);//Displaying highscores function
 void structOrder();//Setting struct order for each player
 void MenuOptions(int);
 void read();
 void coincollision();
-void gamend();
-void coin_motion();
 void die();
 void groundmovement();
 void mouseclick();
@@ -74,15 +70,18 @@ void block_collision();
 void movementandgravity();
 void Swap(int& n1, int& n2, int& n3, int& n4);//function to swap high scores of two player and their orders
 void Sort(int);//function to sort players decsending according to their highscores
-bool Fullmessage(int, int);//function to display message when number of players exceed 10
+void reset(bool);
+void won();
+void top_collision();
+void calHighestscore();
 int detectblock();
 int detectblock2();
 int detectblock3();
 int detectblock33();
-void reset(bool);
-void won();
-void top_collision();
-
+int detectground();
+int detectblock();
+int detectpipe();
+int moveright();
 //end of functions
 Texture castletx;
 Sprite castle;
@@ -92,7 +91,7 @@ Sprite block[12];
 Texture block2tx;
 Sprite block2[12];
 Texture block4tx;
-Sprite block3[50];
+Sprite block3[40];
 Texture skytx;
 Sprite sky;
 Texture mario;
@@ -109,7 +108,7 @@ Sprite win;
 Texture coinx;
 Sprite coin[40];
 Texture cloudtx;
-Sprite	cloudi[10];
+Sprite	cloudi[40];
 Texture goombaTx;
 Sprite goomba[3];
 Sprite menu;//Menu wallpaper
@@ -129,10 +128,9 @@ Text point;//test of scores of players
 Text text;//Text to display the score of player
 Text Message;//text to display the message that number of palyers exceed the limit
 Text about;//text of credits
-Text gameovermessage;
 Text gameend;
 Text playerHpoints;
-Text HScore;
+Text HScore;//highest score during playing
 Text EndScore;//score of player at the end of the game
 Font font;
 Clock goombaClock, killg, plantclock, coinclock;
@@ -158,13 +156,20 @@ int main() {
 
 	structOrder();//Calling Struct order function
 	calHighScore(scores, playerNum);
+	calHighestscore();
+	for (size_t i = 0; i < 8; i++)
+	{
+		blockq[i] = 1;
+
+	}
+
 	//cloud
 	cloudtx.loadFromFile("cloud.png");
 
-	for (int i = 0; i < 10; i++) {
+	for (int i = 0; i < 40; i++) {
 		cloudi[i].setTexture(cloudtx);
 		cloudi[i].setScale(0.25, 0.25);
-		cloudi[i].setPosition(200 * i + 100, 50);
+		cloudi[i].setPosition(300 * i + 100, 50);
 	}
 	//end of cloud
 	//mario
@@ -232,10 +237,11 @@ int main() {
 	//player high score when game is over
 	playerHpoints.setFont(font);
 	playerHpoints.setFillColor(sf::Color(0, 0, 0, 180));
-	playerHpoints.setString("High Score: " + to_string(hs[playerNum - 1].HighScore));
+	playerHpoints.setString("High Score: " + to_string(highestscore));
 	playerHpoints.setCharacterSize(32);
 	calHighScore(scores, playerNum);
 	//end of player high score
+
 
 	//win
 
@@ -269,7 +275,7 @@ int main() {
 	//player high score during playing
 	HScore.setFont(font);
 	HScore.setFillColor(sf::Color(255, 255, 255, 180));
-	HScore.setString("High Score: " + to_string(hs[playerNum - 1].HighScore));
+	HScore.setString("High Score: " + to_string(highestscore));
 	HScore.setCharacterSize(32);
 	HScore.setPosition(600, 0);
 
@@ -353,52 +359,48 @@ int main() {
 	}
 
 	block4tx.loadFromFile("dblock.png");
-	for (int i = 0; i < 50; i++) {
+	for (int i = 0; i < 40; i++) {
 		block3[i].setTexture(block4tx);
 		block3[i].setScale(0.3, 0.3);
-	}
-	for (int i = 0; i < 5; i++) {
-		block3[i].setPosition(6710 + (i * 44), 362);
-	}
-	for (int i = 5; i < 9; i++) {
-		block3[i].setPosition(6754 + (i - 5) * 44, 314);
-	}
-	for (int i = 9; i < 12; i++) {
-		block3[i].setPosition(6798 + (i - 9) * 44, 266);
-	}
-	for (int i = 12; i < 14; i++) {
-		block3[i].setPosition(6842 + (i - 12) * 44, 218);
-	}
-	block3[14].setPosition(6886, 170);
 
-	for (int i = 15; i < 20; i++) {
-		block3[i].setPosition(7150 + (i - 15) * 44, 362);
 	}
-	for (int i = 20; i < 24; i++) {
-		block3[i].setPosition(7150 + (i - 20) * 44, 314);
+	for (int i = 0; i < 4; i++) {
+		block3[i].setPosition(6754 + (i * 44), 363);
 	}
-	for (int i = 24; i < 27; i++) {
-		block3[i].setPosition(7150 + (i - 24) * 44, 266);
+	for (int i = 4; i < 7; i++) {
+		block3[i].setPosition(6798 + (i - 4) * 44, 319);
 	}
-	for (int i = 27; i < 29; i++) {
-		block3[i].setPosition(7150 + (i - 27) * 44, 218);
+	for (int i = 7; i < 9; i++) {
+		block3[i].setPosition(6842 + (i - 7) * 44, 271);
 	}
-	block3[29].setPosition(7150, 170);
+	block3[9].setPosition(6886, 223);
 
-	for (int i = 30; i < 36; i++) {
-		block3[i].setPosition(7800 + (i - 30) * 44, 362);
+	for (int i = 10; i < 14; i++) {
+		block3[i].setPosition(7150 + (i - 10) * 44, 362);
 	}
-	for (int i = 36; i < 41; i++) {
-		block3[i].setPosition(7844 + (i - 36) * 44, 314);
+	for (int i = 14; i < 17; i++) {
+		block3[i].setPosition(7150 + (i - 14) * 44, 314);
 	}
-	for (int i = 41; i < 45; i++) {
-		block3[i].setPosition(7888 + (i - 41) * 44, 266);
+	for (int i = 17; i < 19; i++) {
+		block3[i].setPosition(7150 + (i - 17) * 44, 266);
 	}
-	for (int i = 45; i < 48; i++) {
-		block3[i].setPosition(7932 + (i - 45) * 44, 218);
+	
+	block3[19].setPosition(7150, 218);
+
+	for (int i = 20; i < 26; i++) {
+		block3[i].setPosition(7800 + (i - 20) * 44, 362);
 	}
-	for (int i = 48; i < 50; i++) {
-		block3[i].setPosition(7976 + (i - 48) * 44, 170);
+	for (int i = 26; i < 31; i++) {
+		block3[i].setPosition(7844 + (i - 26) * 44, 314);
+	}
+	for (int i = 31; i < 35; i++) {
+		block3[i].setPosition(7888 + (i - 31) * 44, 266);
+	}
+	for (int i = 35; i < 38; i++) {
+		block3[i].setPosition(7932 + (i - 35) * 44, 218);
+	}
+	for (int i = 38; i < 40; i++) {
+		block3[i].setPosition(7976 + (i - 38) * 44, 170);
 	}
 
 
@@ -607,7 +609,7 @@ int main() {
 			Data.move(velocityx, 0);
 			point.move(velocityx, 0);
 			gameOver.move(velocityx, 0);
-			gameovermessage.move(velocityx, 0);
+			
 			playerHpoints.move(velocityx, 0);
 			
 			
@@ -626,14 +628,23 @@ void won() {
 	velocityx = 0;
 
 	window.draw(sky);
-	window.draw(win);
-
-	if (winclock.getElapsedTime().asSeconds() > 3) {
-
-
-
+	if (winclock.getElapsedTime().asSeconds() > 2) {
+		camera.setCenter(800 / 2, 485 / 2);
+		window.setView(camera);
+		window.draw(win);
 		window.close();
+
 	}
+	
+	/*if (winclock.getElapsedTime().asSeconds() > 4) {
+
+		menuOptions = 4;
+		window.draw(credit);
+		about.setPosition(350, 10);
+		window.draw(about);
+
+		
+	}*/
 
 
 }
@@ -778,7 +789,7 @@ int detectpipe() {
 }
 //Seting Struct Order
 void structOrder() {
-	for (int i = 0; i < 10; i++) {
+	for (int i = 0; i < num; i++) {
 		hs[i].playerOrder = i + 1;
 
 
@@ -796,7 +807,7 @@ void MenuOptions(int n) {
 		window.setView(camera);
 
 		window.draw(sky);
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < 40; i++) {
 			window.draw(cloudi[i]);
 		}
 		window.draw(text);
@@ -825,7 +836,7 @@ void MenuOptions(int n) {
 
 			window.draw(block[i]);
 		}
-		for (size_t i = 0; i < 50; i++)
+		for (size_t i = 0; i < 40; i++)
 		{
 			window.draw(block3[i]);
 		}
@@ -1055,8 +1066,7 @@ void pipecollision() {
 
 	}
 
-
-	else if ((player.getGlobalBounds().intersects(block2[detectblock2()].getGlobalBounds()) && block2[detectblock2()].getPosition().x < player.getPosition().x)) {
+	else if ((player.getGlobalBounds().intersects(block2[detectblock2()].getGlobalBounds()) && block2[detectblock2()].getPosition().x > player.getPosition().x)) {
 
 		if (block2[detectblock2()].getGlobalBounds().top > (player.getPosition().y + 42)) {
 			canmoveleft = 1;
@@ -1098,7 +1108,8 @@ void die() {
 			window.draw(EndScore);
 			window.draw(playerHpoints);
 			calHighScore(scores, playerNum);
-			playerHpoints.setString("High Score: " + to_string(hs[playerNum - 1].HighScore));
+			calHighestscore();
+			playerHpoints.setString("High Score: " + to_string(highestscore));
 			EndScore.setString("Score : " + to_string(scores));
 
 		}
@@ -1187,6 +1198,7 @@ void mouseclick() {
 			scores = 0;
 			life = 4;
 			sky.setPosition(0, 0);
+			
 			main();
 
 
@@ -1237,7 +1249,8 @@ void goombaa() {
 				goomba[i].setTextureRect(IntRect(420, 0, 165, 161));
 				killg.restart();
 				a[i] = 1;
-
+				scores += 5;
+					text.setString("score:" + to_string(scores));
 			}
 			else {
 				sky.setPosition(-1200, -300);
@@ -1434,10 +1447,11 @@ void block_collision() {
 		if (player.getGlobalBounds().intersects(block[i].getGlobalBounds()) && player.getPosition().y - 40 > block[i].getGlobalBounds().top + block[i].getGlobalBounds().height && player.getPosition().x > block[i].getGlobalBounds().left) {
 			velocityy = 0;
 			block[i].setTexture(block3tx);
-			sound.play();
+		
 			block[i].setScale(0.1, 0.1);
 			if (blockq[i]) {
 				scores++;
+				sound.play();
 			}
 			blockq[i] = 0;
 			text.setString("score:" + to_string(scores));
@@ -1488,7 +1502,7 @@ int detectblock2() {
 int detectblock3() {
 	int m = 0;
 	int n = 0;
-	for (int i = 0; i < 50; i++) {
+	for (int i = 0; i < 40; i++) {
 		if (player.getGlobalBounds().intersects(block3[i].getGlobalBounds())) {
 
 			m = i;
@@ -1499,7 +1513,7 @@ int detectblock3() {
 int detectblock33() {
 	int m = 0;
 	int n = 0;
-	for (int i = 0; i < 50; i++) {
+	for (int i = 0; i < 40; i++) {
 		if (player.getGlobalBounds().intersects(block3[i].getGlobalBounds()) && player.getPosition().x + 22 <= block3[i].getGlobalBounds().left) {
 
 			m = i;
@@ -1533,9 +1547,16 @@ void top_collision() {
 
 
 	if (player.getPosition().y < 0) {
-
-
 		player.setPosition(player.getPosition().x, 0);
+
 	}
 
+}
+//calclation of highest score
+void calHighestscore() {
+	for (int i = 0; i < playerNum; i++) {
+		if (highestscore < hs[i].HighScore) {
+			highestscore = hs[i].HighScore;
+		}
+	}
 }
