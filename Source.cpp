@@ -928,7 +928,7 @@ void coin_motion() {
 // high score calculation function
 //local val score
 void calHighScore(int score, int currentplayer) {
-	//hs[currentplayer - 1].HighScore = score;
+	
 	if (score > hs[currentplayer - 1].HighScore) {
 		hs[currentplayer - 1].HighScore = score;
 
@@ -1130,7 +1130,7 @@ void mouseclick() {
 			menuOptions = 2;
 			
 			//calling function of calculating high score
-			//calHighScore(scores, playerNum);
+			calHighScore(scores, playerNum);
 			Sort(playerNum);
 
 			show = 0;
