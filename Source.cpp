@@ -50,10 +50,9 @@ float velocityx = 0;
 float groundMotion = 1, ground2Motion = 1, goombaMotion = 0.45, goomba2Motion = 0.45, plantmotion = 0.5, coinmotion = 1, coin2motion = 1;
 Clock framespeed;
 //functions
-bool Fullmessage(int, int);//function to display message when number of players exceed 10
+bool Fullmessage(int, int);//function to display message when number of players exceed 10 
 void moveleft();
-void jump();
-void pipecollision();
+void collision();
 void coin_animation();
 void calHighScore(int, int);
 void DiplayHighScore(int);//Displaying highscores function
@@ -79,7 +78,6 @@ int detectblock2();
 int detectblock3();
 int detectblock33();
 int detectground();
-int detectblock();
 int detectpipe();
 int moveright();
 //end of functions
@@ -548,7 +546,7 @@ int main() {
 
 			//Pipe and ground collsion
 
-			pipecollision();
+			collision();
 
 			//end of pipe collision
 
@@ -821,7 +819,7 @@ void MenuOptions(int n) {
 			window.draw(goomba[i]);
 
 		}
-		for (size_t i = 0; i < 26; i++)
+		for (size_t i = 0; i < 27; i++)
 		{
 			window.draw(coin[i]);
 		}
@@ -928,35 +926,6 @@ void coin_animation() {
 
 
 
-void coin_motion() {
-
-	for (int i = 11; i < 15; i++) {
-		if (coin[i].getPosition().y == 100 || coin[i].getPosition().y == 400) {
-			coinmotion *= -1;
-		}
-		coin[i].move(0, coinmotion);
-	}
-	for (int i = 19; i < 23; i++) {
-		if (coin[i].getPosition().y == 100 || coin[i].getPosition().y == 400) {
-			coinmotion *= -1;
-		}
-		coin[i].move(0, coinmotion);
-	}
-
-
-	for (int i = 15; i < 19; i++) {
-
-		if (coin[i].getPosition().y == 100 || coin[i].getPosition().y == 400) {
-			coin2motion *= -1;
-		}
-		coin[i].move(0, coin2motion);
-	}
-
-
-
-
-}
-
 // high score calculation function
 //local val score
 void calHighScore(int score, int currentplayer) {
@@ -1015,7 +984,7 @@ bool Fullmessage(int n, int limit) {
 
 
 
-void pipecollision() {
+void collision() {
 
 
 
@@ -1066,14 +1035,14 @@ void pipecollision() {
 
 
 	}
-
-	else if ((player.getGlobalBounds().intersects(block2[detectblock2()].getGlobalBounds()) && block2[detectblock2()].getPosition().x > player.getPosition().x)) {
+	else if ((player.getGlobalBounds().intersects(block2[detectblock2()].getGlobalBounds()) && block2[detectblock2()].getPosition().x < player.getPosition().x)) {
 
 		if (block2[detectblock2()].getGlobalBounds().top > (player.getPosition().y + 42)) {
 			canmoveleft = 1;
 		}
 		else { canmoveleft = 0; }
 	}
+	
 
 	else if (player.getPosition().x < 25) {
 
@@ -1445,10 +1414,10 @@ void movementandgravity() {
 
 void block_collision() {
 	for (int i = 0; i < 8; i++) {
-		if (player.getGlobalBounds().intersects(block[i].getGlobalBounds()) && player.getPosition().y - 40 > block[i].getGlobalBounds().top + block[i].getGlobalBounds().height && player.getPosition().x > block[i].getGlobalBounds().left) {
+		if (player.getGlobalBounds().intersects(block[i].getGlobalBounds()) && player.getPosition().y - 40 > block[i].getGlobalBounds().top + block[i].getGlobalBounds().height && player.getPosition().x > block[i].getGlobalBounds().left && player.getPosition().x < block[i].getGlobalBounds().left + block[i].getGlobalBounds().width) {
 			velocityy = 0;
 			block[i].setTexture(block3tx);
-		
+
 			block[i].setScale(0.1, 0.1);
 			if (blockq[i]) {
 				scores++;
@@ -1458,11 +1427,14 @@ void block_collision() {
 			text.setString("score:" + to_string(scores));
 
 		}
+		else if(player.getGlobalBounds().intersects(block[i].getGlobalBounds()) && player.getPosition().y - 40 > block[i].getGlobalBounds().top + block[i].getGlobalBounds().height) { velocityy = 0; }
 
-		if (player.getGlobalBounds().intersects(block2[i].getGlobalBounds()) && player.getPosition().y - 42 > block2[i].getGlobalBounds().top + block2[i].getGlobalBounds().height && player.getPosition().x > block2[i].getGlobalBounds().left) {
+		if (player.getGlobalBounds().intersects(block2[i].getGlobalBounds()) && player.getPosition().y - 42 > block2[i].getGlobalBounds().top + block2[i].getGlobalBounds().height && player.getPosition().x > block2[i].getGlobalBounds().left && player.getPosition().x < block2[i].getGlobalBounds().left + block2[i].getGlobalBounds().width) {
 			block2[i].setScale(0, 0);
 			velocityy = 0;
 		}
+		else if (player.getGlobalBounds().intersects(block2[i].getGlobalBounds()) && player.getPosition().y - 40 > block2[i].getGlobalBounds().top + block2[i].getGlobalBounds().height) { velocityy = 0; }
+
 
 	}
 }
@@ -1547,9 +1519,8 @@ void reset(bool New) {
 void top_collision() {
 
 
-	if (player.getPosition().y < 0) {
+	if (player.getPosition().y  < 0) {
 		player.setPosition(player.getPosition().x, 0);
-
 	}
 
 }
